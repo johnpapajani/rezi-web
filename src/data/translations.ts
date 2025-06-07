@@ -85,6 +85,59 @@ export const translations: Translations = {
     'footer.cookies': 'Cookies',
     'footer.description': 'Platforma moderne e rezervimeve për bizneset shqiptare. Menaxho rezervimet tuaja me lehtësi dhe profesionalizëm.',
     'footer.rights': 'Të gjitha të drejtat e rezervuara.',
+
+    // Authentication
+    'auth.fields.email': 'Email',
+    'auth.fields.phone': 'Telefon',
+    'auth.fields.password': 'Fjalëkalim',
+    'auth.fields.confirmPassword': 'Konfirmo Fjalëkalim',
+    'auth.placeholders.email': 'Email-i juaj',
+    'auth.placeholders.phone': 'Numri i telefonit (opsional)',
+    'auth.placeholders.password': 'Fjalëkalimi juaj',
+    'auth.placeholders.confirmPassword': 'Konfirmoni fjalëkalimin',
+    'auth.optional': 'opsional',
+
+    // Sign Up
+    'auth.signUp.title': 'Krijo Llogari',
+    'auth.signUp.subtitle': 'Tashmë ke llogari?',
+    'auth.signUp.signInLink': 'Hyr këtu',
+    'auth.signUp.submit': 'Regjistrohu',
+    'auth.signUp.submitting': 'Duke u regjistruar...',
+
+    // Sign In
+    'auth.signIn.title': 'Hyr në Llogari',
+    'auth.signIn.subtitle': 'Nuk ke llogari ende?',
+    'auth.signIn.signUpLink': 'Regjistrohu këtu',
+    'auth.signIn.submit': 'Hyr',
+    'auth.signIn.submitting': 'Duke hyrë...',
+    'auth.signIn.forgotPassword': 'Harrove fjalëkalimin?',
+    'auth.signIn.demoAccount': 'Përdor llogarinë demo:',
+
+    // Errors
+    'auth.errors.emailRequired': 'Email-i është i detyrueshëm',
+    'auth.errors.emailInvalid': 'Email-i nuk është i vlefshëm',
+    'auth.errors.passwordRequired': 'Fjalëkalimi është i detyrueshëm',
+    'auth.errors.passwordTooShort': 'Fjalëkalimi duhet të ketë të paktën 6 karaktere',
+    'auth.errors.confirmPasswordRequired': 'Konfirmimi i fjalëkalimit është i detyrueshëm',
+    'auth.errors.passwordsDoNotMatch': 'Fjalëkalimet nuk përputhen',
+    'auth.errors.phoneInvalid': 'Numri i telefonit nuk është i vlefshëm',
+
+    // Dashboard
+    'dashboard.welcome': 'Mirë se erdhe',
+    'dashboard.subtitle': 'Këtu është një pamje e përgjithshme e biznesit tuaj',
+    'dashboard.signOut': 'Dil',
+    'dashboard.stats.businesses': 'Biznese',
+    'dashboard.stats.bookings': 'Rezervime',
+    'dashboard.stats.revenue': 'Të Ardhura',
+    'dashboard.stats.customers': 'Klientë',
+    'dashboard.gettingStarted.title': 'Fillo të punosh',
+    'dashboard.gettingStarted.description': 'Plotëso hapat e mëposhtme për të konfiguruar biznezin tuaj:',
+    'dashboard.gettingStarted.steps.business.title': 'Konfiguron biznezin',
+    'dashboard.gettingStarted.steps.business.description': 'Shto informacionet bazë të biznesit tuaj',
+    'dashboard.gettingStarted.steps.services.title': 'Shto shërbimet',
+    'dashboard.gettingStarted.steps.services.description': 'Krijo shërbimet që ofron biznezi juaj',
+    'dashboard.gettingStarted.steps.hours.title': 'Vendos oraret',
+    'dashboard.gettingStarted.steps.hours.description': 'Konfiguron oraret e punës dhe disponueshmërinë',
   },
   en: {
     // Header & Navigation
@@ -170,5 +223,58 @@ export const translations: Translations = {
     'footer.cookies': 'Cookies',
     'footer.description': 'Modern reservation platform for Albanian businesses. Manage your reservations with ease and professionalism.',
     'footer.rights': 'All rights reserved.',
+
+    // Authentication
+    'auth.fields.email': 'Email',
+    'auth.fields.phone': 'Phone',
+    'auth.fields.password': 'Password',
+    'auth.fields.confirmPassword': 'Confirm Password',
+    'auth.placeholders.email': 'Your email',
+    'auth.placeholders.phone': 'Phone number (optional)',
+    'auth.placeholders.password': 'Your password',
+    'auth.placeholders.confirmPassword': 'Confirm your password',
+    'auth.optional': 'optional',
+
+    // Sign Up
+    'auth.signUp.title': 'Create Account',
+    'auth.signUp.subtitle': 'Already have an account?',
+    'auth.signUp.signInLink': 'Sign in here',
+    'auth.signUp.submit': 'Sign Up',
+    'auth.signUp.submitting': 'Signing up...',
+
+    // Sign In
+    'auth.signIn.title': 'Sign In',
+    'auth.signIn.subtitle': "Don't have an account yet?",
+    'auth.signIn.signUpLink': 'Sign up here',
+    'auth.signIn.submit': 'Sign In',
+    'auth.signIn.submitting': 'Signing in...',
+    'auth.signIn.forgotPassword': 'Forgot password?',
+    'auth.signIn.demoAccount': 'Use demo account:',
+
+    // Errors
+    'auth.errors.emailRequired': 'Email is required',
+    'auth.errors.emailInvalid': 'Email is not valid',
+    'auth.errors.passwordRequired': 'Password is required',
+    'auth.errors.passwordTooShort': 'Password must be at least 6 characters',
+    'auth.errors.confirmPasswordRequired': 'Password confirmation is required',
+    'auth.errors.passwordsDoNotMatch': 'Passwords do not match',
+    'auth.errors.phoneInvalid': 'Phone number is not valid',
+
+    // Dashboard
+    'dashboard.welcome': 'Welcome',
+    'dashboard.subtitle': 'Here is an overview of your business',
+    'dashboard.signOut': 'Sign Out',
+    'dashboard.stats.businesses': 'Businesses',
+    'dashboard.stats.bookings': 'Bookings',
+    'dashboard.stats.revenue': 'Revenue',
+    'dashboard.stats.customers': 'Customers',
+    'dashboard.gettingStarted.title': 'Getting Started',
+    'dashboard.gettingStarted.description': 'Complete the following steps to set up your business:',
+    'dashboard.gettingStarted.steps.business.title': 'Set up business',
+    'dashboard.gettingStarted.steps.business.description': 'Add your basic business information',
+    'dashboard.gettingStarted.steps.services.title': 'Add services',
+    'dashboard.gettingStarted.steps.services.description': 'Create the services your business offers',
+    'dashboard.gettingStarted.steps.hours.title': 'Set hours',
+    'dashboard.gettingStarted.steps.hours.description': 'Configure your working hours and availability',
   }
 }; 

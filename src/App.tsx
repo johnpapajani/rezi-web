@@ -1,29 +1,37 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './hooks/useTranslation';
-import Header from './components/layout/Header';
-import Hero from './components/sections/Hero';
-import Features from './components/sections/Features';
-import HowItWorks from './components/sections/HowItWorks';
-import Testimonials from './components/sections/Testimonials';
-import Pricing from './components/sections/Pricing';
-import FAQ from './components/sections/FAQ';
-import Footer from './components/layout/Footer';
+import { AuthProvider } from './hooks/useAuth';
+import LandingPage from './components/pages/LandingPage';
+import SignUp from './components/auth/SignUp';
+import SignIn from './components/auth/SignIn';
+import Dashboard from './components/dashboard/Dashboard';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
   return (
     <LanguageProvider>
-      <div className="App">
-        <Header />
-        <main>
-          <Hero />
-          <Features />
-          <HowItWorks />
-          <Testimonials />
-          <Pricing />
-          <FAQ />
-        </main>
-        <Footer />
-      </div>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              {/* Redirect any unknown routes to home */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
     </LanguageProvider>
   );
 }

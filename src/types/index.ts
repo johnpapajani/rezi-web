@@ -41,4 +41,41 @@ export interface FAQ {
   id: number;
   question: string;
   answer: string;
+}
+
+// Authentication types
+export interface User {
+  id: string;
+  email: string;
+  phone?: string;
+  locale: string;
+  is_active: boolean;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  user_id: string;
+  email: string;
+  phone?: string;
+  locale: string;
+  is_active: boolean;
+}
+
+export interface SignUpData {
+  email: string;
+  password: string;
+  phone?: string;
+  locale: string;
+  is_active: boolean;
+}
+
+export interface SignInData {
+  username: string; // email
+  password: string;
+}
+
+export interface ApiError {
+  detail: string;
 } 

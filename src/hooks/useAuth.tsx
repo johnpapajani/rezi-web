@@ -1,0 +1,117 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User, AuthResponse, SignUpData, SignInData } from '../types';
+import { authApi, tokenStorage } from '../utils/api';
+
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  signUp: (data: SignUpData) => Promise<void>;
+  signIn: (data: SignInData) => Promise<void>;
+  signOut: () => void;
+  error: string | null;
+  clearError: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const isAuthenticated = !!user && !!tokenStorage.getAccessToken();
+
+  // Initialize auth state on mount
+  useEffect(() => {
+    const initializeAuth = () => {
+      const savedUser = tokenStorage.getUser();
+      const accessToken = tokenStorage.getAccessToken();
+      
+      if (savedUser && accessToken) {
+        setUser(savedUser);
+      }
+      
+      setIsLoading(false);
+    };
+
+    initializeAuth();
+  }, []);
+
+  const handleAuthResponse = (response: AuthResponse) => {
+    const userData: User = {
+      id: response.user_id,
+      email: response.email,
+      phone: response.phone,
+      locale: response.locale,
+      is_active: response.is_active,
+    };
+
+    setUser(userData);
+    tokenStorage.setTokens(response.access_token, response.refresh_token);
+    tokenStorage.setUser(userData);
+  };
+
+  const signUp = async (data: SignUpData) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await authApi.signUp(data);
+      handleAuthResponse(response);
+    } catch (err: any) {
+      setError(err.detail || 'Sign up failed');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signIn = async (data: SignInData) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await authApi.signIn(data);
+      handleAuthResponse(response);
+    } catch (err: any) {
+      setError(err.detail || 'Sign in failed');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signOut = () => {
+    setUser(null);
+    tokenStorage.clearTokens();
+    setError(null);
+  };
+
+  const clearError = () => {
+    setError(null);
+  };
+
+  const value = {
+    user,
+    isLoading,
+    isAuthenticated,
+    signUp,
+    signIn,
+    signOut,
+    error,
+    clearError,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}; 

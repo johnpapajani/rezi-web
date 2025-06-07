@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bars3Icon, 
@@ -7,11 +8,17 @@ import {
   GlobeAltIcon
 } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useAuth } from '../../hooks/useAuth';
 
 const Header: React.FC = () => {
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
+  const { isAuthenticated, signOut } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+
+  const isLandingPage = location.pathname === '/';
 
   const navItems = [
     { key: 'nav.features', href: '#features' },
@@ -21,9 +28,26 @@ const Header: React.FC = () => {
   ];
 
   const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    if (isLandingPage) {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // If not on landing page, navigate to landing page first
+      navigate('/' + href);
+    }
+    setIsMenuOpen(false);
+  };
+
+  const handleAuthAction = (action: 'login' | 'signup' | 'logout') => {
+    if (action === 'logout') {
+      signOut();
+      navigate('/');
+    } else if (action === 'login') {
+      navigate('/signin');
+    } else if (action === 'signup') {
+      navigate('/signup');
     }
     setIsMenuOpen(false);
   };
@@ -34,28 +58,30 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <div className="flex items-center">
+            <Link to="/" className="flex items-center">
               <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">R</span>
               </div>
               <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Rezi
               </span>
-            </div>
+            </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            {navItems.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => scrollToSection(item.href)}
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-              >
-                {t(item.key)}
-              </button>
-            ))}
-          </nav>
+          {/* Desktop Navigation - Only show on landing page */}
+          {isLandingPage && (
+            <nav className="hidden md:flex space-x-8">
+              {navItems.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => scrollToSection(item.href)}
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
+                >
+                  {t(item.key)}
+                </button>
+              ))}
+            </nav>
+          )}
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
@@ -100,12 +126,29 @@ const Header: React.FC = () => {
               </AnimatePresence>
             </div>
 
-            <button className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-              {t('nav.login')}
-            </button>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-              {t('nav.signup')}
-            </button>
+            {isAuthenticated ? (
+              <button 
+                onClick={() => handleAuthAction('logout')}
+                className="text-gray-700 hover:text-red-600 font-medium transition-colors"
+              >
+                {t('dashboard.signOut')}
+              </button>
+            ) : (
+              <>
+                <button 
+                  onClick={() => handleAuthAction('login')}
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
+                  {t('nav.login')}
+                </button>
+                <button 
+                  onClick={() => handleAuthAction('signup')}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  {t('nav.signup')}
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -134,7 +177,8 @@ const Header: React.FC = () => {
             className="md:hidden bg-white border-t border-gray-100"
           >
             <div className="px-4 py-4 space-y-4">
-              {navItems.map((item) => (
+              {/* Navigation items - only show on landing page */}
+              {isLandingPage && navItems.map((item) => (
                 <button
                   key={item.key}
                   onClick={() => scrollToSection(item.href)}
@@ -165,12 +209,29 @@ const Header: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <button className="block w-full text-left text-gray-700 hover:text-blue-600 font-medium py-2">
-                    {t('nav.login')}
-                  </button>
-                  <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                    {t('nav.signup')}
-                  </button>
+                  {isAuthenticated ? (
+                    <button 
+                      onClick={() => handleAuthAction('logout')}
+                      className="block w-full text-left text-gray-700 hover:text-red-600 font-medium py-2"
+                    >
+                      {t('dashboard.signOut')}
+                    </button>
+                  ) : (
+                    <>
+                      <button 
+                        onClick={() => handleAuthAction('login')}
+                        className="block w-full text-left text-gray-700 hover:text-blue-600 font-medium py-2"
+                      >
+                        {t('nav.login')}
+                      </button>
+                      <button 
+                        onClick={() => handleAuthAction('signup')}
+                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      >
+                        {t('nav.signup')}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
