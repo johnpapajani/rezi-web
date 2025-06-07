@@ -78,4 +78,8 @@ export interface SignInData {
 
 export interface ApiError {
   detail: string;
+}
+
+export interface LogoutResponse {
+  message: string;
 } 

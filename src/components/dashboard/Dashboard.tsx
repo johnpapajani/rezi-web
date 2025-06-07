@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
 import { 
@@ -7,15 +7,18 @@ import {
   BuildingStorefrontIcon,
   CalendarDaysIcon,
   ChartBarIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  GlobeAltIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 
 const Dashboard: React.FC = () => {
   const { user, signOut } = useAuth();
-  const { t } = useTranslation();
+  const { t, currentLanguage, setLanguage, languages } = useTranslation();
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   return (
@@ -34,6 +37,47 @@ const Dashboard: React.FC = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Language Selector */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  <GlobeAltIcon className="w-5 h-5" />
+                  <span className="text-sm">
+                    {languages.find(lang => lang.code === currentLanguage)?.flag}
+                  </span>
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+
+                <AnimatePresence>
+                  {isLanguageOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                    >
+                      {languages.map((language) => (
+                        <button
+                          key={language.code}
+                          onClick={() => {
+                            setLanguage(language.code);
+                            setIsLanguageOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
+                            currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                          }`}
+                        >
+                          <span>{language.flag}</span>
+                          <span>{language.name}</span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <div className="flex items-center space-x-2">
                 <UserCircleIcon className="w-6 h-6 text-gray-400" />
                 <span className="text-sm text-gray-700">{user?.email}</span>

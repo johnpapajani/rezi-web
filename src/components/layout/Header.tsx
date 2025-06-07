@@ -40,9 +40,9 @@ const Header: React.FC = () => {
     setIsMenuOpen(false);
   };
 
-  const handleAuthAction = (action: 'login' | 'signup' | 'logout') => {
+  const handleAuthAction = async (action: 'login' | 'signup' | 'logout') => {
     if (action === 'logout') {
-      signOut();
+      await signOut();
       navigate('/');
     } else if (action === 'login') {
       navigate('/signin');

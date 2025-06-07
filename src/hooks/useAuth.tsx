@@ -80,10 +80,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signOut = () => {
-    setUser(null);
-    tokenStorage.clearTokens();
-    setError(null);
+  const signOut = async () => {
+    try {
+      const refreshToken = tokenStorage.getRefreshToken();
+      const accessToken = tokenStorage.getAccessToken();
+      
+      // Call backend logout endpoint if we have tokens
+      if (refreshToken && accessToken) {
+        try {
+          await authApi.logout(refreshToken, accessToken);
+        } catch (err) {
+          // Even if logout fails on the backend, we still want to clear local tokens
+          console.warn('Backend logout failed, but clearing local tokens:', err);
+        }
+      }
+    } catch (err) {
+      console.warn('Error during logout:', err);
+    } finally {
+      // Always clear local state regardless of backend response
+      setUser(null);
+      tokenStorage.clearTokens();
+      setError(null);
+    }
   };
 
   const clearError = () => {

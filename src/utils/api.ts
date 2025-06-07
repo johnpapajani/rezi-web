@@ -1,4 +1,4 @@
-import { AuthResponse, SignUpData, SignInData, ApiError } from '../types';
+import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -60,6 +60,19 @@ export const authApi = {
     });
     
     return handleResponse(response);
+  },
+
+  logout: async (refreshToken: string, accessToken: string): Promise<LogoutResponse> => {
+    const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+    
+    return handleResponse<LogoutResponse>(response);
   },
 };
 
