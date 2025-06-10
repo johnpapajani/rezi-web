@@ -1,4 +1,4 @@
-import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole } from '../types';
+import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -124,6 +124,24 @@ export const businessApi = {
     });
     
     return handleResponse<BusinessWithRole[]>(response);
+  },
+
+  createBusiness: async (businessData: BusinessCreate): Promise<Business> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(businessData),
+    });
+    
+    return handleResponse<Business>(response);
   },
 
   getBusiness: async (bizId: string): Promise<Business> => {

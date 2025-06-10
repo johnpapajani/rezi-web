@@ -93,7 +93,7 @@ const BusinessList: React.FC = () => {
                </div>
             </div>
                          <button
-               onClick={() => {/* In a real app, this would open a create business modal */}}
+               onClick={() => navigate('/business/create')}
                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
              >
                <PlusIcon className="w-4 h-4" />
@@ -158,13 +158,13 @@ const BusinessList: React.FC = () => {
             ))}
 
             {/* Add Business Card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-300 p-6 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center justify-center text-center"
-              onClick={() => {/* In a real app, this would open a create business modal */}}
-            >
+                         <motion.div
+               initial={{ opacity: 0, scale: 0.9 }}
+               animate={{ opacity: 1, scale: 1 }}
+               transition={{ delay: 0.2 }}
+               className="bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-300 p-6 hover:border-blue-300 transition-colors cursor-pointer flex flex-col items-center justify-center text-center"
+               onClick={() => navigate('/business/create')}
+             >
                              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
                  <PlusIcon className="w-6 h-6 text-gray-600" />
                </div>
@@ -184,7 +184,7 @@ const BusinessList: React.FC = () => {
                <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('business.list.empty.title')}</h3>
                <p className="text-gray-600 mb-6">{t('business.list.empty.description')}</p>
                <button
-                 onClick={() => {/* In a real app, this would open a create business modal */}}
+                 onClick={() => navigate('/business/create')}
                  className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mx-auto"
                >
                  <PlusIcon className="w-5 h-5" />

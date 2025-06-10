@@ -122,4 +122,18 @@ export enum BusinessRole {
 // Business with user role (for listing user's businesses)
 export interface BusinessWithRole extends Business {
   role: BusinessRole;
+}
+
+// Business creation (matches backend BusinessCreate schema)
+export interface BusinessCreate {
+  name: string;
+  slug: string;
+  currency?: string;
+  timezone?: string;
+  logo_url?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  postal_code?: string;
+  country_code?: string;
 } 

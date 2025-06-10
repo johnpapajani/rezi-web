@@ -201,6 +201,24 @@ export const translations: Translations = {
     'dashboard.business.setupFirst': 'Konfiguron llogarinë e parë të biznesit',
     'dashboard.business.configureSingle': 'Konfiguron të dhënat, adresën dhe cilësimet e biznesit',
     'dashboard.business.manageCount': 'Menaxho {count} llogaritë e biznesit tuaj',
+
+    // Business Creation
+    'business.create.title': 'Krijo Biznes të Ri',
+    'business.create.subtitle': 'Konfiguron informacionet themelore të biznesit tuaj',
+    'business.create.creating': 'Duke krijuar biznesin...',
+    'business.create.create': 'Krijo Biznes',
+    'business.create.cancel': 'Anulo',
+    'business.create.success': 'Biznesi u krijua me sukses!',
+    'business.create.error.title': 'Gabim në Krijim',
+    'business.create.error.slugTaken': 'Slug-u është tashmë i zënë',
+    'business.create.error.slugEmpty': 'Slug-u nuk mund të jetë i zbrazët',
+    'business.create.fields.slug': 'Slug (URL e Biznesit)',
+    'business.create.fields.slug.placeholder': 'emri-i-biznesit-tuaj',
+    'business.create.fields.slug.help': 'Ky do të jetë pjesë e URL-së së biznesit tuaj',
+    'business.create.fields.countryCode': 'Kodi i Vendit',
+    'business.create.validation.nameRequired': 'Emri i biznesit është i detyrueshëm',
+    'business.create.validation.slugRequired': 'Slug-u është i detyrueshëm',
+    'business.create.validation.slugInvalid': 'Slug-u mund të përmbajë vetëm shkronja, numra dhe viza',
   },
   en: {
     // Header & Navigation
@@ -402,5 +420,23 @@ export const translations: Translations = {
     'dashboard.business.setupFirst': 'Set up your first business account',
     'dashboard.business.configureSingle': 'Configure your business details, address, and settings',
     'dashboard.business.manageCount': 'Manage your {count} business accounts',
+
+    // Business Creation
+    'business.create.title': 'Create New Business',
+    'business.create.subtitle': 'Set up your business information',
+    'business.create.creating': 'Creating business...',
+    'business.create.create': 'Create Business',
+    'business.create.cancel': 'Cancel',
+    'business.create.success': 'Business created successfully!',
+    'business.create.error.title': 'Error Creating Business',
+    'business.create.error.slugTaken': 'Slug is already taken',
+    'business.create.error.slugEmpty': 'Slug cannot be empty',
+    'business.create.fields.slug': 'Slug (Business URL)',
+    'business.create.fields.slug.placeholder': 'your-business-name',
+    'business.create.fields.slug.help': 'This will be part of your business URL',
+    'business.create.fields.countryCode': 'Country Code',
+    'business.create.validation.nameRequired': 'Business name is required',
+    'business.create.validation.slugRequired': 'Slug is required',
+    'business.create.validation.slugInvalid': 'Slug can only contain letters, numbers, and hyphens',
   }
 }; 

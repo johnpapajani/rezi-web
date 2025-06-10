@@ -8,6 +8,7 @@ import SignIn from './components/auth/SignIn';
 import Dashboard from './components/dashboard/Dashboard';
 import BusinessManagement from './components/pages/BusinessManagement';
 import BusinessList from './components/pages/BusinessList';
+import CreateBusiness from './components/pages/CreateBusiness';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
@@ -33,6 +34,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <BusinessList />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/business/create" 
+                element={
+                  <ProtectedRoute>
+                    <CreateBusiness />
                   </ProtectedRoute>
                 } 
               />

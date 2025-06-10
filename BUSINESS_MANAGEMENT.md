@@ -15,10 +15,12 @@ The business management feature allows users to configure and manage their busin
 
 ### 1. Business Types (`src/types/index.ts`)
 - `Business` interface - Complete business data structure
+- `BusinessCreate` interface - Structure for creating new businesses
 - `BusinessUpdate` interface - Partial update structure for PATCH requests
 
 ### 2. Business API (`src/utils/api.ts`)
 - `businessApi.listUserBusinesses()` - Fetch all user's businesses with roles
+- `businessApi.createBusiness(businessData)` - Create a new business
 - `businessApi.getBusiness(bizId)` - Fetch business details
 - `businessApi.updateBusiness(bizId, updates)` - Update business information
 
@@ -26,28 +28,43 @@ The business management feature allows users to configure and manage their busin
 - `useBusiness()` (`src/hooks/useBusiness.tsx`) - Manage individual business data
   - Handles loading states, error handling, and updates
   - Provides `business`, `loading`, `error`, `updating`, `updateBusiness`, and `refetch`
+- `useBusinessCreate()` (`src/hooks/useBusinessCreate.tsx`) - Manage business creation
+  - Handles business creation with validation and error handling
+  - Provides `creating`, `error`, `createBusiness`, and `clearError`
 - `useUserBusinesses()` (`src/hooks/useUserBusinesses.tsx`) - Manage user's business list
   - Fetches all businesses with user roles
   - Provides `businesses`, `loading`, `error`, and `refetch`
 
-### 4. Business Management Page (`src/components/pages/BusinessManagement.tsx`)
+### 4. Business Creation Page (`src/components/pages/CreateBusiness.tsx`)
+- Comprehensive form for creating new businesses
+- Auto-generates URL slug from business name with validation
+- Organized into sections: Basic Information, Regional Settings, Address Information
+- Real-time validation and error handling with backend-specific errors (slug conflicts)
+- Success/error notifications
+- Automatically redirects to new business management page after creation
+- Makes creator the business owner
+- Responsive design with Tailwind CSS
+
+### 5. Business Management Page (`src/components/pages/BusinessManagement.tsx`)
 - Comprehensive form for editing business details
 - Organized into sections: Basic Information, Regional Settings, Address Information
 - Real-time validation and error handling
 - Success/error notifications
 - Responsive design with Tailwind CSS
 
-### 5. Business List Page (`src/components/pages/BusinessList.tsx`)
+### 6. Business List Page (`src/components/pages/BusinessList.tsx`)
 - Real-time overview of all user businesses from API
 - Displays user role for each business (Owner, Manager, Employee)
 - Quick access to manage individual businesses
+- "Create New Business" button for business creation
 - Handles loading and error states
 - Card-based layout with business previews and role badges
-- Empty state when no businesses exist
+- Empty state with call-to-action to create first business
 
 ## Routes Added
 
 - `/businesses` - List all user businesses
+- `/business/create` - Create a new business
 - `/business/:bizId` - Manage specific business details
 
 ## Backend Integration
@@ -58,6 +75,11 @@ The frontend integrates with the following backend endpoints:
 # List user's businesses with roles
 GET /business/
 Response: List[BusinessWithRole]
+
+# Create a new business
+POST /business/
+Body: BusinessCreate schema
+Response: BusinessOut schema (201 status)
 
 # Get business details
 GET /business/{biz_id}
@@ -72,9 +94,10 @@ Response: BusinessOut schema
 ## Usage
 
 1. **Access from Dashboard**: Click on the business stats card or "Manage Business" in the getting started section
-2. **Business List**: View all businesses and select one to manage
-3. **Business Management**: Edit business details using the comprehensive form
-4. **Save Changes**: Only modified fields are sent to the backend for efficiency
+2. **Business List**: View all businesses and select one to manage, or create a new business
+3. **Business Creation**: Create a new business with automatic slug generation and validation
+4. **Business Management**: Edit business details using the comprehensive form
+5. **Save Changes**: Only modified fields are sent to the backend for efficiency
 
 ## Features
 
@@ -101,6 +124,7 @@ The business management system is fully translatable and supports:
 
 ### Translation Keys Added
 
+- `business.create.*` - Business creation page translations
 - `business.management.*` - Business management page translations
 - `business.sections.*` - Form section titles
 - `business.fields.*` - Form field labels and placeholders
@@ -110,10 +134,11 @@ The business management system is fully translatable and supports:
 
 ## Future Enhancements
 
-- Business creation functionality
-- Image upload for logos
-- More comprehensive address validation
-- Business deletion/archiving
+- Image upload for logos with file handling
+- More comprehensive address validation with geocoding
+- Business deletion/archiving functionality
 - Multi-business switching in dashboard
 - Business analytics and insights
+- Team member management and invitations
+- Business settings and preferences
 - Additional language support (Italian, German, etc.) 

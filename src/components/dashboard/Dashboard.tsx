@@ -12,7 +12,8 @@ import {
   ArrowRightOnRectangleIcon,
   GlobeAltIcon,
   ChevronDownIcon,
-  CogIcon
+  CogIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 
 const Dashboard: React.FC = () => {
@@ -20,7 +21,7 @@ const Dashboard: React.FC = () => {
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const navigate = useNavigate();
-  const { businesses } = useUserBusinesses();
+  const { businesses, loading: businessesLoading, error: businessesError } = useUserBusinesses();
 
   const handleSignOut = async () => {
     await signOut();
@@ -101,6 +102,16 @@ const Dashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Business Loading Error */}
+        {businessesError && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
+              <span className="text-red-800 font-medium">Error loading businesses: {businessesError}</span>
+            </div>
+          </div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -123,7 +134,7 @@ const Dashboard: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:border-blue-300 transition-colors"
-              onClick={() => navigate('/businesses')}
+              onClick={() => !businessesLoading && navigate(businesses.length === 0 ? '/business/create' : '/businesses')}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -132,7 +143,13 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">{t('dashboard.stats.businesses')}</p>
-                    <p className="text-2xl font-semibold text-gray-900">{businesses.length}</p>
+                    <p className="text-2xl font-semibold text-gray-900">
+                      {businessesLoading ? (
+                        <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
+                      ) : (
+                        businesses.length
+                      )}
+                    </p>
                   </div>
                 </div>
                 <CogIcon className="w-5 h-5 text-gray-400 hover:text-blue-600 transition-colors" />
@@ -207,22 +224,29 @@ const Dashboard: React.FC = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div 
-                onClick={() => navigate('/businesses')}
+                onClick={() => !businessesLoading && navigate(businesses.length === 0 ? '/business/create' : '/businesses')}
                 className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer"
               >
                 <div className="flex items-center space-x-2 mb-2">
                   <CogIcon className="w-5 h-5 text-blue-600" />
                   <h3 className="font-medium text-gray-900">
-                    {businesses.length === 1 ? t('dashboard.business.manageSingle') : t('dashboard.business.manageMultiple')}
+                    {businessesLoading ? (
+                      <div className="animate-pulse bg-gray-200 h-4 w-24 rounded"></div>
+                    ) : (
+                      businesses.length === 1 ? t('dashboard.business.manageSingle') : t('dashboard.business.manageMultiple')
+                    )}
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  {businesses.length === 0 
-                    ? t('dashboard.business.setupFirst')
-                    : businesses.length === 1
-                    ? t('dashboard.business.configureSingle')
-                    : t('dashboard.business.manageCount').replace('{count}', businesses.length.toString())
-                  }
+                  {businessesLoading ? (
+                    <div className="animate-pulse bg-gray-200 h-3 w-48 rounded"></div>
+                  ) : (
+                    businesses.length === 0 
+                      ? t('dashboard.business.setupFirst')
+                      : businesses.length === 1
+                      ? t('dashboard.business.configureSingle')
+                      : t('dashboard.business.manageCount').replace('{count}', businesses.length.toString())
+                  )}
                 </p>
               </div>
               
