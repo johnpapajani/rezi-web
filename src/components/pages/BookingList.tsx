@@ -18,11 +18,13 @@ import {
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
 import { useBookings } from '../../hooks/useBookings';
+import { useTranslation } from '../../hooks/useTranslation';
 import { BookingWithService, BookingStatus, BookingFilters } from '../../types';
 
 const BookingList: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { bookings, loading, error, searchBookings, updateBookingStatus, cancelBooking } = useBookings({ bizId: bizId || '' });
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -93,7 +95,7 @@ const BookingList: React.FC = () => {
   };
 
   const handleCancelBooking = async (bookingId: string) => {
-    if (window.confirm('Are you sure you want to cancel this booking?')) {
+    if (window.confirm(t('bookings.list.confirmCancel'))) {
       try {
         await cancelBooking(bookingId);
       } catch (error) {
@@ -154,7 +156,7 @@ const BookingList: React.FC = () => {
           onClick={() => searchBookings()}
           className="text-blue-600 hover:text-blue-800"
         >
-          Try Again
+          {t('bookings.list.tryAgain')}
         </button>
       </div>
     );
@@ -174,8 +176,8 @@ const BookingList: React.FC = () => {
                 <ArrowLeftIcon className="w-5 h-5" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Booking Management</h1>
-                <p className="text-sm text-gray-600">Manage and track all your business reservations</p>
+                <h1 className="text-2xl font-bold text-gray-900">{t('bookings.list.title')}</h1>
+                <p className="text-sm text-gray-600">{t('bookings.list.subtitle')}</p>
               </div>
             </div>
           </div>
@@ -187,19 +189,25 @@ const BookingList: React.FC = () => {
                 onClick={() => navigate(`/business/${bizId}`)}
                 className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
               >
-                Settings
+                {t('business.dashboard.tabs.dashboard')}
+              </button>
+              <button
+                onClick={() => navigate(`/business/${bizId}/settings`)}
+                className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
+              >
+                {t('business.dashboard.tabs.settings')}
               </button>
               <button
                 onClick={() => navigate(`/business/${bizId}/bookings`)}
                 className="border-blue-500 text-blue-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
               >
-                Bookings
+                {t('business.dashboard.tabs.bookings')}
               </button>
               <button
                 onClick={() => navigate(`/business/${bizId}/calendar`)}
                 className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
               >
-                Calendar
+                {t('business.dashboard.tabs.calendar')}
               </button>
             </nav>
           </div>

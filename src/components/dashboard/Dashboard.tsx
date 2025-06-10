@@ -127,82 +127,6 @@ const Dashboard: React.FC = () => {
             </p>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:border-blue-300 transition-colors"
-              onClick={() => !businessesLoading && navigate(businesses.length === 0 ? '/business/create' : '/businesses')}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <BuildingStorefrontIcon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">{t('dashboard.stats.businesses')}</p>
-                    <p className="text-2xl font-semibold text-gray-900">
-                      {businessesLoading ? (
-                        <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
-                      ) : (
-                        businesses.length
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <CogIcon className="w-5 h-5 text-gray-400 hover:text-blue-600 transition-colors" />
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-            >
-              <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <CalendarDaysIcon className="w-6 h-6 text-green-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Active Businesses</p>
-                  <p className="text-2xl font-semibold text-gray-900">
-                    {businessesLoading ? (
-                      <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
-                    ) : (
-                      businesses.filter(b => b.role === 'owner' || b.role === 'manager').length
-                    )}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-            >
-              <div className="flex items-center">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <ChartBarIcon className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Locations</p>
-                  <p className="text-2xl font-semibold text-gray-900">
-                    {businessesLoading ? (
-                      <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
-                    ) : (
-                      new Set(businesses.map(b => b.city).filter(Boolean)).size || '0'
-                    )}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
           {/* Your Businesses */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -212,14 +136,14 @@ const Dashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">
-                Your Businesses
+                {t('dashboard.yourBusinesses.title')}
               </h2>
               <button
                 onClick={() => navigate('/business/create')}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <BuildingStorefrontIcon className="w-4 h-4 mr-2" />
-                Add Business
+                {t('dashboard.yourBusinesses.addBusiness')}
               </button>
             </div>
 
@@ -240,9 +164,9 @@ const Dashboard: React.FC = () => {
             ) : businesses.length === 0 ? (
               <div className="text-center py-12">
                 <BuildingStorefrontIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No businesses yet</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('dashboard.yourBusinesses.noBusinesses.title')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  Get started by creating your first business.
+                  {t('dashboard.yourBusinesses.noBusinesses.description')}
                 </p>
                 <div className="mt-6">
                   <button
@@ -250,7 +174,7 @@ const Dashboard: React.FC = () => {
                     className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     <BuildingStorefrontIcon className="w-4 h-4 mr-2" />
-                    Create Business
+                    {t('dashboard.yourBusinesses.createBusiness')}
                   </button>
                 </div>
               </div>
@@ -287,7 +211,7 @@ const Dashboard: React.FC = () => {
                         }}
                         className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                       >
-                        Bookings
+                        {t('dashboard.yourBusinesses.bookings')}
                       </button>
                       <button
                         onClick={(e) => {
@@ -296,7 +220,7 @@ const Dashboard: React.FC = () => {
                         }}
                         className="text-green-600 hover:text-green-800 text-sm font-medium"
                       >
-                        Calendar
+                        {t('dashboard.yourBusinesses.calendar')}
                       </button>
                     </div>
                   </motion.div>

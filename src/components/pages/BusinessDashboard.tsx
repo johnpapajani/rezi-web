@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CalendarDaysIcon,
   ChartBarIcon,
@@ -11,17 +11,23 @@ import {
   PlusIcon,
   ArrowTrendingUpIcon,
   ExclamationTriangleIcon,
+  GlobeAltIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { useBusiness } from '../../hooks/useBusiness';
 import { useBookings, useUpcomingBookings } from '../../hooks/useBookings';
+import { useTranslation } from '../../hooks/useTranslation';
 import UpcomingBookings from '../dashboard/UpcomingBookings';
 import { BookingStatus } from '../../types';
 
 const BusinessDashboard: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
   const navigate = useNavigate();
+  const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const { business, loading: businessLoading, error: businessError } = useBusiness({ bizId: bizId || '' });
   const { bookings, loading: bookingsLoading, searchBookings } = useBookings({ bizId: bizId || '' });
+  
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
   // Load recent bookings (last 30 days)
   useEffect(() => {
@@ -62,13 +68,13 @@ const BusinessDashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <ExclamationTriangleIcon className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Business ID Required</h2>
-          <p className="text-gray-600 mb-4">A valid business ID is required to view this dashboard.</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('business.dashboard.error.businessIdRequired')}</h2>
+          <p className="text-gray-600 mb-4">{t('business.dashboard.error.businessIdRequiredDesc')}</p>
           <button
             onClick={() => navigate('/dashboard')}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
-            Return to Dashboard
+            {t('business.dashboard.error.return')}
           </button>
         </div>
       </div>
@@ -80,7 +86,7 @@ const BusinessDashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading business dashboard...</p>
+          <p className="text-gray-600">{t('business.dashboard.loading')}</p>
         </div>
       </div>
     );
@@ -91,13 +97,13 @@ const BusinessDashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <ExclamationTriangleIcon className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Business</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('business.dashboard.error.loadingBusiness')}</h2>
           <p className="text-red-600 mb-4">{businessError}</p>
           <button
             onClick={() => navigate('/dashboard')}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
-            Return to Dashboard
+            {t('business.dashboard.error.return')}
           </button>
         </div>
       </div>
@@ -119,23 +125,64 @@ const BusinessDashboard: React.FC = () => {
               </button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">{business?.name}</h1>
-                <p className="text-sm text-gray-600">Business Dashboard</p>
+                <p className="text-sm text-gray-600">{t('business.dashboard.title')}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              {/* Language Selector */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  <GlobeAltIcon className="w-5 h-5" />
+                  <span className="text-sm">
+                    {languages.find(lang => lang.code === currentLanguage)?.flag}
+                  </span>
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+
+                <AnimatePresence>
+                  {isLanguageOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                    >
+                      {languages.map((language) => (
+                        <button
+                          key={language.code}
+                          onClick={() => {
+                            setLanguage(language.code);
+                            setIsLanguageOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
+                            currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                          }`}
+                        >
+                          <span>{language.flag}</span>
+                          <span>{language.name}</span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <button
                 onClick={() => navigate(`/business/${bizId}/bookings`)}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <CalendarDaysIcon className="w-4 h-4 mr-2" />
-                View All Bookings
+                {t('business.dashboard.viewAllBookings')}
               </button>
               <button
                 onClick={() => navigate(`/business/${bizId}/calendar`)}
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <CalendarDaysIcon className="w-4 h-4 mr-2" />
-                Calendar
+                {t('business.dashboard.calendar')}
               </button>
             </div>
           </div>
@@ -147,25 +194,25 @@ const BusinessDashboard: React.FC = () => {
                 onClick={() => navigate(`/business/${bizId}`)}
                 className="border-blue-500 text-blue-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
               >
-                Dashboard
+                {t('business.dashboard.tabs.dashboard')}
               </button>
               <button
                 onClick={() => navigate(`/business/${bizId}/settings`)}
                 className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
               >
-                Settings
+                {t('business.dashboard.tabs.settings')}
               </button>
               <button
                 onClick={() => navigate(`/business/${bizId}/bookings`)}
                 className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
               >
-                Bookings
+                {t('business.dashboard.tabs.bookings')}
               </button>
               <button
                 onClick={() => navigate(`/business/${bizId}/calendar`)}
                 className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
               >
-                Calendar
+                {t('business.dashboard.tabs.calendar')}
               </button>
             </nav>
           </div>
@@ -187,7 +234,7 @@ const BusinessDashboard: React.FC = () => {
                 <CalendarDaysIcon className="w-6 h-6 text-blue-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Bookings (30d)</p>
+                <p className="text-sm font-medium text-gray-600">{t('business.dashboard.metrics.totalBookings')}</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {bookingsLoading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
@@ -210,7 +257,7 @@ const BusinessDashboard: React.FC = () => {
                 <ArrowTrendingUpIcon className="w-6 h-6 text-green-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Today's Bookings</p>
+                <p className="text-sm font-medium text-gray-600">{t('business.dashboard.metrics.todaysBookings')}</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {bookingsLoading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
@@ -233,7 +280,7 @@ const BusinessDashboard: React.FC = () => {
                 <ClockIcon className="w-6 h-6 text-yellow-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending</p>
+                <p className="text-sm font-medium text-gray-600">{t('business.dashboard.metrics.pending')}</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {bookingsLoading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
@@ -256,7 +303,7 @@ const BusinessDashboard: React.FC = () => {
                 <CurrencyEuroIcon className="w-6 h-6 text-purple-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Revenue (30d)</p>
+                <p className="text-sm font-medium text-gray-600">{t('business.dashboard.metrics.revenue')}</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {bookingsLoading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-12 rounded"></div>
@@ -285,10 +332,10 @@ const BusinessDashboard: React.FC = () => {
               transition={{ delay: 0.6 }}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
             >
-              <h3 className="text-lg font-medium text-gray-900 mb-4">This Week</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('business.dashboard.thisWeek.title')}</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Total Bookings</span>
+                  <span className="text-sm text-gray-600">{t('business.dashboard.thisWeek.totalBookings')}</span>
                   <span className="text-lg font-semibold text-gray-900">
                     {bookingsLoading ? (
                       <div className="animate-pulse bg-gray-200 h-5 w-6 rounded"></div>
@@ -298,7 +345,7 @@ const BusinessDashboard: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Confirmed</span>
+                  <span className="text-sm text-gray-600">{t('business.dashboard.thisWeek.confirmed')}</span>
                   <span className="text-lg font-semibold text-green-600">
                     {bookingsLoading ? (
                       <div className="animate-pulse bg-gray-200 h-5 w-6 rounded"></div>
@@ -311,7 +358,7 @@ const BusinessDashboard: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Completed</span>
+                  <span className="text-sm text-gray-600">{t('business.dashboard.thisWeek.completed')}</span>
                   <span className="text-lg font-semibold text-blue-600">
                     {bookingsLoading ? (
                       <div className="animate-pulse bg-gray-200 h-5 w-6 rounded"></div>
@@ -333,7 +380,7 @@ const BusinessDashboard: React.FC = () => {
               transition={{ delay: 0.7 }}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
             >
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('business.dashboard.quickActions.title')}</h3>
               <div className="space-y-3">
                 <button
                   onClick={() => navigate(`/business/${bizId}/bookings`)}
@@ -342,8 +389,8 @@ const BusinessDashboard: React.FC = () => {
                   <div className="flex items-center space-x-3">
                     <PlusIcon className="w-5 h-5 text-blue-600" />
                     <div>
-                      <p className="font-medium text-gray-900">New Booking</p>
-                      <p className="text-sm text-gray-500">Create a new reservation</p>
+                      <p className="font-medium text-gray-900">{t('business.dashboard.quickActions.newBooking.title')}</p>
+                      <p className="text-sm text-gray-500">{t('business.dashboard.quickActions.newBooking.description')}</p>
                     </div>
                   </div>
                 </button>
@@ -355,8 +402,8 @@ const BusinessDashboard: React.FC = () => {
                   <div className="flex items-center space-x-3">
                     <CalendarDaysIcon className="w-5 h-5 text-green-600" />
                     <div>
-                      <p className="font-medium text-gray-900">View Calendar</p>
-                      <p className="text-sm text-gray-500">See upcoming schedules</p>
+                      <p className="font-medium text-gray-900">{t('business.dashboard.quickActions.viewCalendar.title')}</p>
+                      <p className="text-sm text-gray-500">{t('business.dashboard.quickActions.viewCalendar.description')}</p>
                     </div>
                   </div>
                 </button>
@@ -368,8 +415,8 @@ const BusinessDashboard: React.FC = () => {
                   <div className="flex items-center space-x-3">
                     <ChartBarIcon className="w-5 h-5 text-purple-600" />
                     <div>
-                      <p className="font-medium text-gray-900">Settings</p>
-                      <p className="text-sm text-gray-500">Configure business</p>
+                      <p className="font-medium text-gray-900">{t('business.dashboard.quickActions.settings.title')}</p>
+                      <p className="text-sm text-gray-500">{t('business.dashboard.quickActions.settings.description')}</p>
                     </div>
                   </div>
                 </button>
