@@ -9,6 +9,8 @@ import Dashboard from './components/dashboard/Dashboard';
 import BusinessManagement from './components/pages/BusinessManagement';
 import BusinessList from './components/pages/BusinessList';
 import CreateBusiness from './components/pages/CreateBusiness';
+import BookingList from './components/pages/BookingList';
+import BookingCalendar from './components/pages/BookingCalendar';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
@@ -50,6 +52,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <BusinessManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/business/:bizId/bookings" 
+                element={
+                  <ProtectedRoute>
+                    <BookingList />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/business/:bizId/calendar" 
+                element={
+                  <ProtectedRoute>
+                    <BookingCalendar />
                   </ProtectedRoute>
                 } 
               />

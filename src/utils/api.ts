@@ -1,4 +1,4 @@
-import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate } from '../types';
+import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, DailyBookingSummary, BookingAnalytics } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -177,5 +177,171 @@ export const businessApi = {
     });
     
     return handleResponse<Business>(response);
+  },
+};
+
+// Booking API functions
+export const bookingApi = {
+  searchBookings: async (bizId: string, filters?: BookingFilters): Promise<BookingWithService[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const searchParams = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
+
+    const url = `${API_BASE_URL}/business/${bizId}/bookings/search${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<BookingWithService[]>(response);
+  },
+
+  getCalendarBookings: async (bizId: string, dateFrom?: string, dateTo?: string): Promise<BookingWithService[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const searchParams = new URLSearchParams();
+    if (dateFrom) searchParams.append('date_from', dateFrom);
+    if (dateTo) searchParams.append('date_to', dateTo);
+
+    const url = `${API_BASE_URL}/business/${bizId}/bookings/calendar${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<BookingWithService[]>(response);
+  },
+
+  getUpcomingBookings: async (bizId: string, daysAhead: number = 7, limit: number = 20): Promise<BookingWithService[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const searchParams = new URLSearchParams();
+    searchParams.append('days_ahead', daysAhead.toString());
+    searchParams.append('limit', limit.toString());
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/upcoming?${searchParams.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<BookingWithService[]>(response);
+  },
+
+  getBookingDetails: async (bizId: string, bookingId: string): Promise<BookingWithService> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
+  updateBooking: async (bizId: string, bookingId: string, bookingUpdate: BookingUpdate): Promise<BookingWithService> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bookingUpdate),
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
+  updateBookingStatus: async (bizId: string, bookingId: string, statusUpdate: BookingStatusUpdate): Promise<BookingWithService> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(statusUpdate),
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
+  rescheduleBooking: async (bizId: string, bookingId: string, rescheduleData: BookingReschedule): Promise<BookingWithService> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}/reschedule`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(rescheduleData),
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
+  cancelBooking: async (bizId: string, bookingId: string): Promise<void> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new ApiErrorClass(errorData.detail || 'Failed to cancel booking', response.status);
+    }
   },
 }; 

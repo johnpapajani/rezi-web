@@ -136,4 +136,97 @@ export interface BusinessCreate {
   city?: string;
   postal_code?: string;
   country_code?: string;
+}
+
+// Booking types
+export enum BookingStatus {
+  pending = 'pending',
+  confirmed = 'confirmed',
+  cancelled = 'cancelled',
+  completed = 'completed',
+  no_show = 'no_show',
+  rescheduled = 'rescheduled'
+}
+
+export interface Booking {
+  id: string;
+  business_id: string;
+  starts_at: string;
+  ends_at: string;
+  party_size: number;
+  status: BookingStatus;
+  service_id?: string;
+  customer_name: string;
+  customer_phone?: string;
+  customer_email?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BookingWithService extends Booking {
+  service_name?: string;
+  service_duration_min?: number;
+  service_price_minor?: number;
+}
+
+export interface BookingUpdate {
+  starts_at?: string;
+  ends_at?: string;
+  party_size?: number;
+  status?: BookingStatus;
+  service_id?: string;
+  customer_name?: string;
+  customer_phone?: string;
+  customer_email?: string;
+}
+
+export interface BookingFilters {
+  date_from?: string;
+  date_to?: string;
+  status?: BookingStatus;
+  service_id?: string;
+  customer_name?: string;
+  customer_phone?: string;
+  customer_email?: string;
+  party_size_min?: number;
+  party_size_max?: number;
+  created_from?: string;
+  created_to?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface BookingStatusUpdate {
+  status: BookingStatus;
+  reason?: string;
+}
+
+export interface BookingReschedule {
+  new_starts_at: string;
+  new_ends_at?: string;
+  reason?: string;
+}
+
+export interface DailyBookingSummary {
+  date: string;
+  total_bookings: number;
+  confirmed_bookings: number;
+  cancelled_bookings: number;
+  completed_bookings: number;
+  revenue_minor: number;
+  average_party_size: number;
+}
+
+export interface BookingAnalytics {
+  total_bookings: number;
+  confirmed_bookings: number;
+  cancelled_bookings: number;
+  completed_bookings: number;
+  no_show_bookings: number;
+  pending_bookings: number;
+  total_revenue_minor: number;
+  average_party_size: number;
+  most_popular_service?: string;
+  busiest_day?: string;
+  busiest_hour?: number;
 } 
