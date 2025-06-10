@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useUpcomingBookings } from '../../hooks/useBookings';
 import { BookingStatus } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface UpcomingBookingsProps {
   bizId: string;
@@ -16,6 +17,7 @@ interface UpcomingBookingsProps {
 
 const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bizId }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { upcomingBookings, loading, error } = useUpcomingBookings({ bizId });
 
   const getStatusColor = (status: BookingStatus) => {
@@ -53,9 +55,9 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bizId }) => {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return 'Today';
+      return t('bookings.upcoming.today');
     } else if (date.toDateString() === tomorrow.toDateString()) {
-      return 'Tomorrow';
+      return t('bookings.upcoming.tomorrow');
     } else {
       return date.toLocaleDateString('en-US', { 
         weekday: 'short', 
@@ -69,7 +71,7 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bizId }) => {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-gray-900">Upcoming Bookings</h3>
+          <h3 className="text-lg font-medium text-gray-900">{t('bookings.upcoming.title')}</h3>
         </div>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((i) => (
@@ -90,7 +92,7 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bizId }) => {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-gray-900">Upcoming Bookings</h3>
+          <h3 className="text-lg font-medium text-gray-900">{t('bookings.upcoming.title')}</h3>
         </div>
         <div className="text-center py-4">
           <p className="text-red-600 text-sm">{error}</p>
@@ -106,12 +108,12 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bizId }) => {
       className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
     >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium text-gray-900">Upcoming Bookings</h3>
+        <h3 className="text-lg font-medium text-gray-900">{t('bookings.upcoming.title')}</h3>
         <button
           onClick={() => navigate(`/business/${bizId}/bookings`)}
           className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
         >
-          View all
+          {t('bookings.upcoming.viewAll')}
           <ArrowRightIcon className="ml-1 h-4 w-4" />
         </button>
       </div>
@@ -119,10 +121,10 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bizId }) => {
       {upcomingBookings.length === 0 ? (
         <div className="text-center py-8">
           <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No upcoming bookings</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Your next bookings will appear here.
-          </p>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">{t('bookings.upcoming.noBookings')}</h3>
+                      <p className="mt-1 text-sm text-gray-500">
+              {t('bookings.upcoming.nextBookingsHere')}
+            </p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -171,7 +173,7 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bizId }) => {
                 onClick={() => navigate(`/business/${bizId}/bookings`)}
                 className="text-blue-600 hover:text-blue-800 text-sm font-medium"
               >
-                +{upcomingBookings.length - 5} more bookings
+                +{upcomingBookings.length - 5} {t('bookings.upcoming.moreBookings')}
               </button>
             </div>
           )}

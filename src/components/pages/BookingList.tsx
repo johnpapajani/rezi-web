@@ -237,7 +237,7 @@ const BookingList: React.FC = () => {
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search by customer name..."
+                                  placeholder={t('bookings.list.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -251,12 +251,13 @@ const BookingList: React.FC = () => {
               onChange={(e) => setStatusFilter(e.target.value as BookingStatus)}
               className="block w-40 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="no_show">No Show</option>
+              <option value="">{t('bookings.list.filters.allStatuses')}</option>
+              <option value="pending">{t('bookings.list.filters.pending')}</option>
+              <option value="confirmed">{t('bookings.list.filters.confirmed')}</option>
+              <option value="completed">{t('bookings.list.filters.completed')}</option>
+              <option value="cancelled">{t('bookings.list.filters.cancelled')}</option>
+              <option value="no_show">{t('bookings.list.filters.noShow')}</option>
+              <option value="rescheduled">{t('bookings.list.filters.rescheduled')}</option>
             </select>
 
             <select
@@ -264,11 +265,11 @@ const BookingList: React.FC = () => {
               onChange={(e) => setDateFilter(e.target.value as any)}
               className="block w-40 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">All Dates</option>
-              <option value="today">Today</option>
-              <option value="tomorrow">Tomorrow</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
+              <option value="">{t('bookings.list.filters.allDates')}</option>
+              <option value="today">{t('bookings.list.filters.today')}</option>
+              <option value="tomorrow">{t('bookings.list.filters.tomorrow')}</option>
+              <option value="week">{t('bookings.list.filters.thisWeek')}</option>
+              <option value="month">{t('bookings.list.filters.thisMonth')}</option>
             </select>
           </div>
         </div>
@@ -284,7 +285,7 @@ const BookingList: React.FC = () => {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Bookings</dt>
+                  <dt className="text-sm font-medium text-gray-500 truncate">{t('bookings.list.stats.totalBookings')}</dt>
                   <dd className="text-lg font-medium text-gray-900">{bookings.length}</dd>
                 </dl>
               </div>
@@ -300,7 +301,7 @@ const BookingList: React.FC = () => {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Confirmed</dt>
+                  <dt className="text-sm font-medium text-gray-500 truncate">{t('bookings.list.stats.confirmed')}</dt>
                   <dd className="text-lg font-medium text-gray-900">
                     {bookings.filter(b => b.status === BookingStatus.confirmed).length}
                   </dd>
@@ -318,7 +319,7 @@ const BookingList: React.FC = () => {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Pending</dt>
+                  <dt className="text-sm font-medium text-gray-500 truncate">{t('bookings.list.stats.pending')}</dt>
                   <dd className="text-lg font-medium text-gray-900">
                     {bookings.filter(b => b.status === BookingStatus.pending).length}
                   </dd>
@@ -336,7 +337,7 @@ const BookingList: React.FC = () => {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Revenue</dt>
+                  <dt className="text-sm font-medium text-gray-500 truncate">{t('bookings.list.stats.revenue')}</dt>
                   <dd className="text-lg font-medium text-gray-900">
                     €{((bookings.reduce((sum, b) => sum + (b.service_price_minor || 0), 0)) / 100).toFixed(2)}
                   </dd>
@@ -351,7 +352,7 @@ const BookingList: React.FC = () => {
       <div className="bg-white shadow overflow-hidden sm:rounded-md">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Bookings ({bookings.length})
+            {t('bookings.list.title')} ({bookings.length})
           </h3>
         </div>
         <ul className="divide-y divide-gray-200">
@@ -385,7 +386,7 @@ const BookingList: React.FC = () => {
                       )}
                       <span className="mx-2">•</span>
                       <UserIcon className="flex-shrink-0 mr-1 h-4 w-4" />
-                      {booking.party_size} {booking.party_size === 1 ? 'person' : 'people'}
+                      {booking.party_size} {booking.party_size === 1 ? t('bookings.list.person') : t('bookings.list.people')}
                     </div>
                     <div className="flex items-center text-sm text-gray-500 mt-1">
                       {booking.customer_phone && (
@@ -445,9 +446,9 @@ const BookingList: React.FC = () => {
         {bookings.length === 0 && (
           <div className="text-center py-12">
             <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No bookings</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">{t('bookings.list.noBookings')}</h3>
             <p className="mt-1 text-sm text-gray-500">
-              Get started by creating a new booking.
+              {t('bookings.list.noBookingsDescription')}
             </p>
           </div>
         )}

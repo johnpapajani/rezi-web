@@ -218,7 +218,7 @@ const BookingCalendar: React.FC = () => {
                   : 'text-gray-700 bg-gray-200 hover:bg-gray-300'
               }`}
             >
-              Month
+              {t('bookings.calendar.viewModes.month')}
             </button>
             <button
               onClick={() => setViewMode('week')}
@@ -228,7 +228,7 @@ const BookingCalendar: React.FC = () => {
                   : 'text-gray-700 bg-gray-200 hover:bg-gray-300'
               }`}
             >
-              Week
+              {t('bookings.calendar.viewModes.week')}
             </button>
             <button
               onClick={() => setViewMode('day')}
@@ -238,7 +238,7 @@ const BookingCalendar: React.FC = () => {
                   : 'text-gray-700 bg-gray-200 hover:bg-gray-300'
               }`}
             >
-              Day
+              {t('bookings.calendar.viewModes.day')}
             </button>
           </div>
           <button
@@ -246,7 +246,7 @@ const BookingCalendar: React.FC = () => {
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-            New Booking
+            {t('bookings.calendar.newBooking')}
           </button>
         </div>
       </div>
@@ -278,7 +278,7 @@ const BookingCalendar: React.FC = () => {
                 </button>
               </div>
               <div className="text-sm text-gray-500">
-                {calendarBookings.length} bookings this month
+                {calendarBookings.length} {t('bookings.calendar.bookingsThisMonth')}
               </div>
             </div>
 
@@ -286,7 +286,15 @@ const BookingCalendar: React.FC = () => {
             <div className="p-6">
               {/* Day Headers */}
               <div className="grid grid-cols-7 gap-1 mb-4">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                {[
+                  t('bookings.calendar.days.sun'),
+                  t('bookings.calendar.days.mon'),
+                  t('bookings.calendar.days.tue'),
+                  t('bookings.calendar.days.wed'),
+                  t('bookings.calendar.days.thu'),
+                  t('bookings.calendar.days.fri'),
+                  t('bookings.calendar.days.sat')
+                ].map(day => (
                   <div
                     key={day}
                     className="p-2 text-center text-sm font-medium text-gray-700"
@@ -344,7 +352,7 @@ const BookingCalendar: React.FC = () => {
                         ))}
                         {dayBookings.length > 3 && (
                           <div className="text-xs text-gray-500 text-center">
-                            +{dayBookings.length - 3} more
+                            +{dayBookings.length - 3} {t('bookings.calendar.more')}
                           </div>
                         )}
                       </div>
@@ -360,13 +368,13 @@ const BookingCalendar: React.FC = () => {
         <div className="lg:col-span-1">
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
-              {selectedDate ? formatDate(selectedDate) : 'Select a date'}
+              {selectedDate ? formatDate(selectedDate) : t('bookings.calendar.selectedDate')}
             </h3>
             
             {selectedDate && selectedDateBookings.length > 0 && (
               <div className="space-y-4">
                 <div className="text-sm text-gray-500">
-                  {selectedDateBookings.length} booking{selectedDateBookings.length !== 1 ? 's' : ''}
+                  {selectedDateBookings.length} {selectedDateBookings.length === 1 ? t('bookings.calendar.booking') : t('bookings.calendar.bookings')}
                 </div>
                 
                 {selectedDateBookings.map((booking) => (
@@ -395,12 +403,12 @@ const BookingCalendar: React.FC = () => {
                     
                     <div className="flex items-center text-sm text-gray-600 mb-2">
                       <UserIcon className="h-4 w-4 mr-1" />
-                      {booking.party_size} {booking.party_size === 1 ? 'person' : 'people'}
+                      {booking.party_size} {booking.party_size === 1 ? t('bookings.list.person') : t('bookings.list.people')}
                     </div>
                     
                     {booking.service_name && (
                       <div className="text-sm text-gray-600">
-                        Service: {booking.service_name}
+                        {t('bookings.calendar.service')}: {booking.service_name}
                       </div>
                     )}
                   </motion.div>
@@ -411,9 +419,9 @@ const BookingCalendar: React.FC = () => {
             {selectedDate && selectedDateBookings.length === 0 && (
               <div className="text-center py-8">
                 <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No bookings</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('bookings.calendar.noBookings')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  No bookings scheduled for this date.
+                  {t('bookings.calendar.noBookingsScheduled')}
                 </p>
               </div>
             )}
@@ -421,9 +429,9 @@ const BookingCalendar: React.FC = () => {
             {!selectedDate && (
               <div className="text-center py-8">
                 <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Select a date</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('bookings.calendar.selectDate')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  Click on a date to view bookings.
+                  {t('bookings.calendar.clickToView')}
                 </p>
               </div>
             )}
@@ -431,14 +439,14 @@ const BookingCalendar: React.FC = () => {
 
           {/* Legend */}
           <div className="bg-white shadow rounded-lg p-6 mt-6">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Status Legend</h4>
+            <h4 className="text-sm font-medium text-gray-900 mb-3">{t('bookings.calendar.statusLegend')}</h4>
             <div className="space-y-2">
               {[
-                { status: 'confirmed', label: 'Confirmed' },
-                { status: 'pending', label: 'Pending' },
-                { status: 'completed', label: 'Completed' },
-                { status: 'cancelled', label: 'Cancelled' },
-                { status: 'no_show', label: 'No Show' },
+                { status: 'confirmed', label: t('bookings.list.filters.confirmed') },
+                { status: 'pending', label: t('bookings.list.filters.pending') },
+                { status: 'completed', label: t('bookings.list.filters.completed') },
+                { status: 'cancelled', label: t('bookings.list.filters.cancelled') },
+                { status: 'no_show', label: t('bookings.list.filters.noShow') },
               ].map(({ status, label }) => (
                 <div key={status} className="flex items-center">
                   <div className={`w-3 h-3 rounded-full mr-2 ${getStatusColor(status as BookingStatus)}`}></div>
