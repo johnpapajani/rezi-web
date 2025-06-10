@@ -128,7 +128,7 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -167,8 +167,14 @@ const Dashboard: React.FC = () => {
                   <CalendarDaysIcon className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{t('dashboard.stats.bookings')}</p>
-                  <p className="text-2xl font-semibold text-gray-900">0</p>
+                  <p className="text-sm font-medium text-gray-600">Active Businesses</p>
+                  <p className="text-2xl font-semibold text-gray-900">
+                    {businessesLoading ? (
+                      <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
+                    ) : (
+                      businesses.filter(b => b.role === 'owner' || b.role === 'manager').length
+                    )}
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -184,90 +190,119 @@ const Dashboard: React.FC = () => {
                   <ChartBarIcon className="w-6 h-6 text-purple-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{t('dashboard.stats.revenue')}</p>
-                  <p className="text-2xl font-semibold text-gray-900">€0</p>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-            >
-              <div className="flex items-center">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <UserCircleIcon className="w-6 h-6 text-yellow-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{t('dashboard.stats.customers')}</p>
-                  <p className="text-2xl font-semibold text-gray-900">0</p>
+                  <p className="text-sm font-medium text-gray-600">Total Locations</p>
+                  <p className="text-2xl font-semibold text-gray-900">
+                    {businessesLoading ? (
+                      <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
+                    ) : (
+                      new Set(businesses.map(b => b.city).filter(Boolean)).size || '0'
+                    )}
+                  </p>
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* Getting Started */}
+          {/* Your Businesses */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
             className="bg-white rounded-lg shadow-sm border border-gray-200 p-8"
           >
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              {t('dashboard.gettingStarted.title')}
-            </h2>
-            <p className="text-gray-600 mb-6">
-              {t('dashboard.gettingStarted.description')}
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div 
-                onClick={() => !businessesLoading && navigate(businesses.length === 0 ? '/business/create' : '/businesses')}
-                className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer"
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Your Businesses
+              </h2>
+              <button
+                onClick={() => navigate('/business/create')}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                <div className="flex items-center space-x-2 mb-2">
-                  <CogIcon className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-medium text-gray-900">
-                    {businessesLoading ? (
-                      <div className="animate-pulse bg-gray-200 h-4 w-24 rounded"></div>
-                    ) : (
-                      businesses.length === 1 ? t('dashboard.business.manageSingle') : t('dashboard.business.manageMultiple')
-                    )}
-                  </h3>
-                </div>
-                <p className="text-sm text-gray-600">
-                  {businessesLoading ? (
-                    <div className="animate-pulse bg-gray-200 h-3 w-48 rounded"></div>
-                  ) : (
-                    businesses.length === 0 
-                      ? t('dashboard.business.setupFirst')
-                      : businesses.length === 1
-                      ? t('dashboard.business.configureSingle')
-                      : t('dashboard.business.manageCount').replace('{count}', businesses.length.toString())
-                  )}
-                </p>
-              </div>
-              
-              <div className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer">
-                <h3 className="font-medium text-gray-900 mb-2">
-                  {t('dashboard.gettingStarted.steps.services.title')}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {t('dashboard.gettingStarted.steps.services.description')}
-                </p>
-              </div>
-              
-              <div className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer">
-                <h3 className="font-medium text-gray-900 mb-2">
-                  {t('dashboard.gettingStarted.steps.hours.title')}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {t('dashboard.gettingStarted.steps.hours.description')}
-                </p>
-              </div>
+                <BuildingStorefrontIcon className="w-4 h-4 mr-2" />
+                Add Business
+              </button>
             </div>
+
+            {businessesLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+                      <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                      <div className="flex-1">
+                        <div className="h-5 bg-gray-200 rounded w-1/3 mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : businesses.length === 0 ? (
+              <div className="text-center py-12">
+                <BuildingStorefrontIcon className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">No businesses yet</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Get started by creating your first business.
+                </p>
+                <div className="mt-6">
+                  <button
+                    onClick={() => navigate('/business/create')}
+                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    <BuildingStorefrontIcon className="w-4 h-4 mr-2" />
+                    Create Business
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {businesses.map((business) => (
+                  <motion.div
+                    key={business.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/business/${business.id}`)}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">
+                          {business.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-medium text-gray-900">{business.name}</h3>
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <span className="capitalize">{business.role}</span>
+                          {business.city && <span>• {business.city}</span>}
+                          <span>• {business.currency}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/business/${business.id}/bookings`);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        Bookings
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/business/${business.id}/calendar`);
+                        }}
+                        className="text-green-600 hover:text-green-800 text-sm font-medium"
+                      >
+                        Calendar
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </motion.div>
         </motion.div>
       </main>
