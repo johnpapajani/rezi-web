@@ -323,6 +323,16 @@ export const translations: Translations = {
     'bookings.calendar.selectDate': 'Zgjidhni një datë',
     'bookings.calendar.clickToView': 'Klikoni në një datë për të parë rezervimet.',
     'bookings.calendar.noBookingsScheduled': 'Nuk ka rezervime të planifikuara për këtë datë.',
+    'bookings.calendar.today': 'Sot',
+    'bookings.calendar.scheduled': 'të planifikuara',
+    'bookings.calendar.schedule': 'Orari',
+    'bookings.calendar.todaysSchedule': 'Orari i Sotëm',
+    'bookings.calendar.noBookingsToday': 'Nuk ka rezervime sot',
+    'bookings.calendar.noBookingsThisDay': 'Nuk ka rezervime këtë ditë',
+    'bookings.calendar.noBookingsScheduledToday': 'Nuk ka rezervime të planifikuara për sot.',
+    'bookings.calendar.noBookingsScheduledThisDay': 'Nuk ka rezervime të planifikuara për këtë ditë.',
+    'bookings.calendar.viewMonth': 'Shiko Muajin',
+    'bookings.calendar.contact': 'Kontakt',
     
     // Upcoming Bookings
     'bookings.upcoming.title': 'Rezervimet e Ardhshme',
@@ -655,6 +665,16 @@ export const translations: Translations = {
     'bookings.calendar.selectDate': 'Select a date',
     'bookings.calendar.clickToView': 'Click on a date to view bookings.',
     'bookings.calendar.noBookingsScheduled': 'No bookings scheduled for this date.',
+    'bookings.calendar.today': 'Today',
+    'bookings.calendar.scheduled': 'scheduled',
+    'bookings.calendar.schedule': 'Schedule',
+    'bookings.calendar.todaysSchedule': "Today's Schedule",
+    'bookings.calendar.noBookingsToday': 'No bookings today',
+    'bookings.calendar.noBookingsThisDay': 'No bookings this day',
+    'bookings.calendar.noBookingsScheduledToday': 'No bookings are scheduled for today.',
+    'bookings.calendar.noBookingsScheduledThisDay': 'No bookings are scheduled for this day.',
+    'bookings.calendar.viewMonth': 'View Month',
+    'bookings.calendar.contact': 'Contact',
     
     // Upcoming Bookings
     'bookings.upcoming.title': 'Upcoming Bookings',
