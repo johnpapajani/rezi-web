@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useUserBusinesses } from '../../hooks/useUserBusinesses';
 import { 
   UserCircleIcon, 
   BuildingStorefrontIcon,
@@ -9,13 +11,16 @@ import {
   ChartBarIcon,
   ArrowRightOnRectangleIcon,
   GlobeAltIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  CogIcon
 } from '@heroicons/react/24/outline';
 
 const Dashboard: React.FC = () => {
   const { user, signOut } = useAuth();
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const navigate = useNavigate();
+  const { businesses } = useUserBusinesses();
 
   const handleSignOut = async () => {
     await signOut();
@@ -117,16 +122,20 @@ const Dashboard: React.FC = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:border-blue-300 transition-colors"
+              onClick={() => navigate('/businesses')}
             >
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <BuildingStorefrontIcon className="w-6 h-6 text-blue-600" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <BuildingStorefrontIcon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">{t('dashboard.stats.businesses')}</p>
+                    <p className="text-2xl font-semibold text-gray-900">{businesses.length}</p>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{t('dashboard.stats.businesses')}</p>
-                  <p className="text-2xl font-semibold text-gray-900">1</p>
-                </div>
+                <CogIcon className="w-5 h-5 text-gray-400 hover:text-blue-600 transition-colors" />
               </div>
             </motion.div>
 
@@ -197,12 +206,23 @@ const Dashboard: React.FC = () => {
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer">
-                <h3 className="font-medium text-gray-900 mb-2">
-                  {t('dashboard.gettingStarted.steps.business.title')}
-                </h3>
+              <div 
+                onClick={() => navigate('/businesses')}
+                className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center space-x-2 mb-2">
+                  <CogIcon className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-medium text-gray-900">
+                    {businesses.length === 1 ? t('dashboard.business.manageSingle') : t('dashboard.business.manageMultiple')}
+                  </h3>
+                </div>
                 <p className="text-sm text-gray-600">
-                  {t('dashboard.gettingStarted.steps.business.description')}
+                  {businesses.length === 0 
+                    ? t('dashboard.business.setupFirst')
+                    : businesses.length === 1
+                    ? t('dashboard.business.configureSingle')
+                    : t('dashboard.business.manageCount').replace('{count}', businesses.length.toString())
+                  }
                 </p>
               </div>
               

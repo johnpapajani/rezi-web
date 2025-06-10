@@ -138,6 +138,69 @@ export const translations: Translations = {
     'dashboard.gettingStarted.steps.services.description': 'Krijo shërbimet që ofron biznezi juaj',
     'dashboard.gettingStarted.steps.hours.title': 'Vendos oraret',
     'dashboard.gettingStarted.steps.hours.description': 'Konfiguron oraret e punës dhe disponueshmërinë',
+
+    // Business Management
+    'business.management.title': 'Menaxhim Biznesi',
+    'business.management.subtitle': 'Konfiguron të dhënat e biznesit tuaj',
+    'business.management.loading': 'Duke ngarkuar të dhënat e biznesit...',
+    'business.management.error.title': 'Gabim në Ngarkim',
+    'business.management.error.return': 'Kthehu në Dashboard',
+    'business.management.success': 'Biznesi u përditësua me sukses!',
+    'business.management.noChanges': 'Nuk u zbuluan ndryshime',
+    'business.management.updating': 'Duke përditësuar...',
+    'business.management.update': 'Përditëso Biznesin',
+    'business.management.cancel': 'Anulo',
+    'business.management.businessIdRequired': 'ID-ja e Biznesit është e Kërkuar',
+    'business.management.businessIdRequiredDesc': 'Ju lutem jepni një ID biznesi të vlefshme',
+
+    // Business Management Sections
+    'business.sections.basic.title': 'Informacione Bazë',
+    'business.sections.regional.title': 'Cilësimet Rajonale',
+    'business.sections.address.title': 'Informacione Adrese',
+
+    // Business Form Fields
+    'business.fields.name': 'Emri i Biznesit',
+    'business.fields.name.required': 'Emri i Biznesit *',
+    'business.fields.logoUrl': 'URL-ja e Logos',
+    'business.fields.logoUrl.placeholder': 'https://example.com/logo.png',
+    'business.fields.currency': 'Valuta',
+    'business.fields.timezone': 'Zona Kohore',
+    'business.fields.addressLine1': 'Adresa Linja 1',
+    'business.fields.addressLine1.placeholder': 'Adresa e rrugës, emri i ndërtesës, etj.',
+    'business.fields.addressLine2': 'Adresa Linja 2',
+    'business.fields.addressLine2.placeholder': 'Apartamenti, suitë, njësi, etj. (opsionale)',
+    'business.fields.city': 'Qyteti',
+    'business.fields.postalCode': 'Kodi Postar',
+
+    // Business List
+    'business.list.title': 'Bizneset e Mia',
+    'business.list.subtitle': 'Menaxho llogaritë e biznesit tuaj',
+    'business.list.loading': 'Duke ngarkuar bizneset tuaja...',
+    'business.list.error.title': 'Gabim në Ngarkim Biznesesh',
+    'business.list.error.return': 'Kthehu në Dashboard',
+    'business.list.addBusiness': 'Shto Biznes',
+    'business.list.manage': 'Menaxho',
+    'business.list.currency': 'Valuta:',
+    'business.list.noCitySpecified': 'Nuk është specifikuar qytet',
+    'business.list.count': '{count} biznese',
+    'business.list.empty.title': 'Ende nuk keni biznese',
+    'business.list.empty.description': 'Filloni duke krijuar llogarinë e parë të biznesit',
+    'business.list.empty.cta': 'Krijo Biznes',
+    'business.list.addNew.title': 'Shto Biznes të Ri',
+    'business.list.addNew.description': 'Krijo një llogari tjetër biznesi',
+
+    // Business Roles
+    'business.roles.owner': 'Pronar',
+    'business.roles.manager': 'Menaxher',
+    'business.roles.employee': 'Punëtor',
+    'business.roles.member': 'Anëtar',
+
+    // Dashboard Business Section
+    'dashboard.business.manageSingle': 'Menaxho Biznesin',
+    'dashboard.business.manageMultiple': 'Menaxho Bizneset',
+    'dashboard.business.setupFirst': 'Konfiguron llogarinë e parë të biznesit',
+    'dashboard.business.configureSingle': 'Konfiguron të dhënat, adresën dhe cilësimet e biznesit',
+    'dashboard.business.manageCount': 'Menaxho {count} llogaritë e biznesit tuaj',
   },
   en: {
     // Header & Navigation
@@ -276,5 +339,68 @@ export const translations: Translations = {
     'dashboard.gettingStarted.steps.services.description': 'Create the services your business offers',
     'dashboard.gettingStarted.steps.hours.title': 'Set hours',
     'dashboard.gettingStarted.steps.hours.description': 'Configure your working hours and availability',
+
+    // Business Management
+    'business.management.title': 'Business Management',
+    'business.management.subtitle': 'Configure your business details',
+    'business.management.loading': 'Loading business details...',
+    'business.management.error.title': 'Error Loading Business',
+    'business.management.error.return': 'Return to Dashboard',
+    'business.management.success': 'Business updated successfully!',
+    'business.management.noChanges': 'No changes detected',
+    'business.management.updating': 'Updating...',
+    'business.management.update': 'Update Business',
+    'business.management.cancel': 'Cancel',
+    'business.management.businessIdRequired': 'Business ID Required',
+    'business.management.businessIdRequiredDesc': 'Please provide a valid business ID',
+
+    // Business Management Sections
+    'business.sections.basic.title': 'Basic Information',
+    'business.sections.regional.title': 'Regional Settings',
+    'business.sections.address.title': 'Address Information',
+
+    // Business Form Fields
+    'business.fields.name': 'Business Name',
+    'business.fields.name.required': 'Business Name *',
+    'business.fields.logoUrl': 'Logo URL',
+    'business.fields.logoUrl.placeholder': 'https://example.com/logo.png',
+    'business.fields.currency': 'Currency',
+    'business.fields.timezone': 'Timezone',
+    'business.fields.addressLine1': 'Address Line 1',
+    'business.fields.addressLine1.placeholder': 'Street address, building name, etc.',
+    'business.fields.addressLine2': 'Address Line 2',
+    'business.fields.addressLine2.placeholder': 'Apartment, suite, unit, etc. (optional)',
+    'business.fields.city': 'City',
+    'business.fields.postalCode': 'Postal Code',
+
+    // Business List
+    'business.list.title': 'My Businesses',
+    'business.list.subtitle': 'Manage your business accounts',
+    'business.list.loading': 'Loading your businesses...',
+    'business.list.error.title': 'Error Loading Businesses',
+    'business.list.error.return': 'Return to Dashboard',
+    'business.list.addBusiness': 'Add Business',
+    'business.list.manage': 'Manage',
+    'business.list.currency': 'Currency:',
+    'business.list.noCitySpecified': 'No city specified',
+    'business.list.count': '({count})',
+    'business.list.empty.title': 'No businesses yet',
+    'business.list.empty.description': 'Get started by creating your first business account',
+    'business.list.empty.cta': 'Create Business',
+    'business.list.addNew.title': 'Add New Business',
+    'business.list.addNew.description': 'Create another business account',
+
+    // Business Roles
+    'business.roles.owner': 'Owner',
+    'business.roles.manager': 'Manager',
+    'business.roles.employee': 'Employee',
+    'business.roles.member': 'Member',
+
+    // Dashboard Business Section
+    'dashboard.business.manageSingle': 'Manage Business',
+    'dashboard.business.manageMultiple': 'Manage Businesses',
+    'dashboard.business.setupFirst': 'Set up your first business account',
+    'dashboard.business.configureSingle': 'Configure your business details, address, and settings',
+    'dashboard.business.manageCount': 'Manage your {count} business accounts',
   }
 }; 

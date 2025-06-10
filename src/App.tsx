@@ -6,6 +6,8 @@ import LandingPage from './components/pages/LandingPage';
 import SignUp from './components/auth/SignUp';
 import SignIn from './components/auth/SignIn';
 import Dashboard from './components/dashboard/Dashboard';
+import BusinessManagement from './components/pages/BusinessManagement';
+import BusinessList from './components/pages/BusinessList';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
@@ -23,6 +25,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/businesses" 
+                element={
+                  <ProtectedRoute>
+                    <BusinessList />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/business/:bizId" 
+                element={
+                  <ProtectedRoute>
+                    <BusinessManagement />
                   </ProtectedRoute>
                 } 
               />

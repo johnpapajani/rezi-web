@@ -1,4 +1,4 @@
-import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse } from '../types';
+import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -104,5 +104,60 @@ export const tokenStorage = {
 
   setUser: (user: any): void => {
     localStorage.setItem('user', JSON.stringify(user));
+  },
+};
+
+// Business API functions
+export const businessApi = {
+  listUserBusinesses: async (): Promise<BusinessWithRole[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<BusinessWithRole[]>(response);
+  },
+
+  getBusiness: async (bizId: string): Promise<Business> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<Business>(response);
+  },
+
+  updateBusiness: async (bizId: string, businessUpdate: BusinessUpdate): Promise<Business> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(businessUpdate),
+    });
+    
+    return handleResponse<Business>(response);
   },
 }; 
