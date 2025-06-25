@@ -18,13 +18,862 @@ import {
   PencilIcon,
   TrashIcon,
   XMarkIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  BuildingStorefrontIcon,
+  PhotoIcon,
+  CurrencyDollarIcon,
+  MapPinIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useBusiness } from '../../hooks/useBusiness';
-import { useBookings, useUpcomingBookings } from '../../hooks/useBookings';
+import { useBookings, useUpcomingBookings, useCalendarBookings } from '../../hooks/useBookings';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useTables } from '../../hooks/useTables';
 import UpcomingBookings from '../dashboard/UpcomingBookings';
-import { BookingStatus, Table, TableCreate, TableUpdate } from '../../types';
+import { BookingStatus, Table, TableCreate, TableUpdate, BookingWithService, BusinessUpdate } from '../../types';
+
+// Wrapper components that remove headers
+const BookingListWrapper: React.FC = () => {
+  const { bizId } = useParams<{ bizId: string }>();
+  const { t } = useTranslation();
+  const { bookings, loading, error, searchBookings, updateBookingStatus, cancelBooking } = useBookings({ bizId: bizId || '' });
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<BookingStatus | ''>('');
+  const [dateFilter, setDateFilter] = useState<'today' | 'tomorrow' | 'week' | 'month' | ''>('');
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [showBookingDetails, setShowBookingDetails] = useState(false);
+
+  // Load bookings on component mount
+  useEffect(() => {
+    if (bizId) {
+      searchBookings();
+    }
+  }, [bizId, searchBookings]);
+
+  // Apply filters
+  useEffect(() => {
+    if (!bizId) return;
+
+    const filters: any = {};
+    
+    if (searchTerm) {
+      filters.customer_name = searchTerm;
+    }
+    
+    if (statusFilter) {
+      filters.status = statusFilter;
+    }
+
+    if (dateFilter) {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      switch (dateFilter) {
+        case 'today':
+          filters.date_from = today.toISOString().split('T')[0];
+          filters.date_to = today.toISOString().split('T')[0];
+          break;
+        case 'tomorrow':
+          filters.date_from = tomorrow.toISOString().split('T')[0];
+          filters.date_to = tomorrow.toISOString().split('T')[0];
+          break;
+        case 'week':
+          const weekEnd = new Date(today);
+          weekEnd.setDate(weekEnd.getDate() + 7);
+          filters.date_from = today.toISOString().split('T')[0];
+          filters.date_to = weekEnd.toISOString().split('T')[0];
+          break;
+        case 'month':
+          const monthEnd = new Date(today);
+          monthEnd.setMonth(monthEnd.getMonth() + 1);
+          filters.date_from = today.toISOString().split('T')[0];
+          filters.date_to = monthEnd.toISOString().split('T')[0];
+          break;
+      }
+    }
+
+    searchBookings(filters);
+  }, [searchTerm, statusFilter, dateFilter, bizId, searchBookings]);
+
+  const handleStatusChange = async (bookingId: string, newStatus: BookingStatus) => {
+    try {
+      await updateBookingStatus(bookingId, { status: newStatus });
+    } catch (error) {
+      console.error('Failed to update booking status:', error);
+    }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    if (window.confirm(t('bookings.list.confirmCancel'))) {
+      try {
+        await cancelBooking(bookingId);
+      } catch (error) {
+        console.error('Failed to cancel booking:', error);
+      }
+    }
+  };
+
+  const getStatusColor = (status: BookingStatus) => {
+    switch (status) {
+      case BookingStatus.confirmed:
+        return 'bg-green-100 text-green-800';
+      case BookingStatus.pending:
+        return 'bg-yellow-100 text-yellow-800';
+      case BookingStatus.cancelled:
+        return 'bg-red-100 text-red-800';
+      case BookingStatus.completed:
+        return 'bg-blue-100 text-blue-800';
+      case BookingStatus.no_show:
+        return 'bg-gray-100 text-gray-800';
+      case BookingStatus.rescheduled:
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatPrice = (priceMinor?: number) => {
+    if (!priceMinor) return 'N/A';
+    return `€${(priceMinor / 100).toFixed(2)}`;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-600 mb-4">{error}</div>
+        <button 
+          onClick={() => searchBookings()}
+          className="text-blue-600 hover:text-blue-800"
+        >
+          {t('bookings.list.tryAgain')}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Search and Filters */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder={t('bookings.list.searchPlaceholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <UserIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as BookingStatus | '')}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">{t('bookings.list.filters.allStatuses')}</option>
+              <option value={BookingStatus.pending}>{t('bookings.list.filters.pending')}</option>
+              <option value={BookingStatus.confirmed}>{t('bookings.list.filters.confirmed')}</option>
+              <option value={BookingStatus.completed}>{t('bookings.list.filters.completed')}</option>
+              <option value={BookingStatus.cancelled}>{t('bookings.list.filters.cancelled')}</option>
+              <option value={BookingStatus.no_show}>{t('bookings.list.filters.noShow')}</option>
+              <option value={BookingStatus.rescheduled}>{t('bookings.list.filters.rescheduled')}</option>
+            </select>
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value as any)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">{t('bookings.list.filters.allDates')}</option>
+              <option value="today">{t('bookings.list.filters.today')}</option>
+              <option value="tomorrow">{t('bookings.list.filters.tomorrow')}</option>
+              <option value="week">{t('bookings.list.filters.thisWeek')}</option>
+              <option value="month">{t('bookings.list.filters.thisMonth')}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Bookings List */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-medium text-gray-900">
+            {t('bookings.list.title')} ({bookings.length})
+          </h2>
+        </div>
+        <div className="divide-y divide-gray-200">
+          {bookings.length === 0 ? (
+            <div className="text-center py-12">
+              <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900">{t('bookings.list.noBookings')}</h3>
+              <p className="mt-1 text-sm text-gray-500">{t('bookings.list.noBookingsDescription')}</p>
+            </div>
+          ) : (
+            bookings.map((booking) => (
+              <div key={booking.id} className="p-6 hover:bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3">
+                      <h3 className="text-lg font-medium text-gray-900">{booking.customer_name}</h3>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                        {booking.status}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                      <span>{formatDate(booking.starts_at)}</span>
+                      <span>{booking.party_size} {booking.party_size === 1 ? t('bookings.list.person') : t('bookings.list.people')}</span>
+                      {booking.service_name && <span>{booking.service_name}</span>}
+                      {booking.service_price_minor && <span>{formatPrice(booking.service_price_minor)}</span>}
+                    </div>
+                    <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                      {booking.customer_phone && (
+                        <span className="flex items-center">
+                          <PhoneIcon className="w-4 h-4 mr-1" />
+                          {booking.customer_phone}
+                        </span>
+                      )}
+                      {booking.customer_email && (
+                        <span className="flex items-center">
+                          <EnvelopeIcon className="w-4 h-4 mr-1" />
+                          {booking.customer_email}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setSelectedBooking(booking)}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      {t('bookings.list.actions.viewDetails')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const BookingCalendarWrapper: React.FC = () => {
+  const { bizId } = useParams<{ bizId: string }>();
+  const { t } = useTranslation();
+  const { calendarBookings, loading, error, fetchCalendarBookings } = useCalendarBookings({ bizId: bizId || '' });
+  
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
+
+  // Generate calendar days for month view
+  const generateCalendarDays = () => {
+    const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const startDay = start.getDay();
+    
+    const days: Date[] = [];
+    
+    // Add previous month's trailing days
+    for (let i = startDay - 1; i >= 0; i--) {
+      const date = new Date(start);
+      date.setDate(date.getDate() - (i + 1));
+      days.push(date);
+    }
+    
+    // Add current month's days
+    for (let i = 1; i <= end.getDate(); i++) {
+      days.push(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
+    }
+    
+    // Add next month's leading days
+    const totalCells = Math.ceil(days.length / 7) * 7;
+    for (let i = days.length; i < totalCells; i++) {
+      const date = new Date(end);
+      date.setDate(date.getDate() + (i - days.length + 1));
+      days.push(date);
+    }
+    
+    return days;
+  };
+
+  // Load bookings based on current view
+  useEffect(() => {
+    if (bizId) {
+      let start: Date, end: Date;
+      
+      switch (viewMode) {
+        case 'month':
+          start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+          end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+          break;
+        case 'week':
+          const weekStart = new Date(currentDate);
+          weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+          const weekEnd = new Date(weekStart);
+          weekEnd.setDate(weekEnd.getDate() + 6);
+          start = weekStart;
+          end = weekEnd;
+          break;
+        case 'day':
+          start = new Date(currentDate);
+          start.setHours(0, 0, 0, 0);
+          end = new Date(currentDate);
+          end.setHours(23, 59, 59, 999);
+          break;
+        default:
+          start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+          end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      }
+      
+      fetchCalendarBookings(start.toISOString(), end.toISOString());
+    }
+  }, [bizId, currentDate, viewMode, fetchCalendarBookings]);
+
+  const getBookingsForDate = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return calendarBookings.filter(booking => 
+      booking.starts_at.split('T')[0] === dateStr
+    );
+  };
+
+  const getStatusColor = (status: BookingStatus) => {
+    switch (status) {
+      case BookingStatus.confirmed:
+        return 'bg-green-500';
+      case BookingStatus.pending:
+        return 'bg-yellow-500';
+      case BookingStatus.cancelled:
+        return 'bg-red-500';
+      case BookingStatus.completed:
+        return 'bg-blue-500';
+      case BookingStatus.no_show:
+        return 'bg-gray-500';
+      case BookingStatus.rescheduled:
+        return 'bg-purple-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString(undefined, { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const navigate_ = (direction: 'prev' | 'next') => {
+    const newDate = new Date(currentDate);
+    
+    switch (viewMode) {
+      case 'month':
+        if (direction === 'prev') {
+          newDate.setMonth(newDate.getMonth() - 1);
+        } else {
+          newDate.setMonth(newDate.getMonth() + 1);
+        }
+        break;
+      case 'week':
+        if (direction === 'prev') {
+          newDate.setDate(newDate.getDate() - 7);
+        } else {
+          newDate.setDate(newDate.getDate() + 7);
+        }
+        break;
+      case 'day':
+        if (direction === 'prev') {
+          newDate.setDate(newDate.getDate() - 1);
+        } else {
+          newDate.setDate(newDate.getDate() + 1);
+        }
+        break;
+    }
+    
+    setCurrentDate(newDate);
+  };
+
+  const getViewTitle = () => {
+    switch (viewMode) {
+      case 'month':
+        return currentDate.toLocaleDateString(undefined, { 
+          year: 'numeric', 
+          month: 'long' 
+        });
+      case 'week':
+        const weekStart = new Date(currentDate);
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        return `${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`;
+      case 'day':
+        return currentDate.toLocaleDateString(undefined, { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      default:
+        return currentDate.toLocaleDateString();
+    }
+  };
+
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const isCurrentMonth = (date: Date) => {
+    return date.getMonth() === currentDate.getMonth() && 
+           date.getFullYear() === currentDate.getFullYear();
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-600 mb-4">{error}</div>
+        <button 
+          onClick={() => fetchCalendarBookings()}
+          className="text-blue-600 hover:text-blue-800"
+        >
+          {t('bookings.calendar.tryAgain')}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Calendar Header */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate_('prev')}
+              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+            >
+              <ArrowLeftIcon className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-semibold text-gray-900">{getViewTitle()}</h2>
+            <button
+              onClick={() => navigate_('next')}
+              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+            >
+              <ArrowLeftIcon className="w-5 h-5 transform rotate-180" />
+            </button>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setViewMode('month')}
+              className={`px-3 py-1 rounded-md text-sm font-medium ${
+                viewMode === 'month' 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {t('bookings.calendar.viewModes.month')}
+            </button>
+            <button
+              onClick={() => setViewMode('week')}
+              className={`px-3 py-1 rounded-md text-sm font-medium ${
+                viewMode === 'week' 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {t('bookings.calendar.viewModes.week')}
+            </button>
+            <button
+              onClick={() => setViewMode('day')}
+              className={`px-3 py-1 rounded-md text-sm font-medium ${
+                viewMode === 'day' 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {t('bookings.calendar.viewModes.day')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="grid grid-cols-7 gap-px bg-gray-200">
+          {/* Day headers */}
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+            <div key={day} className="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700">
+              {day}
+            </div>
+          ))}
+          
+          {/* Calendar days */}
+          {generateCalendarDays().map((date, index) => {
+            const bookings = getBookingsForDate(date);
+            const isTodayDate = isToday(date);
+            const isCurrentMonthDate = isCurrentMonth(date);
+            
+            return (
+              <div
+                key={index}
+                className={`min-h-[120px] p-2 ${
+                  isCurrentMonthDate ? 'bg-white' : 'bg-gray-50'
+                } ${isTodayDate ? 'ring-2 ring-blue-500' : ''}`}
+              >
+                <div className={`text-sm font-medium ${
+                  isCurrentMonthDate ? 'text-gray-900' : 'text-gray-400'
+                } ${isTodayDate ? 'text-blue-600' : ''}`}>
+                  {date.getDate()}
+                </div>
+                <div className="mt-1 space-y-1">
+                  {bookings.slice(0, 3).map((booking) => (
+                    <div
+                      key={booking.id}
+                      className={`text-xs p-1 rounded truncate ${getStatusColor(booking.status)} text-white`}
+                      title={`${booking.customer_name} - ${formatTime(booking.starts_at)}`}
+                    >
+                      {booking.customer_name}
+                    </div>
+                  ))}
+                  {bookings.length > 3 && (
+                    <div className="text-xs text-gray-500">
+                      +{bookings.length - 3} more
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Settings Wrapper Component
+const SettingsWrapper: React.FC = () => {
+  const { bizId } = useParams<{ bizId: string }>();
+  const { t } = useTranslation();
+  const { business, loading, error, updating, updateBusiness } = useBusiness({ 
+    bizId: bizId || '' 
+  });
+
+  const [formData, setFormData] = useState<BusinessUpdate>({});
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // Populate form when business data loads
+  useEffect(() => {
+    if (business) {
+      setFormData({
+        name: business.name,
+        logo_url: business.logo_url || '',
+        currency: business.currency,
+        timezone: business.timezone,
+        address_line1: business.address_line1 || '',
+        address_line2: business.address_line2 || '',
+        city: business.city || '',
+        postal_code: business.postal_code || '',
+      });
+    }
+  }, [business]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
+    try {
+      // Only send changed fields
+      const updates: BusinessUpdate = {};
+      Object.keys(formData).forEach(key => {
+        const formKey = key as keyof BusinessUpdate;
+        const businessKey = key as keyof typeof business;
+        if (business && formData[formKey] !== business[businessKey]) {
+          (updates as any)[formKey] = formData[formKey];
+        }
+      });
+
+      if (Object.keys(updates).length === 0) {
+        setFormError(t('business.management.noChanges'));
+        return;
+      }
+
+      await updateBusiness(updates);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (error: any) {
+      setFormError(error.detail || t('business.management.error.title'));
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <ExclamationTriangleIcon className="w-12 h-12 text-red-500 mx-auto mb-4" />
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('business.management.error.title')}</h2>
+        <p className="text-red-600 mb-4">{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Success Message */}
+      {showSuccess && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-3"
+        >
+          <CheckCircleIcon className="w-5 h-5 text-green-600" />
+          <span className="text-green-800 font-medium">{t('business.management.success')}</span>
+        </motion.div>
+      )}
+
+      {/* Error Message */}
+      {formError && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3"
+        >
+          <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
+          <span className="text-red-800 font-medium">{formError}</span>
+        </motion.div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Information */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center space-x-3 mb-6">
+            <BuildingStorefrontIcon className="w-6 h-6 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.basic.title')}</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                {t('business.fields.name.required')}
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name || ''}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="logo_url" className="block text-sm font-medium text-gray-700 mb-2">
+                <PhotoIcon className="w-4 h-4 inline mr-1" />
+                {t('business.fields.logoUrl')}
+              </label>
+              <input
+                type="url"
+                id="logo_url"
+                name="logo_url"
+                value={formData.logo_url || ''}
+                onChange={handleInputChange}
+                placeholder={t('business.fields.logoUrl.placeholder')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Regional Settings */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center space-x-3 mb-6">
+            <GlobeAltIcon className="w-6 h-6 text-green-600" />
+            <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.regional.title')}</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
+                <CurrencyDollarIcon className="w-4 h-4 inline mr-1" />
+                {t('business.fields.currency')}
+              </label>
+              <select
+                id="currency"
+                name="currency"
+                value={formData.currency || 'ALL'}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="ALL">Albanian Lek (ALL)</option>
+                <option value="EUR">Euro (EUR)</option>
+                <option value="USD">US Dollar (USD)</option>
+                <option value="GBP">British Pound (GBP)</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 mb-2">
+                <ClockIcon className="w-4 h-4 inline mr-1" />
+                {t('business.fields.timezone')}
+              </label>
+              <select
+                id="timezone"
+                name="timezone"
+                value={formData.timezone || 'Europe/Tirane'}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="Europe/Tirane">Europe/Tirane</option>
+                <option value="Europe/London">Europe/London</option>
+                <option value="Europe/Paris">Europe/Paris</option>
+                <option value="Europe/Berlin">Europe/Berlin</option>
+                <option value="America/New_York">America/New_York</option>
+                <option value="America/Los_Angeles">America/Los_Angeles</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Address Information */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center space-x-3 mb-6">
+            <MapPinIcon className="w-6 h-6 text-purple-600" />
+            <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.address.title')}</h2>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="address_line1" className="block text-sm font-medium text-gray-700 mb-2">
+                {t('business.fields.addressLine1')}
+              </label>
+              <input
+                type="text"
+                id="address_line1"
+                name="address_line1"
+                value={formData.address_line1 || ''}
+                onChange={handleInputChange}
+                placeholder={t('business.fields.addressLine1.placeholder')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="address_line2" className="block text-sm font-medium text-gray-700 mb-2">
+                {t('business.fields.addressLine2')}
+              </label>
+              <input
+                type="text"
+                id="address_line2"
+                name="address_line2"
+                value={formData.address_line2 || ''}
+                onChange={handleInputChange}
+                placeholder={t('business.fields.addressLine2.placeholder')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('business.fields.city')}
+                </label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  value={formData.city || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="postal_code" className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('business.fields.postalCode')}
+                </label>
+                <input
+                  type="text"
+                  id="postal_code"
+                  name="postal_code"
+                  value={formData.postal_code || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Form Actions */}
+        <div className="flex justify-end space-x-4">
+          <button
+            type="submit"
+            disabled={updating}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+          >
+            {updating && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            )}
+            <span>{updating ? t('business.management.updating') : t('business.management.update')}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
 type TabType = 'dashboard' | 'settings' | 'bookings' | 'calendar' | 'tables';
 
@@ -267,22 +1116,11 @@ const BusinessDashboard: React.FC = () => {
 
               {currentTab === 'dashboard' && (
                 <>
-                  <button
-                    onClick={() => handleTabChange('bookings')}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    <CalendarDaysIcon className="w-4 h-4 mr-2" />
-                    {t('business.dashboard.viewAllBookings')}
-                  </button>
-                  <button
-                    onClick={() => handleTabChange('calendar')}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    <CalendarDaysIcon className="w-4 h-4 mr-2" />
-                    {t('business.dashboard.calendar')}
-                  </button>
+                  {/* Removed View All Bookings and Calendar buttons */}
                 </>
               )}
+
+              {/* Removed Manage Tables button */}
             </div>
           </div>
           
@@ -310,6 +1148,16 @@ const BusinessDashboard: React.FC = () => {
                 {t('business.dashboard.tabs.settings')}
               </button>
               <button
+                onClick={() => handleTabChange('tables')}
+                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                  currentTab === 'tables'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {t('business.dashboard.tabs.tables')}
+              </button>
+              <button
                 onClick={() => handleTabChange('bookings')}
                 className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
                   currentTab === 'bookings'
@@ -328,16 +1176,6 @@ const BusinessDashboard: React.FC = () => {
                 }`}
               >
                 {t('business.dashboard.tabs.calendar')}
-              </button>
-              <button
-                onClick={() => handleTabChange('tables')}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                  currentTab === 'tables'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {t('dashboard.yourBusinesses.tables')}
               </button>
             </nav>
           </div>
@@ -709,13 +1547,7 @@ const BusinessDashboard: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="text-center py-12">
-                <CogIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Settings</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Business settings will be implemented here.
-                </p>
-              </div>
+              <SettingsWrapper />
             </motion.div>
           )}
 
@@ -727,13 +1559,7 @@ const BusinessDashboard: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="text-center py-12">
-                <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Bookings</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Booking management will be implemented here.
-                </p>
-              </div>
+              <BookingListWrapper />
             </motion.div>
           )}
 
@@ -745,13 +1571,7 @@ const BusinessDashboard: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="text-center py-12">
-                <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Calendar</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Calendar view will be implemented here.
-                </p>
-              </div>
+              <BookingCalendarWrapper />
             </motion.div>
           )}
         </AnimatePresence>

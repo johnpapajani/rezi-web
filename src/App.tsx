@@ -49,39 +49,7 @@ function App() {
                 } 
               />
               <Route 
-                path="/business/:bizId" 
-                element={
-                  <ProtectedRoute>
-                    <BusinessDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/business/:bizId/settings" 
-                element={
-                  <ProtectedRoute>
-                    <BusinessManagement />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/business/:bizId/bookings" 
-                element={
-                  <ProtectedRoute>
-                    <BookingList />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/business/:bizId/calendar" 
-                element={
-                  <ProtectedRoute>
-                    <BookingCalendar />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/business/:bizId/tables" 
+                path="/business/:bizId/*" 
                 element={
                   <ProtectedRoute>
                     <BusinessDashboard />
