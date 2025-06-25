@@ -230,7 +230,7 @@ export const translations: Translations = {
     'business.dashboard.error.return': 'Kthehu në Dashboard',
     'business.dashboard.viewAllBookings': 'Shiko të Gjitha Rezervimet',
     'business.dashboard.calendar': 'Kalendar',
-    'business.dashboard.tabs.dashboard': 'Dashboard',
+    'business.dashboard.tabs.dashboard': 'Paneli',
     'business.dashboard.tabs.settings': 'Cilësimet',
     'business.dashboard.tabs.tables': 'Tavolinat',
     'business.dashboard.tabs.bookings': 'Rezervimet',
