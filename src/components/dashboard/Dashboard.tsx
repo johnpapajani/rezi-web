@@ -207,6 +207,15 @@ const Dashboard: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          navigate(`/business/${business.id}/tables`);
+                        }}
+                        className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+                      >
+                        {t('dashboard.yourBusinesses.tables')}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
                           navigate(`/business/${business.id}/bookings`);
                         }}
                         className="text-blue-600 hover:text-blue-800 text-sm font-medium"

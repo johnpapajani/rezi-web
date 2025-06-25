@@ -80,6 +80,14 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
+              <Route 
+                path="/business/:bizId/tables" 
+                element={
+                  <ProtectedRoute>
+                    <BusinessDashboard />
+                  </ProtectedRoute>
+                } 
+              />
               {/* Redirect any unknown routes to home */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

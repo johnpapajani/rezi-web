@@ -1,4 +1,4 @@
-import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, DailyBookingSummary, BookingAnalytics } from '../types';
+import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -342,6 +342,99 @@ export const bookingApi = {
     if (!response.ok) {
       const errorData = await response.json();
       throw new ApiErrorClass(errorData.detail || 'Failed to cancel booking', response.status);
+    }
+  },
+};
+
+// Table API functions
+export const tableApi = {
+  getTables: async (bizId: string): Promise<Table[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/tables`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<Table[]>(response);
+  },
+
+  getTable: async (bizId: string, tableId: string): Promise<Table> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/tables/${tableId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<Table>(response);
+  },
+
+  createTable: async (bizId: string, tableData: TableCreate): Promise<Table> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/tables`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(tableData),
+    });
+    
+    return handleResponse<Table>(response);
+  },
+
+  updateTable: async (bizId: string, tableId: string, tableUpdate: TableUpdate): Promise<Table> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/tables/${tableId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(tableUpdate),
+    });
+    
+    return handleResponse<Table>(response);
+  },
+
+  deleteTable: async (bizId: string, tableId: string): Promise<void> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/tables/${tableId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new ApiErrorClass(errorData.detail || 'Failed to delete table', response.status);
     }
   },
 }; 

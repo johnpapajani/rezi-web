@@ -229,4 +229,27 @@ export interface BookingAnalytics {
   most_popular_service?: string;
   busiest_day?: string;
   busiest_hour?: number;
+}
+
+// Table types
+export interface Table {
+  id: string;
+  code: string;
+  seats: number;
+  merge_group?: string;
+  is_active: boolean;
+}
+
+export interface TableCreate {
+  code: string;
+  seats: number;
+  merge_group?: string;
+  is_active?: boolean;
+}
+
+export interface TableUpdate {
+  code?: string;
+  seats?: number;
+  merge_group?: string;
+  is_active?: boolean;
 } 
