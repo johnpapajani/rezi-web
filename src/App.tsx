@@ -6,12 +6,13 @@ import LandingPage from './components/pages/LandingPage';
 import SignUp from './components/auth/SignUp';
 import SignIn from './components/auth/SignIn';
 import Dashboard from './components/dashboard/Dashboard';
+import BusinessOnboarding from './components/onboarding/BusinessOnboarding';
 import BusinessManagement from './components/pages/BusinessManagement';
 import BusinessDashboard from './components/pages/BusinessDashboard';
 import BusinessList from './components/pages/BusinessList';
-import CreateBusiness from './components/pages/CreateBusiness';
 import BookingList from './components/pages/BookingList';
 import BookingCalendar from './components/pages/BookingCalendar';
+import ServiceSelection from './components/pages/ServiceSelection';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
@@ -24,6 +25,14 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/signin" element={<SignIn />} />
+              <Route 
+                path="/onboarding" 
+                element={
+                  <ProtectedRoute>
+                    <BusinessOnboarding />
+                  </ProtectedRoute>
+                } 
+              />
               <Route 
                 path="/dashboard" 
                 element={
@@ -44,7 +53,15 @@ function App() {
                 path="/business/create" 
                 element={
                   <ProtectedRoute>
-                    <CreateBusiness />
+                    <BusinessOnboarding />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/business/:bizId/select-service" 
+                element={
+                  <ProtectedRoute>
+                    <ServiceSelection />
                   </ProtectedRoute>
                 } 
               />

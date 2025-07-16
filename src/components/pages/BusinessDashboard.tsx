@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CalendarDaysIcon,
@@ -30,6 +30,7 @@ import { useBusiness } from '../../hooks/useBusiness';
 import { useBookings, useUpcomingBookings, useCalendarBookings } from '../../hooks/useBookings';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useTables } from '../../hooks/useTables';
+import { useServices } from '../../hooks/useServices';
 import UpcomingBookings from '../dashboard/UpcomingBookings';
 import { BookingStatus, Table, TableCreate, TableUpdate, BookingWithService, BusinessUpdate } from '../../types';
 
@@ -875,15 +876,21 @@ const SettingsWrapper: React.FC = () => {
   );
 };
 
-type TabType = 'dashboard' | 'settings' | 'bookings' | 'calendar' | 'tables';
+type TabType = 'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar';
 
 const BusinessDashboard: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const selectedServiceId = searchParams.get('service');
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const { business, loading: businessLoading, error: businessError } = useBusiness({ bizId: bizId || '' });
   const { bookings, loading: bookingsLoading, searchBookings } = useBookings({ bizId: bizId || '' });
+  const { services, loading: servicesLoading } = useServices({ bizId: bizId || '' });
+
+  // Get the selected service
+  const selectedService = services.find(service => service.id === selectedServiceId);
   const { 
     tables, 
     loading: tablesLoading, 
@@ -902,6 +909,7 @@ const BusinessDashboard: React.FC = () => {
   const [editingTable, setEditingTable] = useState<Table | null>(null);
   const [deletingTable, setDeletingTable] = useState<Table | null>(null);
   const [formData, setFormData] = useState<TableCreate>({
+    service_id: '',
     code: '',
     seats: 2,
     merge_group: '',
@@ -936,7 +944,7 @@ const BusinessDashboard: React.FC = () => {
     try {
       await createTable(formData);
       setIsCreateModalOpen(false);
-      setFormData({ code: '', seats: 2, merge_group: '', is_active: true });
+      setFormData({ service_id: '', code: '', seats: 2, merge_group: '', is_active: true });
     } catch (error) {
       // Error is handled by the hook
     }
@@ -949,7 +957,7 @@ const BusinessDashboard: React.FC = () => {
     try {
       await updateTable(editingTable.id, formData);
       setEditingTable(null);
-      setFormData({ code: '', seats: 2, merge_group: '', is_active: true });
+      setFormData({ service_id: '', code: '', seats: 2, merge_group: '', is_active: true });
     } catch (error) {
       // Error is handled by the hook
     }
@@ -969,6 +977,7 @@ const BusinessDashboard: React.FC = () => {
   const openEditModal = (table: Table) => {
     setEditingTable(table);
     setFormData({
+      service_id: table.service_id || '',
       code: table.code,
       seats: table.seats,
       merge_group: table.merge_group || '',

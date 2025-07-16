@@ -33,7 +33,11 @@ const BookingList: React.FC = () => {
   const [dateFilter, setDateFilter] = useState<'today' | 'tomorrow' | 'week' | 'month' | ''>('');
   const [selectedBooking, setSelectedBooking] = useState<BookingWithService | null>(null);
   const [showBookingDetails, setShowBookingDetails] = useState(false);
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'settings' | 'tables' | 'bookings' | 'calendar'>('bookings');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar'>('bookings');
+
+  const handleTabChange = (tab: 'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar') => {
+    setCurrentTab(tab);
+  };
 
   // Load bookings on component mount
   useEffect(() => {
@@ -188,7 +192,7 @@ const BookingList: React.FC = () => {
           <BusinessTabNavigation 
             bizId={bizId || ''} 
             currentTab={currentTab} 
-            onTabChange={setCurrentTab} 
+            onTabChange={handleTabChange} 
           />
         </div>
       </div>

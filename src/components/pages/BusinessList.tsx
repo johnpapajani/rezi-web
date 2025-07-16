@@ -147,7 +147,7 @@ const BusinessList: React.FC = () => {
                      <span className="font-medium">{t('business.list.currency')}</span> {business.currency}
                    </div>
                    <button
-                     onClick={() => navigate(`/business/${business.id}`)}
+                     onClick={() => navigate(`/business/${business.id}/select-service`)}
                      className="flex items-center space-x-1 px-3 py-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
                    >
                      <CogIcon className="w-4 h-4" />

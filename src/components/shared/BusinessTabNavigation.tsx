@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '../../hooks/useTranslation';
 
-type TabType = 'dashboard' | 'settings' | 'tables' | 'bookings' | 'calendar';
+type TabType = 'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar';
 
 interface BusinessTabNavigationProps {
   bizId: string;
@@ -49,6 +49,16 @@ const BusinessTabNavigation: React.FC<BusinessTabNavigationProps> = ({
           }`}
         >
           {t('business.dashboard.tabs.settings')}
+        </button>
+        <button
+          onClick={() => handleTabClick('services')}
+          className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+            currentTab === 'services'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          }`}
+        >
+          {t('business.dashboard.tabs.services')}
         </button>
         <button
           onClick={() => handleTabClick('tables')}

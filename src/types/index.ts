@@ -138,6 +138,52 @@ export interface BusinessCreate {
   country_code?: string;
 }
 
+// Service types
+export interface Service {
+  id: string;
+  business_id: string;
+  name: string;
+  description?: string;
+  duration_minutes: number;
+  price_minor: number; // Price in minor currency units (e.g., cents)
+  is_active: boolean;
+  opening_hours: ServiceHours[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ServiceHours {
+  id?: string;
+  service_id?: string;
+  day_of_week: number; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  opens_at: string; // Time in HH:MM format (24h)
+  closes_at: string; // Time in HH:MM format (24h)
+  is_closed: boolean; // True if closed on this day
+}
+
+export interface ServiceCreate {
+  name: string;
+  description?: string;
+  duration_minutes: number;
+  price_minor: number;
+  is_active?: boolean;
+  opening_hours: Omit<ServiceHours, 'id' | 'service_id'>[];
+}
+
+export interface ServiceUpdate {
+  name?: string;
+  description?: string;
+  duration_minutes?: number;
+  price_minor?: number;
+  is_active?: boolean;
+  opening_hours?: Omit<ServiceHours, 'id' | 'service_id'>[];
+}
+
+export interface ServiceWithTables extends Service {
+  tables: Table[];
+  table_count: number;
+}
+
 // Booking types
 export enum BookingStatus {
   pending = 'pending',
@@ -234,13 +280,18 @@ export interface BookingAnalytics {
 // Table types
 export interface Table {
   id: string;
+  business_id: string;
+  service_id: string;
   code: string;
   seats: number;
   merge_group?: string;
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface TableCreate {
+  service_id: string;
   code: string;
   seats: number;
   merge_group?: string;
@@ -248,6 +299,7 @@ export interface TableCreate {
 }
 
 export interface TableUpdate {
+  service_id?: string;
   code?: string;
   seats?: number;
   merge_group?: string;

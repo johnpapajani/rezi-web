@@ -28,7 +28,11 @@ const BusinessManagement: React.FC = () => {
   const [formData, setFormData] = useState<BusinessUpdate>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'settings' | 'tables' | 'bookings' | 'calendar'>('settings');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar'>('settings');
+
+  const handleTabChange = (tab: 'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar') => {
+    setCurrentTab(tab);
+  };
 
   // Populate form when business data loads
   useEffect(() => {
@@ -156,7 +160,7 @@ const BusinessManagement: React.FC = () => {
           <BusinessTabNavigation 
             bizId={bizId || ''} 
             currentTab={currentTab} 
-            onTabChange={setCurrentTab} 
+            onTabChange={handleTabChange} 
           />
         </div>
       </div>

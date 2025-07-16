@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -26,6 +26,9 @@ const Dashboard: React.FC = () => {
   const handleSignOut = async () => {
     await signOut();
   };
+
+  // Remove the auto-redirect effect - users should stay on dashboard
+  // and see the option to create a business
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -186,7 +189,7 @@ const Dashboard: React.FC = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer"
-                    onClick={() => navigate(`/business/${business.id}`)}
+                    onClick={() => navigate(`/business/${business.id}/select-service`)}
                   >
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
@@ -207,29 +210,20 @@ const Dashboard: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/business/${business.id}/tables`);
+                          navigate(`/business/${business.id}/select-service`);
                         }}
                         className="text-purple-600 hover:text-purple-800 text-sm font-medium"
                       >
-                        {t('dashboard.yourBusinesses.tables')}
+                        {t('dashboard.yourBusinesses.manage')}
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/business/${business.id}/bookings`);
+                          navigate(`/business/${business.id}/settings`);
                         }}
                         className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                       >
-                        {t('dashboard.yourBusinesses.bookings')}
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/business/${business.id}/calendar`);
-                        }}
-                        className="text-green-600 hover:text-green-800 text-sm font-medium"
-                      >
-                        {t('dashboard.yourBusinesses.calendar')}
+                        {t('dashboard.yourBusinesses.settings')}
                       </button>
                     </div>
                   </motion.div>

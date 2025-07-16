@@ -37,6 +37,7 @@ const TableManagement: React.FC = () => {
   const [editingTable, setEditingTable] = useState<Table | null>(null);
   const [deletingTable, setDeletingTable] = useState<Table | null>(null);
   const [formData, setFormData] = useState<TableCreate>({
+    service_id: '',
     code: '',
     seats: 2,
     merge_group: '',
@@ -48,7 +49,7 @@ const TableManagement: React.FC = () => {
     try {
       await createTable(formData);
       setIsCreateModalOpen(false);
-      setFormData({ code: '', seats: 2, merge_group: '', is_active: true });
+      setFormData({ service_id: '', code: '', seats: 2, merge_group: '', is_active: true });
     } catch (error) {
       // Error is handled by the hook
     }
@@ -61,7 +62,7 @@ const TableManagement: React.FC = () => {
     try {
       await updateTable(editingTable.id, formData);
       setEditingTable(null);
-      setFormData({ code: '', seats: 2, merge_group: '', is_active: true });
+      setFormData({ service_id: '', code: '', seats: 2, merge_group: '', is_active: true });
     } catch (error) {
       // Error is handled by the hook
     }
@@ -81,6 +82,7 @@ const TableManagement: React.FC = () => {
   const openEditModal = (table: Table) => {
     setEditingTable(table);
     setFormData({
+      service_id: table.service_id || '',
       code: table.code,
       seats: table.seats,
       merge_group: table.merge_group || '',

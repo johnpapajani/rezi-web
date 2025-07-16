@@ -25,7 +25,11 @@ const BookingCalendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'settings' | 'tables' | 'bookings' | 'calendar'>('calendar');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar'>('calendar');
+
+  const handleTabChange = (tab: 'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar') => {
+    setCurrentTab(tab);
+  };
 
   // Generate calendar days for month view
   const generateCalendarDays = () => {
@@ -641,7 +645,7 @@ const BookingCalendar: React.FC = () => {
           <BusinessTabNavigation 
             bizId={bizId || ''} 
             currentTab={currentTab} 
-            onTabChange={setCurrentTab} 
+            onTabChange={handleTabChange} 
           />
         </div>
       </div>
