@@ -24,70 +24,7 @@ app.include_router(business_router)
 # ... other routers
 ```
 
-### 2. Add User Services Endpoint
-
-Add an endpoint to get all services a user has access to across all businesses:
-
-```python
-# In your business or service router
-@router.get("/services/user", response_model=List[ServiceWithBusiness])
-def get_user_services(
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Get all services that the user has access to across all businesses."""
-    
-    # Get all businesses the user has access to
-    user_business_ids = {str(link.business_id) for link in current_user.business_links}
-    
-    # Get all services from those businesses
-    services = db.query(models.Service).join(
-        models.Business, models.Service.business_id == models.Business.id
-    ).filter(
-        models.Business.id.in_(user_business_ids),
-        models.Service.is_active == True
-    ).all()
-    
-    # Transform to include business information
-    result = []
-    for service in services:
-        user_link = next(
-            (link for link in current_user.business_links 
-             if str(link.business_id) == str(service.business_id)), 
-            None
-        )
-        
-        # Count tables and recent bookings
-        table_count = db.query(models.TableResource).filter(
-            models.TableResource.service_id == service.id,
-            models.TableResource.is_active == True
-        ).count()
-        
-        recent_bookings_count = db.query(models.Booking).filter(
-            models.Booking.service_id == service.id,
-            models.Booking.created_at >= datetime.now() - timedelta(days=30)
-        ).count()
-        
-        result.append({
-            "id": service.id,
-            "business_id": service.business_id,
-            "business_name": service.business.name,
-            "business_role": user_link.role.value if user_link else "unknown",
-            "name": service.name,
-            "description": service.description,
-            "duration_minutes": service.duration_min,
-            "price_minor": service.price_minor,
-            "is_active": service.is_active,
-            "table_count": table_count,
-            "recent_bookings_count": recent_bookings_count,
-            "created_at": service.created_at,
-            "updated_at": service.updated_at,
-        })
-    
-    return result
-```
-
-### 3. Add Service Details Endpoint
+### 2. Add Service Details Endpoint
 
 Add an endpoint to get individual service details:
 
@@ -141,16 +78,10 @@ def get_service_details(
 - Direct management of tables, bookings, and availability for a service
 
 ### 3. Updated API Layer (`utils/api.ts`)
-- Added `getUserServices()` - gets all user services across businesses
 - Added service-centric endpoints that use the service router
 - Service-specific operations for tables, bookings, and availability
 
-### 4. New Hook (`useUserServices.tsx`)
-- Manages the state for all user services
-- Handles loading and error states
-- Provides refresh functionality
-
-### 5. Updated Routes (`App.tsx`)
+### 4. Updated Routes (`App.tsx`)
 - `/dashboard` → Business dashboard (shows all user businesses)
 - `/business/:bizId` → Service selection for specific business
 - `/service/:serviceId` → Direct service management
@@ -195,7 +126,6 @@ def get_service_details(
 ## Backend Requirements
 
 Make sure your service router includes all the endpoints used:
-- `GET /services/user` - Get all user services
 - `GET /services/{service_id}` - Get service details
 - `GET /services/{service_id}/tables` - Get service tables
 - `POST /services/{service_id}/tables` - Add service table
@@ -203,4 +133,4 @@ Make sure your service router includes all the endpoints used:
 - `POST /services/{service_id}/bookings` - Create service booking
 - `GET /services/{service_id}/availability` - Check service availability
 
-The service router you provided already includes most of these endpoints! 
+The service router you provided already includes all of these endpoints! 

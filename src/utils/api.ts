@@ -182,22 +182,7 @@ export const businessApi = {
 
 // Service API functions
 export const serviceApi = {
-  getUserServices: async (): Promise<any[]> => {
-    const accessToken = tokenStorage.getAccessToken();
-    if (!accessToken) {
-      throw new ApiErrorClass('No access token available', 401);
-    }
 
-    const response = await fetch(`${API_BASE_URL}/services/user`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    return handleResponse<any[]>(response);
-  },
 
   getServices: async (bizId: string, activeOnly: boolean = true): Promise<ServiceWithTables[]> => {
     const accessToken = tokenStorage.getAccessToken();

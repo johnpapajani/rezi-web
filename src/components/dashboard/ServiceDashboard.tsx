@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -64,7 +64,7 @@ const ServiceDashboard: React.FC = () => {
   };
 
   const handleCreateService = () => {
-    navigate(`/business/${bizId}/services`); // Navigate to service management for this business
+    navigate(`/business/${bizId}/services`);
   };
 
   const activeServices = services.filter(service => service.is_active);
@@ -75,7 +75,7 @@ const ServiceDashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading services...</p>
+          <p className="text-gray-600">{t('serviceDashboard.loadingServices')}</p>
         </div>
       </div>
     );
@@ -86,13 +86,13 @@ const ServiceDashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <ExclamationTriangleIcon className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Services</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('serviceDashboard.errorLoadingServices')}</h2>
           <p className="text-red-600 mb-4">{businessError || servicesError}</p>
           <button
             onClick={() => navigate('/dashboard')}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
-            Return to Dashboard
+            {t('serviceDashboard.returnToDashboard')}
           </button>
         </div>
       </div>
@@ -126,10 +126,10 @@ const ServiceDashboard: React.FC = () => {
                 )}
                 <div>
                   <h1 className="text-xl font-semibold text-gray-900">
-                    {business?.name} Services
+                    {business?.name} {t('serviceDashboard.title')}
                   </h1>
                   <p className="text-sm text-gray-500">
-                    Select a service to manage
+                    {t('serviceDashboard.subtitle')}
                   </p>
                 </div>
               </div>
@@ -140,31 +140,41 @@ const ServiceDashboard: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 rounded-md hover:bg-gray-100 transition-colors"
+                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
                 >
-                  <GlobeAltIcon className="w-4 h-4" />
-                  <span className="uppercase font-medium">{currentLanguage}</span>
+                  <GlobeAltIcon className="w-5 h-5" />
+                  <span className="text-sm">
+                    {languages.find(lang => lang.code === currentLanguage)?.flag}
+                  </span>
                   <ChevronDownIcon className="w-4 h-4" />
                 </button>
 
-                {isLanguageOpen && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10">
-                    {languages.map((lang) => (
-                      <button
-                        key={lang.code}
-                        onClick={() => {
-                          setLanguage(lang.code);
-                          setIsLanguageOpen(false);
-                        }}
-                        className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                          currentLanguage === lang.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
-                        }`}
-                      >
-                        {lang.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <AnimatePresence>
+                  {isLanguageOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                    >
+                      {languages.map((language) => (
+                        <button
+                          key={language.code}
+                          onClick={() => {
+                            setLanguage(language.code);
+                            setIsLanguageOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
+                            currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                          }`}
+                        >
+                          <span>{language.flag}</span>
+                          <span>{language.name}</span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -199,28 +209,28 @@ const ServiceDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">
-                Available Services
+                {t('serviceDashboard.availableServices')}
               </h2>
               <button
                 onClick={handleCreateService}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <PlusIcon className="w-4 h-4 mr-2" />
-                Add Service
+                {t('serviceDashboard.addService')}
               </button>
             </div>
 
             {services.length === 0 ? (
               <div className="text-center py-12">
                 <BuildingStorefrontIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No services yet</h3>
-                <p className="text-gray-600 mb-6">Get started by creating your first service for this business.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('serviceDashboard.noServicesYet')}</h3>
+                <p className="text-gray-600 mb-6">{t('serviceDashboard.noServicesDescription')}</p>
                 <button
                   onClick={handleCreateService}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <PlusIcon className="w-4 h-4 mr-2" />
-                  Create Your First Service
+                  {t('serviceDashboard.createFirstService')}
                 </button>
               </div>
             ) : (
@@ -228,7 +238,7 @@ const ServiceDashboard: React.FC = () => {
                 {/* Active Services */}
                 {activeServices.length > 0 && (
                   <div className="mb-8">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Active Services</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{t('serviceDashboard.activeServices')}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {activeServices.map((service, index) => (
                         <motion.div
@@ -258,23 +268,23 @@ const ServiceDashboard: React.FC = () => {
                             <div className="flex items-center space-x-2">
                               <CurrencyDollarIcon className="w-4 h-4 text-gray-400" />
                               <span className="text-gray-600">
-                                {service.price_minor > 0 ? formatPrice(service.price_minor, business?.currency) : 'Free'}
+                                {service.price_minor > 0 ? formatPrice(service.price_minor, business?.currency) : t('common.free')}
                               </span>
                             </div>
                             <div className="flex items-center space-x-2">
                               <RectangleGroupIcon className="w-4 h-4 text-gray-400" />
-                              <span className="text-gray-600">{service.table_count || 0} tables</span>
+                              <span className="text-gray-600">{service.table_count || 0} {t('services.tables')}</span>
                             </div>
                             <div className="flex items-center space-x-2">
                               <CalendarDaysIcon className="w-4 h-4 text-gray-400" />
-                              <span className="text-gray-600">Recent bookings</span>
+                              <span className="text-gray-600">{t('serviceDashboard.recentBookings')}</span>
                             </div>
                           </div>
 
                           <div className="border-t border-gray-100 pt-4">
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                               <EyeIcon className="w-3 h-3 mr-1" />
-                              Active
+                              {t('common.active')}
                             </span>
                           </div>
                         </motion.div>
@@ -286,7 +296,7 @@ const ServiceDashboard: React.FC = () => {
                 {/* Inactive Services */}
                 {inactiveServices.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Inactive Services</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{t('serviceDashboard.inactiveServices')}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {inactiveServices.map((service, index) => (
                         <motion.div
@@ -303,12 +313,12 @@ const ServiceDashboard: React.FC = () => {
                             </h4>
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                               <EyeSlashIcon className="w-3 h-3 mr-1" />
-                              Inactive
+                              {t('common.inactive')}
                             </span>
                           </div>
 
                           <div className="border-t border-gray-200 pt-4">
-                            <p className="text-sm text-gray-500">Click to manage</p>
+                            <p className="text-sm text-gray-500">{t('serviceDashboard.clickToManage')}</p>
                           </div>
                         </motion.div>
                       ))}

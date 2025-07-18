@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { serviceApi } from '../../utils/api';
 import { 
@@ -18,6 +18,8 @@ import {
   EyeIcon,
   PencilIcon,
   TrashIcon,
+  GlobeAltIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 
 interface ServiceData {
@@ -38,7 +40,7 @@ type TabType = 'dashboard' | 'bookings' | 'tables' | 'availability' | 'settings'
 const ServiceManagementDashboard: React.FC = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, currentLanguage, setLanguage, languages } = useTranslation();
   
   const [service, setService] = useState<ServiceData | null>(null);
   const [tables, setTables] = useState<any[]>([]);
@@ -46,6 +48,7 @@ const ServiceManagementDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<TabType>('dashboard');
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
   useEffect(() => {
     if (serviceId) {
@@ -105,7 +108,7 @@ const ServiceManagementDashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading service...</p>
+          <p className="text-gray-600">{t('serviceManagement.loadingService')}</p>
         </div>
       </div>
     );
@@ -116,13 +119,13 @@ const ServiceManagementDashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <ExclamationTriangleIcon className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Service</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('serviceManagement.errorLoadingService')}</h2>
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={() => navigate('/dashboard')}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
-            Return to Dashboard
+            {t('serviceDashboard.returnToDashboard')}
           </button>
         </div>
       </div>
@@ -133,12 +136,12 @@ const ServiceManagementDashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Service Not Found</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('serviceManagement.serviceNotFound')}</h2>
           <button
             onClick={() => navigate('/dashboard')}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
-            Return to Dashboard
+            {t('serviceDashboard.returnToDashboard')}
           </button>
         </div>
       </div>
@@ -179,6 +182,47 @@ const ServiceManagementDashboard: React.FC = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Language Selector */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  <GlobeAltIcon className="w-5 h-5" />
+                  <span className="text-sm">
+                    {languages.find(lang => lang.code === currentLanguage)?.flag}
+                  </span>
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+
+                <AnimatePresence>
+                  {isLanguageOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                    >
+                      {languages.map((language) => (
+                        <button
+                          key={language.code}
+                          onClick={() => {
+                            setLanguage(language.code);
+                            setIsLanguageOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
+                            currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                          }`}
+                        >
+                          <span>{language.flag}</span>
+                          <span>{language.name}</span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 service.is_active 
                   ? 'bg-green-100 text-green-800' 
@@ -187,12 +231,12 @@ const ServiceManagementDashboard: React.FC = () => {
                 {service.is_active ? (
                   <>
                     <EyeIcon className="w-3 h-3 mr-1" />
-                    Active
+                    {t('common.active')}
                   </>
                 ) : (
                   <>
                     <EyeIcon className="w-3 h-3 mr-1" />
-                    Inactive
+                    {t('common.inactive')}
                   </>
                 )}
               </span>
@@ -213,7 +257,7 @@ const ServiceManagementDashboard: React.FC = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Dashboard
+              {t('common.dashboard')}
             </button>
             <button
               onClick={() => handleTabChange('bookings')}
@@ -223,7 +267,7 @@ const ServiceManagementDashboard: React.FC = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Bookings
+              {t('serviceManagement.tabs.bookings')}
             </button>
             <button
               onClick={() => handleTabChange('tables')}
@@ -233,7 +277,7 @@ const ServiceManagementDashboard: React.FC = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Tables
+              {t('serviceManagement.tabs.tables')}
             </button>
             <button
               onClick={() => handleTabChange('availability')}
@@ -243,7 +287,7 @@ const ServiceManagementDashboard: React.FC = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Availability
+              {t('serviceManagement.tabs.availability')}
             </button>
             <button
               onClick={() => handleTabChange('settings')}
@@ -253,7 +297,7 @@ const ServiceManagementDashboard: React.FC = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Settings
+              {t('common.settings')}
             </button>
           </nav>
         </div>
@@ -270,37 +314,37 @@ const ServiceManagementDashboard: React.FC = () => {
           >
             {/* Service Overview */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Service Overview</h2>
+              <h2 className="text-lg font-medium text-gray-900 mb-4">{t('serviceManagement.overview.title')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="mx-auto w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
                     <ClockIcon className="w-6 h-6 text-blue-600" />
                   </div>
                   <p className="text-2xl font-semibold text-gray-900">{formatDuration(service.duration_minutes)}</p>
-                  <p className="text-sm text-gray-600">Duration</p>
+                  <p className="text-sm text-gray-600">{t('common.duration')}</p>
                 </div>
                 <div className="text-center">
                   <div className="mx-auto w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-3">
                     <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
                   </div>
                   <p className="text-2xl font-semibold text-gray-900">
-                    {service.price_minor > 0 ? formatPrice(service.price_minor) : 'Free'}
+                    {service.price_minor > 0 ? formatPrice(service.price_minor) : t('common.free')}
                   </p>
-                  <p className="text-sm text-gray-600">Base Price</p>
+                  <p className="text-sm text-gray-600">{t('serviceManagement.overview.basePrice')}</p>
                 </div>
                 <div className="text-center">
                   <div className="mx-auto w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
                     <RectangleGroupIcon className="w-6 h-6 text-purple-600" />
                   </div>
                   <p className="text-2xl font-semibold text-gray-900">{tables.length}</p>
-                  <p className="text-sm text-gray-600">Tables</p>
+                  <p className="text-sm text-gray-600">{t('serviceManagement.overview.tables')}</p>
                 </div>
                 <div className="text-center">
                   <div className="mx-auto w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-3">
                     <CalendarDaysIcon className="w-6 h-6 text-orange-600" />
                   </div>
                   <p className="text-2xl font-semibold text-gray-900">{confirmedBookings}</p>
-                  <p className="text-sm text-gray-600">Confirmed Bookings</p>
+                  <p className="text-sm text-gray-600">{t('serviceManagement.overview.confirmedBookings')}</p>
                 </div>
               </div>
             </div>
@@ -308,16 +352,16 @@ const ServiceManagementDashboard: React.FC = () => {
             {/* Recent Bookings */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium text-gray-900">Recent Bookings</h2>
+                <h2 className="text-lg font-medium text-gray-900">{t('serviceManagement.recentBookings.title')}</h2>
                 <button
                   onClick={() => handleTabChange('bookings')}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
-                  View All
+                  {t('serviceManagement.recentBookings.viewAll')}
                 </button>
               </div>
               {bookings.length === 0 ? (
-                <p className="text-gray-600 text-center py-8">No bookings yet</p>
+                <p className="text-gray-600 text-center py-8">{t('serviceManagement.recentBookings.noBookings')}</p>
               ) : (
                 <div className="space-y-3">
                   {bookings.slice(0, 5).map((booking) => (
@@ -330,7 +374,7 @@ const ServiceManagementDashboard: React.FC = () => {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">{booking.party_size} guests</p>
+                        <p className="text-sm font-medium text-gray-900">{booking.party_size} {t('serviceManagement.recentBookings.guests')}</p>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
                           booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -348,16 +392,16 @@ const ServiceManagementDashboard: React.FC = () => {
             {/* Tables Overview */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium text-gray-900">Tables</h2>
+                <h2 className="text-lg font-medium text-gray-900">{t('serviceManagement.tables.title')}</h2>
                 <button
                   onClick={() => handleTabChange('tables')}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
-                  Manage Tables
+                  {t('serviceManagement.tables.manageTables')}
                 </button>
               </div>
               {tables.length === 0 ? (
-                <p className="text-gray-600 text-center py-8">No tables configured yet</p>
+                <p className="text-gray-600 text-center py-8">{t('serviceManagement.tables.noTables')}</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {tables.slice(0, 6).map((table) => (
@@ -367,10 +411,10 @@ const ServiceManagementDashboard: React.FC = () => {
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           table.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {table.is_active ? 'Active' : 'Inactive'}
+                          {table.is_active ? t('common.active') : t('common.inactive')}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600">{table.seats} seats</p>
+                      <p className="text-sm text-gray-600">{table.seats} {t('serviceManagement.tables.seats')}</p>
                     </div>
                   ))}
                 </div>
@@ -386,8 +430,8 @@ const ServiceManagementDashboard: React.FC = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Bookings Management</h2>
-              <p className="text-gray-600">Bookings management interface will be implemented here.</p>
+              <h2 className="text-lg font-medium text-gray-900 mb-4">{t('serviceManagement.bookingsManagement.title')}</h2>
+              <p className="text-gray-600">{t('serviceManagement.bookingsManagement.description')}</p>
             </div>
           </motion.div>
         )}
@@ -399,8 +443,8 @@ const ServiceManagementDashboard: React.FC = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Tables Management</h2>
-              <p className="text-gray-600">Tables management interface will be implemented here.</p>
+              <h2 className="text-lg font-medium text-gray-900 mb-4">{t('serviceManagement.tablesManagement.title')}</h2>
+              <p className="text-gray-600">{t('serviceManagement.tablesManagement.description')}</p>
             </div>
           </motion.div>
         )}
@@ -412,8 +456,8 @@ const ServiceManagementDashboard: React.FC = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Availability Management</h2>
-              <p className="text-gray-600">Availability management interface will be implemented here.</p>
+              <h2 className="text-lg font-medium text-gray-900 mb-4">{t('serviceManagement.availabilityManagement.title')}</h2>
+              <p className="text-gray-600">{t('serviceManagement.availabilityManagement.description')}</p>
             </div>
           </motion.div>
         )}
@@ -425,8 +469,8 @@ const ServiceManagementDashboard: React.FC = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Service Settings</h2>
-              <p className="text-gray-600">Service settings interface will be implemented here.</p>
+              <h2 className="text-lg font-medium text-gray-900 mb-4">{t('serviceManagement.serviceSettings.title')}</h2>
+              <p className="text-gray-600">{t('serviceManagement.serviceSettings.description')}</p>
             </div>
           </motion.div>
         )}
