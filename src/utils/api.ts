@@ -330,6 +330,41 @@ export const serviceApi = {
     return handleResponse<Table>(response);
   },
 
+  getServiceTable: async (serviceId: string, tableId: string): Promise<Table> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/tables/${tableId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<Table>(response);
+  },
+
+  updateServiceTable: async (serviceId: string, tableId: string, tableUpdate: TableUpdate): Promise<Table> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/tables/${tableId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(tableUpdate),
+    });
+    
+    return handleResponse<Table>(response);
+  },
+
   getServiceBookings: async (serviceId: string, filters?: any): Promise<BookingWithService[]> => {
     const accessToken = tokenStorage.getAccessToken();
     if (!accessToken) {

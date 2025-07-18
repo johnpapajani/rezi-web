@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { serviceApi } from '../../utils/api';
+import { Table, TableCreate, TableUpdate } from '../../types';
 import { 
   ArrowLeftIcon,
   CalendarDaysIcon,
@@ -20,6 +21,7 @@ import {
   TrashIcon,
   GlobeAltIcon,
   ChevronDownIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 
 interface ServiceData {
@@ -43,12 +45,26 @@ const ServiceManagementDashboard: React.FC = () => {
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   
   const [service, setService] = useState<ServiceData | null>(null);
-  const [tables, setTables] = useState<any[]>([]);
+  const [tables, setTables] = useState<Table[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<TabType>('dashboard');
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  
+  // Table management state
+  const [isCreateTableModalOpen, setIsCreateTableModalOpen] = useState(false);
+  const [editingTable, setEditingTable] = useState<Table | null>(null);
+  const [deletingTable, setDeletingTable] = useState<Table | null>(null);
+  const [tableFormData, setTableFormData] = useState<TableCreate>({
+    service_id: serviceId || '',
+    code: '',
+    seats: 2,
+    merge_group: '',
+    is_active: true
+  });
+  const [tableOperationLoading, setTableOperationLoading] = useState(false);
+  const [tableError, setTableError] = useState<string | null>(null);
 
   useEffect(() => {
     if (serviceId) {
@@ -101,6 +117,97 @@ const ServiceManagementDashboard: React.FC = () => {
 
   const handleTabChange = (tab: TabType) => {
     setCurrentTab(tab);
+  };
+
+  // Table management handlers
+  const refreshTables = async () => {
+    if (!serviceId) return;
+    try {
+      const tablesData = await serviceApi.getServiceTables(serviceId);
+      setTables(tablesData);
+    } catch (err: any) {
+      setTableError(err.detail || 'Failed to refresh tables');
+    }
+  };
+
+  const handleCreateTable = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!serviceId) return;
+    
+    try {
+      setTableOperationLoading(true);
+      setTableError(null);
+      await serviceApi.addServiceTable(serviceId, tableFormData);
+      await refreshTables();
+      setIsCreateTableModalOpen(false);
+      setTableFormData({
+        service_id: serviceId,
+        code: '',
+        seats: 2,
+        merge_group: '',
+        is_active: true
+      });
+    } catch (err: any) {
+      setTableError(err.detail || 'Failed to create table');
+    } finally {
+      setTableOperationLoading(false);
+    }
+  };
+
+  const handleUpdateTable = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!serviceId || !editingTable) return;
+    
+    try {
+      setTableOperationLoading(true);
+      setTableError(null);
+      const updateData: TableUpdate = {
+        code: tableFormData.code,
+        seats: tableFormData.seats,
+        merge_group: tableFormData.merge_group,
+        is_active: tableFormData.is_active
+      };
+      await serviceApi.updateServiceTable(serviceId, editingTable.id, updateData);
+      await refreshTables();
+      setEditingTable(null);
+      setTableFormData({
+        service_id: serviceId,
+        code: '',
+        seats: 2,
+        merge_group: '',
+        is_active: true
+      });
+    } catch (err: any) {
+      setTableError(err.detail || 'Failed to update table');
+    } finally {
+      setTableOperationLoading(false);
+    }
+  };
+
+  const openEditModal = (table: Table) => {
+    setEditingTable(table);
+    setTableFormData({
+      service_id: serviceId || '',
+      code: table.code,
+      seats: table.seats,
+      merge_group: table.merge_group || '',
+      is_active: table.is_active
+    });
+    setTableError(null);
+  };
+
+  const closeModals = () => {
+    setIsCreateTableModalOpen(false);
+    setEditingTable(null);
+    setDeletingTable(null);
+    setTableError(null);
+    setTableFormData({
+      service_id: serviceId || '',
+      code: '',
+      seats: 2,
+      merge_group: '',
+      is_active: true
+    });
   };
 
   if (loading) {
@@ -442,9 +549,103 @@ const ServiceManagementDashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">{t('serviceManagement.tablesManagement.title')}</h2>
-              <p className="text-gray-600">{t('serviceManagement.tablesManagement.description')}</p>
+            {/* Error Display */}
+            {tableError && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
+                  <span className="text-red-800 font-medium">Error: {tableError}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Tables Management */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-medium text-gray-900">
+                    {t('serviceManagement.tablesManagement.title')} ({tables.length})
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {t('tables.subtitle')}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsCreateTableModalOpen(true)}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <PlusIcon className="w-4 h-4 mr-2" />
+                  {t('tables.addTable')}
+                </button>
+              </div>
+
+              {tables.length === 0 ? (
+                <div className="text-center py-12">
+                  <RectangleGroupIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">{t('serviceManagement.tables.noTables')}</h3>
+                  <p className="text-gray-500 mb-6">Get started by creating your first table for this service.</p>
+                  <button
+                    onClick={() => setIsCreateTableModalOpen(true)}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    <PlusIcon className="w-4 h-4 mr-2" />
+                    {t('tables.addTable')}
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                  {tables.map((table) => (
+                    <motion.div
+                      key={table.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-blue-300 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-3 h-3 rounded-full ${table.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                          <h3 className="text-lg font-medium text-gray-900">{table.code}</h3>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => openEditModal(table)}
+                            className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setDeletingTable(table)}
+                            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Seats:</span>
+                          <span className="text-sm font-medium text-gray-900">{table.seats}</span>
+                        </div>
+                        {table.merge_group && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">Group:</span>
+                            <span className="text-sm font-medium text-gray-900">{table.merge_group}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Status:</span>
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            table.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {table.is_active ? t('common.active') : t('common.inactive')}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -475,6 +676,203 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
       </main>
+
+      {/* Create/Edit Table Modal */}
+      <AnimatePresence>
+        {(isCreateTableModalOpen || editingTable) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onClick={closeModals}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  {editingTable ? t('tables.editTable') : t('tables.createTable')}
+                </h3>
+                <button
+                  onClick={closeModals}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              {tableError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <ExclamationTriangleIcon className="w-4 h-4 text-red-600" />
+                    <span className="text-red-800 text-sm">{tableError}</span>
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={editingTable ? handleUpdateTable : handleCreateTable} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('tables.tableCode')}
+                  </label>
+                  <input
+                    type="text"
+                    value={tableFormData.code}
+                    onChange={(e) => setTableFormData({ ...tableFormData, code: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="T1, A01, VIP1..."
+                    required
+                    maxLength={40}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    A unique identifier for this table (e.g., T1, A01, VIP1)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('tables.seats')}
+                  </label>
+                  <input
+                    type="number"
+                    value={tableFormData.seats}
+                    onChange={(e) => setTableFormData({ ...tableFormData, seats: parseInt(e.target.value) || 1 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    min="1"
+                    required
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Number of people this table can accommodate
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('tables.mergeGroup')}
+                  </label>
+                  <input
+                    type="text"
+                    value={tableFormData.merge_group}
+                    onChange={(e) => setTableFormData({ ...tableFormData, merge_group: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Optional group name..."
+                    maxLength={40}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Optional: Group tables that can be combined for larger parties
+                  </p>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="is_active"
+                    checked={tableFormData.is_active}
+                    onChange={(e) => setTableFormData({ ...tableFormData, is_active: e.target.checked })}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="is_active" className="ml-2 block text-sm text-gray-700">
+                    {t('tables.active')}
+                  </label>
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={closeModals}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    {t('tables.cancel')}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={tableOperationLoading}
+                    className="flex-1 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {tableOperationLoading ? t('tables.saving') : (editingTable ? t('tables.update') : t('tables.create'))}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deletingTable && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onClick={() => setDeletingTable(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Deactivate Table
+                </h3>
+                <button
+                  onClick={() => setDeletingTable(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-gray-600">
+                  Are you sure you want to deactivate table <strong>{deletingTable.code}</strong>? 
+                  This will make it unavailable for new bookings, but existing bookings will remain unchanged.
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  You can reactivate it later by editing the table.
+                </p>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setDeletingTable(null)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!serviceId || !deletingTable) return;
+                    try {
+                      setTableOperationLoading(true);
+                      await serviceApi.updateServiceTable(serviceId, deletingTable.id, { is_active: false });
+                      await refreshTables();
+                      setDeletingTable(null);
+                    } catch (err: any) {
+                      setTableError(err.detail || 'Failed to deactivate table');
+                    } finally {
+                      setTableOperationLoading(false);
+                    }
+                  }}
+                  disabled={tableOperationLoading}
+                  className="flex-1 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {tableOperationLoading ? 'Deactivating...' : 'Deactivate'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
