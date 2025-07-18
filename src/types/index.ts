@@ -304,4 +304,30 @@ export interface TableUpdate {
   seats?: number;
   merge_group?: string;
   is_active?: boolean;
+}
+
+// Resource types
+export interface Resource {
+  id: string;
+  business_id: string;
+  code: string;
+  seats: number;
+  merge_group?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ResourceCreate {
+  code: string;
+  seats: number;
+  merge_group?: string;
+  is_active?: boolean;
+}
+
+export interface ResourceUpdate {
+  code?: string;
+  seats?: number;
+  merge_group?: string;
+  is_active?: boolean;
 } 
