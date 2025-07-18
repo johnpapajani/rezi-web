@@ -6,6 +6,8 @@ import LandingPage from './components/pages/LandingPage';
 import SignUp from './components/auth/SignUp';
 import SignIn from './components/auth/SignIn';
 import Dashboard from './components/dashboard/Dashboard';
+import ServiceDashboard from './components/dashboard/ServiceDashboard';
+import ServiceManagementDashboard from './components/pages/ServiceManagementDashboard';
 import BusinessOnboarding from './components/onboarding/BusinessOnboarding';
 import BusinessManagement from './components/pages/BusinessManagement';
 import BusinessDashboard from './components/pages/BusinessDashboard';
@@ -38,6 +40,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/business/:bizId" 
+                element={
+                  <ProtectedRoute>
+                    <ServiceDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/service/:serviceId" 
+                element={
+                  <ProtectedRoute>
+                    <ServiceManagementDashboard />
                   </ProtectedRoute>
                 } 
               />
