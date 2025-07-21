@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { serviceApi } from '../../utils/api';
 import { useServiceBookings } from '../../hooks/useServiceBookings';
-import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus } from '../../types';
+import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate } from '../../types';
+import CreateBookingModal from '../modals/CreateBookingModal';
 import { 
   ArrowLeftIcon,
   CalendarDaysIcon,
@@ -89,6 +90,10 @@ const ServiceManagementDashboard: React.FC = () => {
   });
   const [tableOperationLoading, setTableOperationLoading] = useState(false);
   const [tableError, setTableError] = useState<string | null>(null);
+  
+  // Booking creation state
+  const [isCreateBookingModalOpen, setIsCreateBookingModalOpen] = useState(false);
+  const [bookingCreationSuccess, setBookingCreationSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     if (serviceId) {
@@ -312,6 +317,17 @@ const ServiceManagementDashboard: React.FC = () => {
     setTableError(null);
   };
 
+  // Booking creation handler
+  const handleCreateBooking = async (bookingData: BookingCreate) => {
+    try {
+      await createBooking(bookingData);
+      setBookingCreationSuccess(t('booking.create.success'));
+      setTimeout(() => setBookingCreationSuccess(null), 5000);
+    } catch (error: any) {
+      throw error; // Let the modal handle the error display
+    }
+  };
+
   const closeModals = () => {
     setIsCreateTableModalOpen(false);
     setEditingTable(null);
@@ -324,6 +340,8 @@ const ServiceManagementDashboard: React.FC = () => {
       merge_group: '',
       is_active: true
     });
+    setIsCreateBookingModalOpen(false);
+    setBookingCreationSuccess(null);
   };
 
   if (loading) {
@@ -662,6 +680,16 @@ const ServiceManagementDashboard: React.FC = () => {
               </div>
             )}
 
+            {/* Success Message */}
+            {bookingCreationSuccess && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <CheckIcon className="w-5 h-5 text-green-600" />
+                  <span className="text-green-800 font-medium">{bookingCreationSuccess}</span>
+                </div>
+              </div>
+            )}
+
             {/* Bookings Management */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200">
@@ -676,11 +704,11 @@ const ServiceManagementDashboard: React.FC = () => {
                   </div>
                   <div className="mt-4 sm:mt-0">
                     <button
-                      onClick={() => {/* TODO: Add create booking modal */}}
+                      onClick={() => setIsCreateBookingModalOpen(true)}
                       className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                       <PlusIcon className="w-4 h-4 mr-2" />
-                      New Booking
+                      {t('booking.create.actions.create')}
                     </button>
                   </div>
                 </div>
@@ -1248,6 +1276,18 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Create Booking Modal */}
+      <CreateBookingModal
+        isOpen={isCreateBookingModalOpen}
+        onClose={() => setIsCreateBookingModalOpen(false)}
+        onSubmit={handleCreateBooking}
+        serviceId={serviceId || ''}
+        serviceName={service?.name || ''}
+        serviceDurationMinutes={service?.duration_minutes || 120}
+        tables={tables}
+        loading={bookingsLoading}
+      />
     </div>
   );
 };

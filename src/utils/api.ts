@@ -1,4 +1,4 @@
-import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate } from '../types';
+import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, BookingCreate, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -391,7 +391,7 @@ export const serviceApi = {
     return handleResponse<BookingWithService[]>(response);
   },
 
-  createServiceBooking: async (serviceId: string, bookingData: any): Promise<BookingWithService> => {
+  createServiceBooking: async (serviceId: string, bookingData: BookingCreate): Promise<BookingWithService> => {
     const accessToken = tokenStorage.getAccessToken();
     if (!accessToken) {
       throw new ApiErrorClass('No access token available', 401);

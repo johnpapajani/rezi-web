@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { serviceApi } from '../utils/api';
-import { BookingWithService, BookingFilters, BookingUpdate, BookingStatusUpdate, BookingReschedule, BookingStatus } from '../types';
+import { BookingWithService, BookingFilters, BookingUpdate, BookingStatusUpdate, BookingReschedule, BookingStatus, BookingCreate } from '../types';
 
 interface UseServiceBookingsProps {
   serviceId: string;
@@ -24,7 +24,7 @@ export const useServiceBookings = ({ serviceId }: UseServiceBookingsProps) => {
     }
   }, [serviceId]);
 
-  const createBooking = async (bookingData: any) => {
+  const createBooking = async (bookingData: BookingCreate) => {
     try {
       const newBooking = await serviceApi.createServiceBooking(serviceId, bookingData);
       setBookings(prev => [newBooking, ...prev]);

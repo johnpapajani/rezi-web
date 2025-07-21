@@ -253,6 +253,21 @@ export interface BookingReschedule {
   reason?: string;
 }
 
+export interface BookingCreateCustomer {
+  name: string;
+  phone?: string;
+  email?: string;
+}
+
+export interface BookingCreate {
+  service_id: string;
+  table_id: string;
+  starts_at: string;
+  ends_at: string;
+  party_size: number;
+  customer: BookingCreateCustomer;
+}
+
 export interface DailyBookingSummary {
   date: string;
   total_bookings: number;
