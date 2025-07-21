@@ -13,7 +13,7 @@ import {
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
-import { BookingCreate, BookingCreateCustomer, Table } from '../../types';
+import { BookingCreate, BookingCreateCustomer, Table, ServiceOpenInterval, Weekday } from '../../types';
 
 interface CreateBookingModalProps {
   isOpen: boolean;
@@ -22,6 +22,7 @@ interface CreateBookingModalProps {
   serviceId: string;
   serviceName: string;
   serviceDurationMinutes: number;
+  serviceOpenIntervals: ServiceOpenInterval[];
   tables: Table[];
   loading?: boolean;
 }
@@ -33,10 +34,29 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   serviceId,
   serviceName,
   serviceDurationMinutes,
+  serviceOpenIntervals,
   tables,
   loading = false,
 }) => {
   const { t } = useTranslation();
+  
+  // Validate that we have required props
+  if (!serviceId || !serviceName || !serviceDurationMinutes) {
+    console.warn('CreateBookingModal: Missing required props', {
+      serviceId,
+      serviceName,
+      serviceDurationMinutes
+    });
+  }
+
+  // Validate duration is reasonable (between 1 minute and 24 hours)
+  if (serviceDurationMinutes && (serviceDurationMinutes < 1 || serviceDurationMinutes > 1440)) {
+    console.warn('CreateBookingModal: Unusual service duration', {
+      serviceDurationMinutes,
+      serviceId,
+      serviceName
+    });
+  }
   
   const [formData, setFormData] = useState<{
     customer: BookingCreateCustomer;
@@ -78,22 +98,109 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   // Calculate end time based on start time and service duration
   const calculateEndTime = (startDateTime: string): string => {
     const start = new Date(startDateTime);
-    const end = new Date(start.getTime() + serviceDurationMinutes * 60000);
-    return end.toISOString();
+    const durationMs = serviceDurationMinutes * 60000;
+    const end = new Date(start.getTime() + durationMs);
+    
+    // Format as local time in ISO format (without Z suffix to avoid UTC conversion)
+    const year = end.getFullYear();
+    const month = String(end.getMonth() + 1).padStart(2, '0');
+    const day = String(end.getDate()).padStart(2, '0');
+    const hours = String(end.getHours()).padStart(2, '0');
+    const minutes = String(end.getMinutes()).padStart(2, '0');
+    const seconds = String(end.getSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  };
+
+  // Convert JavaScript day (0=Sunday) to Weekday enum (1=Monday)
+  const jsDateToWeekday = (jsDay: number): Weekday => {
+    // JavaScript: 0=Sunday, 1=Monday, ..., 6=Saturday
+    // Our enum: 1=Monday, 2=Tuesday, ..., 7=Sunday
+    return jsDay === 0 ? Weekday.sunday : jsDay as Weekday;
+  };
+
+  // Check if booking time falls within service operating hours
+  // This validates that:
+  // 1. The service is open on the selected weekday
+  // 2. The booking start time is after the service opens
+  // 3. The booking end time is before the service closes
+  // 4. The entire booking duration fits within a single service interval
+  const validateServiceHours = (bookingDate: string, bookingTime: string): string | null => {
+    const bookingDateTime = new Date(`${bookingDate}T${bookingTime}`);
+    const weekday = jsDateToWeekday(bookingDateTime.getDay());
+    
+    // Find open intervals for this weekday
+    const dayIntervals = serviceOpenIntervals.filter(interval => interval.weekday === weekday);
+    
+    if (dayIntervals.length === 0) {
+      return t('booking.create.errors.serviceClosed');
+    }
+
+    const bookingStartTime = bookingTime;
+    const bookingEndDateTime = calculateEndTime(`${bookingDate}T${bookingTime}`);
+    const bookingEndTime = bookingEndDateTime.split('T')[1].substring(0, 5); // Extract HH:MM from YYYY-MM-DDTHH:MM:SS
+
+    // Check if booking time falls within any open interval
+    const isWithinHours = dayIntervals.some(interval => {
+      return bookingStartTime >= interval.start_time && bookingEndTime <= interval.end_time;
+    });
+
+    if (!isWithinHours) {
+      // Format intervals for display
+      const intervalsText = dayIntervals
+        .map(interval => `${interval.start_time} - ${interval.end_time}`)
+        .join(', ');
+      
+      return t('booking.create.errors.outsideServiceHours').replace('{intervals}', intervalsText);
+    }
+
+    return null; // Valid
   };
 
   const handleInputChange = (field: string, value: any) => {
-    if (field.startsWith('customer.')) {
-      const customerField = field.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        customer: { ...prev.customer, [customerField]: value }
-      }));
-    } else {
-      setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const updatedData = { ...prev };
+      if (field.includes('.')) {
+        // Handle nested fields like 'customer.name'
+        const [parent, child] = field.split('.');
+        if (parent === 'customer') {
+          updatedData.customer = {
+            ...prev.customer,
+            [child]: value
+          };
+        }
+      } else {
+        // Handle top-level fields
+        if (field === 'party_size') {
+          updatedData.party_size = value;
+        } else if (field === 'table_id') {
+          updatedData.table_id = value;
+        } else if (field === 'date') {
+          updatedData.date = value;
+        } else if (field === 'time') {
+          updatedData.time = value;
+        }
+      }
+      return updatedData;
+    });
+
+    // Real-time validation for date/time changes
+    if (field === 'date' || field === 'time') {
+      const dateToCheck = field === 'date' ? value : formData.date;
+      const timeToCheck = field === 'time' ? value : formData.time;
+      
+      if (dateToCheck && timeToCheck) {
+        setTimeout(() => {
+          const serviceHoursError = validateServiceHours(dateToCheck, timeToCheck);
+          setErrors(prev => ({
+            ...prev,
+            serviceHours: serviceHoursError || ''
+          }));
+        }, 100); // Small delay to avoid excessive validation calls
+      }
     }
 
-    // Clear error when user starts typing
+    // Clear specific field error
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -107,17 +214,17 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
       newErrors['customer.name'] = t('booking.create.errors.customerNameRequired');
     }
 
-    if (formData.customer.email && !/\S+@\S+\.\S+/.test(formData.customer.email)) {
-      newErrors['customer.email'] = t('booking.create.errors.emailInvalid');
-    }
-
     if (formData.customer.phone && !/^\+?[\d\s\-\(\)]+$/.test(formData.customer.phone)) {
-      newErrors['customer.phone'] = t('booking.create.errors.phoneInvalid');
+      newErrors['customer.phone'] = t('booking.create.errors.invalidPhone');
     }
 
-    // Booking validation
+    if (formData.customer.email && !/\S+@\S+\.\S+/.test(formData.customer.email)) {
+      newErrors['customer.email'] = t('booking.create.errors.invalidEmail');
+    }
+
+    // Booking details validation
     if (formData.party_size < 1) {
-      newErrors['party_size'] = t('booking.create.errors.partySizeRequired');
+      newErrors['party_size'] = t('booking.create.errors.invalidPartySize');
     }
 
     if (!formData.date) {
@@ -128,16 +235,24 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
       newErrors['time'] = t('booking.create.errors.timeRequired');
     }
 
-    if (!formData.table_id) {
-      newErrors['table_id'] = t('booking.create.errors.tableRequired');
-    }
-
-    // Check if date/time is in the future
+    // Validate booking is not in the past
     if (formData.date && formData.time) {
       const bookingDateTime = new Date(`${formData.date}T${formData.time}`);
-      if (bookingDateTime <= new Date()) {
+      const now = new Date();
+      
+      if (bookingDateTime <= now) {
         newErrors['datetime'] = t('booking.create.errors.pastDateTime');
+      } else {
+        // Validate service hours if date/time is valid
+        const serviceHoursError = validateServiceHours(formData.date, formData.time);
+        if (serviceHoursError) {
+          newErrors['serviceHours'] = serviceHoursError;
+        }
       }
+    }
+
+    if (!formData.table_id) {
+      newErrors['table_id'] = t('booking.create.errors.tableRequired');
     }
 
     setErrors(newErrors);
@@ -154,8 +269,8 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
     try {
       setSubmitting(true);
       
-      const starts_at = `${formData.date}T${formData.time}`;
-      const ends_at = calculateEndTime(starts_at);
+      const starts_at = `${formData.date}T${formData.time}:00`; // Add seconds for consistency
+      const ends_at = calculateEndTime(`${formData.date}T${formData.time}`);
 
       const bookingData: BookingCreate = {
         service_id: serviceId,
@@ -266,6 +381,38 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3">
                 <ExclamationTriangleIcon className="w-5 h-5 text-red-600 flex-shrink-0" />
                 <span className="text-red-800 text-sm">{errors.submit}</span>
+              </div>
+            )}
+
+            {/* Service Hours Information */}
+            {serviceOpenIntervals.length > 0 && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center space-x-2 mb-3">
+                  <ClockIcon className="w-5 h-5 text-blue-600" />
+                  <h4 className="text-sm font-medium text-blue-900">{t('booking.create.serviceHours.title')}</h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                  {serviceOpenIntervals
+                    .sort((a, b) => a.weekday - b.weekday)
+                    .map((interval, index) => {
+                      const dayNames = {
+                        [Weekday.monday]: t('days.monday'),
+                        [Weekday.tuesday]: t('days.tuesday'),
+                        [Weekday.wednesday]: t('days.wednesday'),
+                        [Weekday.thursday]: t('days.thursday'),
+                        [Weekday.friday]: t('days.friday'),
+                        [Weekday.saturday]: t('days.saturday'),
+                        [Weekday.sunday]: t('days.sunday'),
+                      };
+                      
+                      return (
+                        <div key={index} className="text-blue-800">
+                          <span className="font-medium">{dayNames[interval.weekday]}:</span>{' '}
+                          {interval.start_time} - {interval.end_time}
+                        </div>
+                      );
+                    })}
+                </div>
               </div>
             )}
 
@@ -408,6 +555,16 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
               {errors['datetime'] && (
                 <p className="text-red-600 text-sm">{errors['datetime']}</p>
               )}
+
+              {errors['serviceHours'] && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3">
+                  <ClockIcon className="w-5 h-5 text-red-600 flex-shrink-0" />
+                  <div>
+                    <p className="text-red-800 text-sm font-medium">{t('booking.create.errors.serviceHoursTitle')}</p>
+                    <p className="text-red-700 text-sm">{errors['serviceHours']}</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Table Selection */}
@@ -475,10 +632,17 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
                       {t('booking.create.bookingDuration').replace('{duration}', serviceDurationMinutes.toString())}
                     </div>
                     <div>
-                      {t('booking.create.estimatedEndTime').replace('{endTime}', new Date(calculateEndTime(`${formData.date}T${formData.time}`)).toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      }))}
+                      {t('booking.create.estimatedEndTime').replace('{endTime}', (() => {
+                        if (formData.date && formData.time) {
+                          const endTimeString = calculateEndTime(`${formData.date}T${formData.time}`);
+                          const endTime = new Date(endTimeString);
+                          return endTime.toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          });
+                        }
+                        return '--:--';
+                      })())}
                     </div>
                   </div>
                 </div>
