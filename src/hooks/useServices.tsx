@@ -37,8 +37,23 @@ export const useServices = ({ bizId, activeOnly = true }: UseServicesProps) => {
       await fetchServices();
       return newService;
     } catch (err: any) {
-      setError(err.detail || 'Failed to create service');
-      throw err;
+      let errorMessage = 'Failed to create service';
+      
+      if (err.detail) {
+        if (Array.isArray(err.detail)) {
+          // Handle validation errors array
+          const validationErrors = err.detail.map((error: any) => {
+            const field = error.loc ? error.loc[error.loc.length - 1] : 'field';
+            return `${field}: ${error.msg}`;
+          }).join(', ');
+          errorMessage = `Validation errors: ${validationErrors}`;
+        } else if (typeof err.detail === 'string') {
+          errorMessage = err.detail;
+        }
+      }
+      
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setCreating(false);
     }

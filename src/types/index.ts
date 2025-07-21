@@ -143,15 +143,47 @@ export interface Service {
   id: string;
   business_id: string;
   name: string;
+  slug: string;
   description?: string;
-  duration_minutes: number;
+  duration_min: number;
   price_minor: number; // Price in minor currency units (e.g., cents)
   is_active: boolean;
-  opening_hours: ServiceHours[];
   created_at: string;
   updated_at: string;
 }
 
+// New service open interval types matching backend schema
+export enum Weekday {
+  monday = 1,
+  tuesday = 2,
+  wednesday = 3,
+  thursday = 4,
+  friday = 5,
+  saturday = 6,
+  sunday = 7
+}
+
+export interface ServiceOpenInterval {
+  id: string;
+  service_id: string;
+  weekday: Weekday;
+  start_time: string; // HH:MM format
+  end_time: string;   // HH:MM format
+  notes?: string;
+}
+
+export interface ServiceOpenIntervalCreate {
+  weekday: Weekday;
+  start_time: string; // HH:MM format
+  end_time: string;   // HH:MM format
+  notes?: string;
+}
+
+export interface ServiceWithOpenIntervals extends Service {
+  open_intervals: ServiceOpenInterval[];
+}
+
+// Legacy types for backward compatibility during migration
 export interface ServiceHours {
   id?: string;
   service_id?: string;
@@ -163,25 +195,37 @@ export interface ServiceHours {
 
 export interface ServiceCreate {
   name: string;
+  slug: string;
   description?: string;
-  duration_minutes: number;
+  duration_min: number;
   price_minor: number;
   is_active?: boolean;
-  opening_hours: Omit<ServiceHours, 'id' | 'service_id'>[];
+  open_intervals?: ServiceOpenIntervalCreate[];
 }
 
 export interface ServiceUpdate {
   name?: string;
+  slug?: string;
   description?: string;
-  duration_minutes?: number;
+  duration_min?: number;
   price_minor?: number;
   is_active?: boolean;
-  opening_hours?: Omit<ServiceHours, 'id' | 'service_id'>[];
 }
 
-export interface ServiceWithTables extends Service {
+export interface ServiceWithTables extends ServiceWithOpenIntervals {
   tables: Table[];
   table_count: number;
+}
+
+// Availability types
+export interface AvailabilitySlot {
+  starts_at: string;
+  ends_at: string;
+  available_tables: number;
+}
+
+export interface AvailabilityMatrix {
+  slots: AvailabilitySlot[];
 }
 
 // Booking types

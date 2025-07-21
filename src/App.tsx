@@ -8,6 +8,8 @@ import SignIn from './components/auth/SignIn';
 import Dashboard from './components/dashboard/Dashboard';
 import ServiceDashboard from './components/dashboard/ServiceDashboard';
 import ServiceManagementDashboard from './components/pages/ServiceManagementDashboard';
+import ServiceManagement from './components/pages/ServiceManagement';
+import ServiceOpenIntervalsManagement from './components/pages/ServiceOpenIntervalsManagement';
 import BusinessOnboarding from './components/onboarding/BusinessOnboarding';
 import BusinessManagement from './components/pages/BusinessManagement';
 import BusinessDashboard from './components/pages/BusinessDashboard';
@@ -60,6 +62,14 @@ function App() {
                 } 
               />
               <Route 
+                path="/service/:serviceId/open-intervals" 
+                element={
+                  <ProtectedRoute>
+                    <ServiceOpenIntervalsManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
                 path="/businesses" 
                 element={
                   <ProtectedRoute>
@@ -80,6 +90,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ServiceSelection />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/business/:bizId/services" 
+                element={
+                  <ProtectedRoute>
+                    <ServiceManagement />
                   </ProtectedRoute>
                 } 
               />

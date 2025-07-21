@@ -5,7 +5,7 @@ import { useBusinessCreate } from '../../hooks/useBusinessCreate';
 import { useServices } from '../../hooks/useServices';
 import { useTables } from '../../hooks/useTables';
 import { useTranslation } from '../../hooks/useTranslation';
-import { BusinessCreate, ServiceCreate, TableCreate } from '../../types';
+import { BusinessCreate, ServiceCreate, TableCreate, ServiceOpenIntervalCreate } from '../../types';
 import {
   BuildingStorefrontIcon,
   PhotoIcon,
@@ -24,6 +24,7 @@ import {
   XMarkIcon,
   PlusIcon,
 } from '@heroicons/react/24/outline';
+import { Weekday } from '../../types';
 
 const BusinessOnboarding: React.FC = () => {
   const navigate = useNavigate();
@@ -56,37 +57,37 @@ const BusinessOnboarding: React.FC = () => {
   // Step 2: Services
   const [services, setServices] = useState<ServiceCreate[]>([]);
 
+  // Step 3: Tables
+  const [tables, setTables] = useState<{ [serviceIndex: number]: TableCreate[] }>({});
+  const [createdServices, setCreatedServices] = useState<any[]>([]);
+
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+
+  // Business creation status
+  const [currentError, setCurrentError] = useState<string | null>(null);
+
+  const defaultServiceIntervals: ServiceOpenIntervalCreate[] = [
+    { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
+    { weekday: Weekday.tuesday, start_time: '09:00', end_time: '22:00' },
+    { weekday: Weekday.wednesday, start_time: '09:00', end_time: '22:00' },
+    { weekday: Weekday.thursday, start_time: '09:00', end_time: '22:00' },
+    { weekday: Weekday.friday, start_time: '09:00', end_time: '23:00' },
+    { weekday: Weekday.saturday, start_time: '10:00', end_time: '23:00' },
+    { weekday: Weekday.sunday, start_time: '10:00', end_time: '21:00' },
+  ];
+
   // Initialize default service when component mounts
   useEffect(() => {
     setServices([{
       name: 'Dining',
+      slug: 'dining',
       description: t('onboarding.defaultService.description'),
-      duration_minutes: 120,
+      duration_min: 120,
       price_minor: 0, // Free base service, pricing handled per item
       is_active: true,
-      opening_hours: [
-        { day_of_week: 1, opens_at: '09:00', closes_at: '22:00', is_closed: false }, // Monday
-        { day_of_week: 2, opens_at: '09:00', closes_at: '22:00', is_closed: false }, // Tuesday
-        { day_of_week: 3, opens_at: '09:00', closes_at: '22:00', is_closed: false }, // Wednesday
-        { day_of_week: 4, opens_at: '09:00', closes_at: '22:00', is_closed: false }, // Thursday
-        { day_of_week: 5, opens_at: '09:00', closes_at: '23:00', is_closed: false }, // Friday
-        { day_of_week: 6, opens_at: '10:00', closes_at: '23:00', is_closed: false }, // Saturday
-        { day_of_week: 0, opens_at: '10:00', closes_at: '21:00', is_closed: false }, // Sunday
-      ],
+      open_intervals: defaultServiceIntervals,
     }]);
   }, [t]);
-
-  // Step 3: Tables (will be populated after services are created)
-  const [createdServices, setCreatedServices] = useState<any[]>([]);
-  const [tables, setTables] = useState<{ [serviceId: string]: TableCreate[] }>({});
-
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
-
-  const steps = [
-    { number: 1, title: t('onboarding.steps.business.title'), description: t('onboarding.steps.business.description') },
-    { number: 2, title: t('onboarding.steps.services.title'), description: t('onboarding.steps.services.description') },
-    { number: 3, title: t('onboarding.steps.tables.title'), description: t('onboarding.steps.tables.description') },
-  ];
 
   // Generate slug from business name
   const generateSlug = (name: string): string => {
@@ -98,6 +99,12 @@ const BusinessOnboarding: React.FC = () => {
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
   };
+
+  const steps = [
+    { number: 1, title: t('onboarding.steps.business.title'), description: t('onboarding.steps.business.description') },
+    { number: 2, title: t('onboarding.steps.services.title'), description: t('onboarding.steps.services.description') },
+    { number: 3, title: t('onboarding.steps.tables.title'), description: t('onboarding.steps.tables.description') },
+  ];
 
   const validateBusinessStep = (): boolean => {
     const errors: {[key: string]: string} = {};
@@ -127,7 +134,7 @@ const BusinessOnboarding: React.FC = () => {
       if (!service.name.trim()) {
         errors[`service_${index}_name`] = t('onboarding.validation.serviceNameRequired');
       }
-      if (service.duration_minutes <= 0) {
+      if (service.duration_min <= 0) {
         errors[`service_${index}_duration`] = t('onboarding.validation.serviceDurationRequired');
       }
     });
@@ -166,6 +173,13 @@ const BusinessOnboarding: React.FC = () => {
       i === index ? { ...service, [field]: value } : service
     ));
 
+    // Auto-generate slug from name
+    if (field === 'name') {
+      setServices(prev => prev.map((service, i) => 
+        i === index ? { ...service, slug: generateSlug(value) } : service
+      ));
+    }
+
     // Clear validation error
     const errorKey = `service_${index}_${field}`;
     if (validationErrors[errorKey]) {
@@ -181,9 +195,9 @@ const BusinessOnboarding: React.FC = () => {
       i === serviceIndex 
         ? {
             ...service,
-            opening_hours: service.opening_hours.map((hours, j) =>
+            open_intervals: service.open_intervals?.map((hours, j) =>
               j === dayIndex ? { ...hours, [field]: value } : hours
-            )
+            ) || []
           }
         : service
     ));
@@ -192,19 +206,12 @@ const BusinessOnboarding: React.FC = () => {
   const addService = () => {
     setServices(prev => [...prev, {
       name: '',
+      slug: '',
       description: '',
-      duration_minutes: 120,
+      duration_min: 120,
       price_minor: 0,
       is_active: true,
-      opening_hours: [
-        { day_of_week: 1, opens_at: '09:00', closes_at: '22:00', is_closed: false },
-        { day_of_week: 2, opens_at: '09:00', closes_at: '22:00', is_closed: false },
-        { day_of_week: 3, opens_at: '09:00', closes_at: '22:00', is_closed: false },
-        { day_of_week: 4, opens_at: '09:00', closes_at: '22:00', is_closed: false },
-        { day_of_week: 5, opens_at: '09:00', closes_at: '23:00', is_closed: false },
-        { day_of_week: 6, opens_at: '10:00', closes_at: '23:00', is_closed: false },
-        { day_of_week: 0, opens_at: '10:00', closes_at: '21:00', is_closed: false },
-      ],
+      open_intervals: defaultServiceIntervals,
     }]);
   };
 
@@ -212,14 +219,14 @@ const BusinessOnboarding: React.FC = () => {
     setServices(prev => prev.filter((_, i) => i !== index));
   };
 
-  const addTable = (serviceId: string) => {
+  const addTable = (serviceIndex: number) => {
     setTables(prev => ({
       ...prev,
-      [serviceId]: [
-        ...(prev[serviceId] || []),
+      [serviceIndex]: [
+        ...(prev[serviceIndex] || []),
         {
-          service_id: serviceId,
-          code: `T${(prev[serviceId]?.length || 0) + 1}`,
+          service_id: '', // Will be set after service creation
+          code: `T${(prev[serviceIndex]?.length || 0) + 1}`,
           seats: 4,
           is_active: true,
         }
@@ -227,17 +234,17 @@ const BusinessOnboarding: React.FC = () => {
     }));
   };
 
-  const removeTable = (serviceId: string, tableIndex: number) => {
+  const removeTable = (serviceIndex: number, tableIndex: number) => {
     setTables(prev => ({
       ...prev,
-      [serviceId]: prev[serviceId]?.filter((_, i) => i !== tableIndex) || []
+      [serviceIndex]: prev[serviceIndex]?.filter((_, i) => i !== tableIndex) || []
     }));
   };
 
-  const handleTableChange = (serviceId: string, tableIndex: number, field: string, value: any) => {
+  const handleTableChange = (serviceIndex: number, tableIndex: number, field: string, value: any) => {
     setTables(prev => ({
       ...prev,
-      [serviceId]: prev[serviceId]?.map((table, i) =>
+      [serviceIndex]: prev[serviceIndex]?.map((table, i) =>
         i === tableIndex ? { ...table, [field]: value } : table
       ) || []
     }));
@@ -289,18 +296,18 @@ const BusinessOnboarding: React.FC = () => {
             // Continue with other services even if one fails
           }
         }
-        setCreatedServices(createdServicesList);
+        setCreatedServices(createdServicesList); // This state is no longer needed
 
         // Initialize tables for each service
-        const initialTables: { [serviceId: string]: TableCreate[] } = {};
-        createdServicesList.forEach(service => {
-          initialTables[service.id] = [
-            { service_id: service.id, code: 'T1', seats: 2, is_active: true },
-            { service_id: service.id, code: 'T2', seats: 4, is_active: true },
-            { service_id: service.id, code: 'T3', seats: 6, is_active: true },
-          ];
-        });
-        setTables(initialTables);
+        // const initialTables: { [serviceId: string]: TableCreate[] } = {};
+        // createdServicesList.forEach(service => {
+        //   initialTables[service.id] = [
+        //     { service_id: service.id, code: 'T1', seats: 2, is_active: true },
+        //     { service_id: service.id, code: 'T2', seats: 4, is_active: true },
+        //     { service_id: service.id, code: 'T3', seats: 6, is_active: true },
+        //   ];
+        // });
+        // setTables(initialTables); // This state is no longer needed
         setCurrentStep(3);
 
       } else if (currentStep === 3) {
@@ -310,14 +317,20 @@ const BusinessOnboarding: React.FC = () => {
         }
 
         // Create tables for each service
-        for (const serviceId in tables) {
-          const serviceTables = tables[serviceId];
-          for (const tableData of serviceTables) {
-            try {
-              await tablesHook.createTable(tableData);
-            } catch (error) {
-              console.error('Error creating table:', error);
-              // Continue with other tables even if one fails
+        for (const serviceIndex in tables) {
+          const serviceTables = tables[serviceIndex];
+          const serviceId = createdServices[parseInt(serviceIndex)]?.id;
+          
+          if (serviceId) {
+            for (const tableData of serviceTables) {
+              try {
+                // Set the correct service_id before creating the table
+                const tableWithServiceId = { ...tableData, service_id: serviceId };
+                await tablesHook.createTable(tableWithServiceId);
+              } catch (error) {
+                console.error('Failed to create table:', error);
+                // Continue with other tables even if one fails
+              }
             }
           }
         }
@@ -718,8 +731,8 @@ const BusinessOnboarding: React.FC = () => {
                           <div className="flex">
                             <input
                               type="number"
-                              value={service.duration_minutes}
-                              onChange={(e) => handleServiceChange(index, 'duration_minutes', parseInt(e.target.value) || 0)}
+                              value={service.duration_min}
+                              onChange={(e) => handleServiceChange(index, 'duration_min', parseInt(e.target.value) || 0)}
                               className={`w-full px-3 py-2 border rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                                 validationErrors[`service_${index}_duration`] ? 'border-red-500' : 'border-gray-300'
                               }`}
@@ -752,37 +765,35 @@ const BusinessOnboarding: React.FC = () => {
                       <div>
                         <h4 className="text-sm font-medium text-gray-700 mb-3">{t('onboarding.operatingHours')}</h4>
                         <div className="space-y-2">
-                          {service.opening_hours.map((hours, dayIndex) => (
+                          {(service.open_intervals || []).map((hours, dayIndex) => (
                             <div key={dayIndex} className="flex items-center space-x-4">
                               <div className="w-20 text-sm text-gray-600">
-                                {dayNames[hours.day_of_week]}
+                                {dayNames[hours.weekday]}
                               </div>
                               <label className="flex items-center">
                                 <input
                                   type="checkbox"
-                                  checked={!hours.is_closed}
-                                  onChange={(e) => handleServiceHoursChange(index, dayIndex, 'is_closed', !e.target.checked)}
+                                  checked={true} // Always show as enabled for new interval structure
+                                  onChange={() => {}} // Simplified for onboarding
                                   className="mr-2"
                                 />
-                                <span className="text-sm text-gray-600">{t('onboarding.open')}</span>
+                                <span className="text-sm text-gray-600">{t('services.open')}</span>
                               </label>
-                              {!hours.is_closed && (
-                                <>
-                                  <input
-                                    type="time"
-                                    value={hours.opens_at}
-                                    onChange={(e) => handleServiceHoursChange(index, dayIndex, 'opens_at', e.target.value)}
-                                    className="px-2 py-1 border border-gray-300 rounded text-sm"
-                                  />
-                                  <span className="text-sm text-gray-600">to</span>
-                                  <input
-                                    type="time"
-                                    value={hours.closes_at}
-                                    onChange={(e) => handleServiceHoursChange(index, dayIndex, 'closes_at', e.target.value)}
-                                    className="px-2 py-1 border border-gray-300 rounded text-sm"
-                                  />
-                                </>
-                              )}
+                              <>
+                                <input
+                                  type="time"
+                                  value={hours.start_time}
+                                  onChange={(e) => handleServiceHoursChange(index, dayIndex, 'start_time', e.target.value)}
+                                  className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                />
+                                <span className="text-sm text-gray-600">to</span>
+                                <input
+                                  type="time"
+                                  value={hours.end_time}
+                                  onChange={(e) => handleServiceHoursChange(index, dayIndex, 'end_time', e.target.value)}
+                                  className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                />
+                              </>
                             </div>
                           ))}
                         </div>
@@ -811,12 +822,12 @@ const BusinessOnboarding: React.FC = () => {
                 </div>
 
                 <div className="space-y-6">
-                  {createdServices.map((service, serviceIndex) => (
-                    <div key={service.id} className="border border-gray-200 rounded-lg p-4">
+                  {services.map((service, serviceIndex) => (
+                    <div key={serviceIndex} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-md font-medium text-gray-900">{service.name}</h3>
                         <button
-                          onClick={() => addTable(service.id)}
+                          onClick={() => addTable(serviceIndex)}
                           className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                         >
                           <PlusIcon className="w-4 h-4 mr-1" />
@@ -825,14 +836,14 @@ const BusinessOnboarding: React.FC = () => {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {(tables[service.id] || []).map((table, tableIndex) => (
+                        {(tables[serviceIndex] || []).map((table, tableIndex) => (
                           <div key={tableIndex} className="border border-gray-200 rounded-lg p-3">
                             <div className="flex items-center justify-between mb-3">
-                              <h4 className="text-sm font-medium text-gray-700">
+                              <h4 className="text-sm font-medium text-gray-900">
                                 {t('onboarding.table')} {tableIndex + 1}
                               </h4>
                               <button
-                                onClick={() => removeTable(service.id, tableIndex)}
+                                onClick={() => removeTable(serviceIndex, tableIndex)}
                                 className="text-red-600 hover:text-red-700"
                               >
                                 <XMarkIcon className="w-4 h-4" />
@@ -841,26 +852,26 @@ const BusinessOnboarding: React.FC = () => {
 
                             <div className="space-y-3">
                               <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
                                   {t('onboarding.tableCode')}
                                 </label>
                                 <input
                                   type="text"
                                   value={table.code}
-                                  onChange={(e) => handleTableChange(service.id, tableIndex, 'code', e.target.value)}
+                                  onChange={(e) => handleTableChange(serviceIndex, tableIndex, 'code', e.target.value)}
                                   className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                                   placeholder="T1"
                                 />
                               </div>
 
                               <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">
-                                  {t('onboarding.tableSeats')}
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  {t('onboarding.seats')}
                                 </label>
                                 <input
                                   type="number"
                                   value={table.seats}
-                                  onChange={(e) => handleTableChange(service.id, tableIndex, 'seats', parseInt(e.target.value) || 1)}
+                                  onChange={(e) => handleTableChange(serviceIndex, tableIndex, 'seats', parseInt(e.target.value) || 1)}
                                   className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                                   min="1"
                                 />
@@ -870,11 +881,10 @@ const BusinessOnboarding: React.FC = () => {
                         ))}
                       </div>
 
-                      {(!tables[service.id] || tables[service.id].length === 0) && (
+                      {(!tables[serviceIndex] || tables[serviceIndex].length === 0) && (
                         <div className="text-center py-6 text-gray-500">
                           <RectangleGroupIcon className="w-8 h-8 mx-auto mb-2" />
-                          <p className="text-sm">{t('onboarding.noTablesYet')}</p>
-                          <p className="text-xs">{t('onboarding.clickAddTable')}</p>
+                          <p className="text-sm">{t('onboarding.noTables')}</p>
                         </div>
                       )}
                     </div>

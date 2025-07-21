@@ -174,7 +174,18 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
       onClose();
       resetForm();
     } catch (error: any) {
-      setErrors({ submit: error.message || t('booking.create.errors.submitFailed') });
+      // Handle specific service hours validation errors
+      let errorMessage = error.message || t('booking.create.errors.submitFailed');
+      
+      if (errorMessage.includes('operating hours') || errorMessage.includes('service hours')) {
+        errorMessage = t('booking.create.errors.outsideServiceHours');
+      } else if (errorMessage.includes('Business is closed')) {
+        errorMessage = t('booking.create.errors.businessClosed');
+      } else if (errorMessage.includes('Service is not available')) {
+        errorMessage = t('booking.create.errors.serviceNotAvailable');
+      }
+      
+      setErrors({ submit: errorMessage });
     } finally {
       setSubmitting(false);
     }

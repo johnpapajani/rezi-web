@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useServices } from '../../hooks/useServices';
 import { useBusiness } from '../../hooks/useBusiness';
-import { Service, ServiceCreate, ServiceUpdate } from '../../types';
+import { useAuth } from '../../hooks/useAuth';
+import { Service, ServiceCreate, ServiceUpdate, ServiceOpenIntervalCreate, Weekday } from '../../types';
 import { 
   ArrowLeftIcon,
   PlusIcon,
@@ -18,12 +19,17 @@ import {
   CurrencyDollarIcon,
   EyeIcon,
   EyeSlashIcon,
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon,
+  GlobeAltIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 
 const ServiceManagement: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { user, signOut } = useAuth();
+  const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const { business, loading: businessLoading } = useBusiness({ bizId: bizId! });
   const { 
     services, 
@@ -40,32 +46,49 @@ const ServiceManagement: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [deletingService, setDeletingService] = useState<Service | null>(null);
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [formData, setFormData] = useState<ServiceCreate>({
     name: '',
+    slug: '',
     description: '',
-    duration_minutes: 120,
+    duration_min: 120,
     price_minor: 0,
     is_active: true,
-    opening_hours: [
-      { day_of_week: 1, opens_at: '09:00', closes_at: '22:00', is_closed: false }, // Monday
-      { day_of_week: 2, opens_at: '09:00', closes_at: '22:00', is_closed: false }, // Tuesday
-      { day_of_week: 3, opens_at: '09:00', closes_at: '22:00', is_closed: false }, // Wednesday
-      { day_of_week: 4, opens_at: '09:00', closes_at: '22:00', is_closed: false }, // Thursday
-      { day_of_week: 5, opens_at: '09:00', closes_at: '23:00', is_closed: false }, // Friday
-      { day_of_week: 6, opens_at: '10:00', closes_at: '23:00', is_closed: false }, // Saturday
-      { day_of_week: 0, opens_at: '10:00', closes_at: '21:00', is_closed: false }, // Sunday
+    open_intervals: [
+      { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
+      { weekday: Weekday.tuesday, start_time: '09:00', end_time: '22:00' },
+      { weekday: Weekday.wednesday, start_time: '09:00', end_time: '22:00' },
+      { weekday: Weekday.thursday, start_time: '09:00', end_time: '22:00' },
+      { weekday: Weekday.friday, start_time: '09:00', end_time: '23:00' },
+      { weekday: Weekday.saturday, start_time: '10:00', end_time: '23:00' },
+      { weekday: Weekday.sunday, start_time: '10:00', end_time: '21:00' },
     ],
   });
 
-  const dayNames = [
-    t('days.sunday'), 
-    t('days.monday'), 
-    t('days.tuesday'), 
-    t('days.wednesday'), 
-    t('days.thursday'), 
-    t('days.friday'), 
-    t('days.saturday')
+  const weekdayNames = [
+    { weekday: Weekday.monday, name: t('days.monday') },
+    { weekday: Weekday.tuesday, name: t('days.tuesday') },
+    { weekday: Weekday.wednesday, name: t('days.wednesday') },
+    { weekday: Weekday.thursday, name: t('days.thursday') },
+    { weekday: Weekday.friday, name: t('days.friday') },
+    { weekday: Weekday.saturday, name: t('days.saturday') },
+    { weekday: Weekday.sunday, name: t('days.sunday') },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  // Generate slug from service name
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  };
 
   const handleCreateService = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +106,16 @@ const ServiceManagement: React.FC = () => {
     if (!editingService) return;
     
     try {
-      await updateService(editingService.id, formData);
+      // Only update basic service fields, not open intervals
+      const updateData: ServiceUpdate = {
+        name: formData.name,
+        slug: formData.slug,
+        description: formData.description,
+        duration_min: formData.duration_min,
+        price_minor: formData.price_minor,
+        is_active: formData.is_active,
+      };
+      await updateService(editingService.id, updateData);
       setEditingService(null);
       resetForm();
     } catch (error) {
@@ -106,39 +138,58 @@ const ServiceManagement: React.FC = () => {
     setEditingService(service);
     setFormData({
       name: service.name,
+      slug: service.slug,
       description: service.description || '',
-      duration_minutes: service.duration_minutes,
+      duration_min: service.duration_min,
       price_minor: service.price_minor,
       is_active: service.is_active,
-      opening_hours: service.opening_hours,
+      open_intervals: [
+        { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
+        { weekday: Weekday.tuesday, start_time: '09:00', end_time: '22:00' },
+        { weekday: Weekday.wednesday, start_time: '09:00', end_time: '22:00' },
+        { weekday: Weekday.thursday, start_time: '09:00', end_time: '22:00' },
+        { weekday: Weekday.friday, start_time: '09:00', end_time: '23:00' },
+        { weekday: Weekday.saturday, start_time: '10:00', end_time: '23:00' },
+        { weekday: Weekday.sunday, start_time: '10:00', end_time: '21:00' },
+      ],
     });
   };
 
   const resetForm = () => {
     setFormData({
       name: '',
+      slug: '',
       description: '',
-      duration_minutes: 120,
+      duration_min: 120,
       price_minor: 0,
       is_active: true,
-      opening_hours: [
-        { day_of_week: 1, opens_at: '09:00', closes_at: '22:00', is_closed: false },
-        { day_of_week: 2, opens_at: '09:00', closes_at: '22:00', is_closed: false },
-        { day_of_week: 3, opens_at: '09:00', closes_at: '22:00', is_closed: false },
-        { day_of_week: 4, opens_at: '09:00', closes_at: '22:00', is_closed: false },
-        { day_of_week: 5, opens_at: '09:00', closes_at: '23:00', is_closed: false },
-        { day_of_week: 6, opens_at: '10:00', closes_at: '23:00', is_closed: false },
-        { day_of_week: 0, opens_at: '10:00', closes_at: '21:00', is_closed: false },
+      open_intervals: [
+        { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
+        { weekday: Weekday.tuesday, start_time: '09:00', end_time: '22:00' },
+        { weekday: Weekday.wednesday, start_time: '09:00', end_time: '22:00' },
+        { weekday: Weekday.thursday, start_time: '09:00', end_time: '22:00' },
+        { weekday: Weekday.friday, start_time: '09:00', end_time: '23:00' },
+        { weekday: Weekday.saturday, start_time: '10:00', end_time: '23:00' },
+        { weekday: Weekday.sunday, start_time: '10:00', end_time: '21:00' },
       ],
     });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
+    
     setFormData(prev => ({
       ...prev,
       [name]: type === 'number' ? parseInt(value) || 0 : value
     }));
+
+    // Auto-generate slug from name
+    if (name === 'name') {
+      setFormData(prev => ({
+        ...prev,
+        slug: generateSlug(value)
+      }));
+    }
   };
 
   const handleToggleActive = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,20 +199,29 @@ const ServiceManagement: React.FC = () => {
     }));
   };
 
-  const handleHoursChange = (dayIndex: number, field: string, value: any) => {
+  const handleOpenIntervalsChange = (weekday: Weekday, field: 'start_time' | 'end_time', value: string) => {
     setFormData(prev => ({
       ...prev,
-      opening_hours: prev.opening_hours.map((hours, i) =>
-        i === dayIndex ? { ...hours, [field]: value } : hours
-      )
+      open_intervals: prev.open_intervals?.map((interval) =>
+        interval.weekday === weekday ? { ...interval, [field]: value } : interval
+      ) || []
     }));
   };
 
-  const formatPrice = (priceMinor: number, currency: string = 'ALL'): string => {
+  const handleToggleWeekday = (weekday: Weekday, isEnabled: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      open_intervals: isEnabled 
+        ? [...(prev.open_intervals || []), { weekday, start_time: '09:00', end_time: '22:00' }]
+        : (prev.open_intervals || []).filter(interval => interval.weekday !== weekday)
+    }));
+  };
+
+  const formatPrice = (priceMinor: number): string => {
     const price = priceMinor / 100;
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency,
+      currency: business?.currency || 'ALL',
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -176,30 +236,6 @@ const ServiceManagement: React.FC = () => {
     } else {
       return `${mins}m`;
     }
-  };
-
-  const getOperatingHours = (service: Service): string => {
-    const openDays = service.opening_hours.filter(h => !h.is_closed);
-    if (openDays.length === 0) return 'Closed';
-    if (openDays.length === 7) return 'Daily';
-    
-    const dayNames = [
-      t('days.short.sunday'), 
-      t('days.short.monday'), 
-      t('days.short.tuesday'), 
-      t('days.short.wednesday'), 
-      t('days.short.thursday'), 
-      t('days.short.friday'), 
-      t('days.short.saturday')
-    ];
-    const sortedDays = openDays
-      .map(h => dayNames[h.day_of_week])
-      .sort((a, b) => {
-        const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        return dayOrder.indexOf(a) - dayOrder.indexOf(b);
-      });
-    
-    return sortedDays.join(', ');
   };
 
   if (businessLoading || servicesLoading) {
@@ -236,13 +272,72 @@ const ServiceManagement: React.FC = () => {
               </div>
             </div>
             
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <PlusIcon className="w-4 h-4 mr-2" />
-              {t('services.addService')}
-            </button>
+            <div className="flex items-center space-x-4">
+              {/* Language Selector */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  <GlobeAltIcon className="w-5 h-5" />
+                  <span className="text-sm">
+                    {languages.find(lang => lang.code === currentLanguage)?.flag}
+                  </span>
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+
+                <AnimatePresence>
+                  {isLanguageOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                    >
+                      {languages.map((language) => (
+                        <button
+                          key={language.code}
+                          onClick={() => {
+                            setLanguage(language.code);
+                            setIsLanguageOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
+                            currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                          }`}
+                        >
+                          <span>{language.flag}</span>
+                          <span>{language.name}</span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* User Info */}
+              <div className="flex items-center space-x-2">
+                <UserCircleIcon className="w-6 h-6 text-gray-400" />
+                <span className="text-sm text-gray-700">{user?.email}</span>
+              </div>
+
+              {/* Sign Out */}
+              <button
+                onClick={handleSignOut}
+                className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors"
+              >
+                <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                <span className="text-sm">{t('dashboard.signOut')}</span>
+              </button>
+
+              {/* Add Service Button */}
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <PlusIcon className="w-4 h-4 mr-2" />
+                {t('services.addService')}
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -260,19 +355,22 @@ const ServiceManagement: React.FC = () => {
         {/* Services Grid */}
         {services.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-            <CogIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">{t('services.noServices.title')}</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <CogIcon className="mx-auto h-16 w-16 text-gray-400" />
+            <h3 className="mt-4 text-xl font-medium text-gray-900">{t('services.noServices.title')}</h3>
+            <p className="mt-2 text-gray-600 max-w-md mx-auto">
               {t('services.noServices.description')}
             </p>
-            <div className="mt-6">
+            <div className="mt-8">
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm"
               >
-                <PlusIcon className="w-4 h-4 mr-2" />
+                <PlusIcon className="w-5 h-5 mr-2" />
                 {t('services.addService')}
               </button>
+            </div>
+            <div className="mt-6 text-sm text-gray-500">
+              <p>{t('services.createServiceHelp')}</p>
             </div>
           </div>
         ) : (
@@ -309,17 +407,29 @@ const ServiceManagement: React.FC = () => {
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-gray-500">
                       <ClockIcon className="w-4 h-4 mr-2" />
-                      <span>{formatDuration(service.duration_minutes)}</span>
+                      <span>{formatDuration(service.duration_min)}</span>
                     </div>
                     {service.price_minor > 0 && (
                       <div className="flex items-center text-sm text-gray-500">
                         <CurrencyDollarIcon className="w-4 h-4 mr-2" />
-                        <span>{formatPrice(service.price_minor, business?.currency)}</span>
+                        <span>{formatPrice(service.price_minor)}</span>
                       </div>
                     )}
                     <div className="text-sm text-gray-500">
                       <span className="font-medium">{t('services.operatingHours')}: </span>
-                      {getOperatingHours(service)}
+                      {service.open_intervals && service.open_intervals.length > 0 
+                        ? service.open_intervals.length === 7 
+                          ? t('services.daily') 
+                          : service.open_intervals
+                              .map((interval) => weekdayNames.find(w => w.weekday === interval.weekday)?.name)
+                              .filter((name): name is string => Boolean(name))
+                              .sort((a, b) => {
+                                const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                                return dayOrder.indexOf(a) - dayOrder.indexOf(b);
+                              })
+                              .join(', ')
+                        : t('services.noSchedule')
+                      }
                     </div>
                     <div className="text-sm text-gray-500">
                       <span className="font-medium">{t('services.tables')}: </span>
@@ -330,12 +440,20 @@ const ServiceManagement: React.FC = () => {
 
                 <div className="border-t border-gray-200 px-6 py-3 bg-gray-50">
                   <div className="flex justify-between items-center">
-                    <button
-                      onClick={() => navigate(`/business/${bizId}/services/${service.id}/tables`)}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                      {t('services.manageTables')}
-                    </button>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => navigate(`/service/${service.id}/open-intervals`)}
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        {t('services.manageHours')}
+                      </button>
+                      <button
+                        onClick={() => navigate(`/business/${bizId}/services/${service.id}/tables`)}
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        {t('services.manageTables')}
+                      </button>
+                    </div>
                     <div className="flex space-x-2">
                       <button
                         onClick={() => openEditModal(service)}
@@ -391,10 +509,28 @@ const ServiceManagement: React.FC = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder={t('services.serviceNamePlaceholder')}
                       required
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('services.serviceSlug')}
+                    </label>
+                    <input
+                      type="text"
+                      name="slug"
+                      value={formData.slug}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder={t('services.serviceSlugPlaceholder')}
+                      required
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      {t('services.serviceSlugHelp')}
+                    </p>
                   </div>
 
                   <div>
@@ -404,8 +540,8 @@ const ServiceManagement: React.FC = () => {
                     <div className="flex">
                       <input
                         type="number"
-                        name="duration_minutes"
-                        value={formData.duration_minutes}
+                        name="duration_min"
+                        value={formData.duration_min}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         min="1"
@@ -449,33 +585,33 @@ const ServiceManagement: React.FC = () => {
                 <div>
                   <h4 className="text-sm font-medium text-gray-700 mb-3">{t('services.operatingHours')}</h4>
                   <div className="space-y-3">
-                    {formData.opening_hours.map((hours, index) => (
-                      <div key={index} className="flex items-center space-x-4">
+                    {weekdayNames.map((day) => (
+                      <div key={day.weekday} className="flex items-center space-x-4">
                         <div className="w-20 text-sm text-gray-600">
-                          {dayNames[hours.day_of_week]}
+                          {day.name}
                         </div>
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={!hours.is_closed}
-                            onChange={(e) => handleHoursChange(index, 'is_closed', !e.target.checked)}
+                            checked={formData.open_intervals?.some(interval => interval.weekday === day.weekday)}
+                            onChange={(e) => handleToggleWeekday(day.weekday, e.target.checked)}
                             className="mr-2"
                           />
                           <span className="text-sm text-gray-600">{t('services.open')}</span>
                         </label>
-                        {!hours.is_closed && (
+                        {formData.open_intervals?.some(interval => interval.weekday === day.weekday) && (
                           <>
                             <input
                               type="time"
-                              value={hours.opens_at}
-                              onChange={(e) => handleHoursChange(index, 'opens_at', e.target.value)}
+                              value={formData.open_intervals?.find(interval => interval.weekday === day.weekday)?.start_time}
+                              onChange={(e) => handleOpenIntervalsChange(day.weekday, 'start_time', e.target.value)}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                             />
                             <span className="text-sm text-gray-600">{t('services.to')}</span>
                             <input
                               type="time"
-                              value={hours.closes_at}
-                              onChange={(e) => handleHoursChange(index, 'closes_at', e.target.value)}
+                              value={formData.open_intervals?.find(interval => interval.weekday === day.weekday)?.end_time}
+                              onChange={(e) => handleOpenIntervalsChange(day.weekday, 'end_time', e.target.value)}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                             />
                           </>

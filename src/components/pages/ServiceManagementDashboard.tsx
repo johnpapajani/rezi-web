@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { serviceApi } from '../../utils/api';
 import { useServiceBookings } from '../../hooks/useServiceBookings';
-import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate } from '../../types';
+import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate, ServiceWithOpenIntervals } from '../../types';
 import CreateBookingModal from '../modals/CreateBookingModal';
 import { 
   ArrowLeftIcon,
@@ -32,19 +32,6 @@ import {
   CurrencyEuroIcon,
 } from '@heroicons/react/24/outline';
 
-interface ServiceData {
-  id: string;
-  business_id: string;
-  business_name: string;
-  name: string;
-  description?: string;
-  duration_minutes: number;
-  price_minor: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
 type TabType = 'dashboard' | 'bookings' | 'tables' | 'availability' | 'settings';
 
 const ServiceManagementDashboard: React.FC = () => {
@@ -52,7 +39,7 @@ const ServiceManagementDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   
-  const [service, setService] = useState<ServiceData | null>(null);
+  const [service, setService] = useState<ServiceWithOpenIntervals | null>(null);
   const [tables, setTables] = useState<Table[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -416,7 +403,7 @@ const ServiceManagementDashboard: React.FC = () => {
                     {service.name}
                   </h1>
                   <p className="text-sm text-gray-500">
-                    {service.business_name}
+                    {t('serviceManagement.serviceDetails')}
                   </p>
                 </div>
               </div>
@@ -561,7 +548,7 @@ const ServiceManagementDashboard: React.FC = () => {
                   <div className="mx-auto w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
                     <ClockIcon className="w-6 h-6 text-blue-600" />
                   </div>
-                  <p className="text-2xl font-semibold text-gray-900">{formatDuration(service.duration_minutes)}</p>
+                  <p className="text-2xl font-semibold text-gray-900">{formatDuration(service.duration_min)}</p>
                   <p className="text-sm text-gray-600">{t('common.duration')}</p>
                 </div>
                 <div className="text-center">
@@ -1284,7 +1271,7 @@ const ServiceManagementDashboard: React.FC = () => {
         onSubmit={handleCreateBooking}
         serviceId={serviceId || ''}
         serviceName={service?.name || ''}
-        serviceDurationMinutes={service?.duration_minutes || 120}
+        serviceDurationMinutes={service?.duration_min || 120}
         tables={tables}
         loading={bookingsLoading}
       />

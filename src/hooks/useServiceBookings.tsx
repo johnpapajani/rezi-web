@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { serviceApi } from '../utils/api';
-import { BookingWithService, BookingFilters, BookingUpdate, BookingStatusUpdate, BookingReschedule, BookingStatus, BookingCreate } from '../types';
+import { BookingWithService, BookingCreate, BookingStatus } from '../types';
 
 interface UseServiceBookingsProps {
   serviceId: string;
@@ -36,13 +36,25 @@ export const useServiceBookings = ({ serviceId }: UseServiceBookingsProps) => {
 
   const updateBookingStatus = async (bookingId: string, status: BookingStatus) => {
     try {
-      // For service bookings, we'll need to use the business API for updates
-      // since the service router might not have update endpoints
+      const updatedBooking = await serviceApi.updateServiceBookingStatus(serviceId, bookingId, { status });
       setBookings(prev => prev.map(booking => 
-        booking.id === bookingId ? { ...booking, status } : booking
+        booking.id === bookingId ? updatedBooking : booking
       ));
+      return updatedBooking;
     } catch (err: any) {
       throw new Error(err.detail || 'Failed to update booking status');
+    }
+  };
+
+  const updateBooking = async (bookingId: string, updates: any) => {
+    try {
+      const updatedBooking = await serviceApi.updateServiceBooking(serviceId, bookingId, updates);
+      setBookings(prev => prev.map(booking => 
+        booking.id === bookingId ? updatedBooking : booking
+      ));
+      return updatedBooking;
+    } catch (err: any) {
+      throw new Error(err.detail || 'Failed to update booking');
     }
   };
 
@@ -53,6 +65,7 @@ export const useServiceBookings = ({ serviceId }: UseServiceBookingsProps) => {
     fetchBookings,
     createBooking,
     updateBookingStatus,
+    updateBooking,
     refetch: () => fetchBookings(),
   };
 }; 

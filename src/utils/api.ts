@@ -1,4 +1,4 @@
-import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, BookingCreate, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate } from '../types';
+import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, BookingCreate, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate, ServiceWithOpenIntervals, ServiceOpenInterval, ServiceOpenIntervalCreate, AvailabilityMatrix } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -182,8 +182,6 @@ export const businessApi = {
 
 // Service API functions
 export const serviceApi = {
-
-
   getServices: async (bizId: string, activeOnly: boolean = true): Promise<ServiceWithTables[]> => {
     const accessToken = tokenStorage.getAccessToken();
     if (!accessToken) {
@@ -278,7 +276,7 @@ export const serviceApi = {
   },
 
   // Service-centric endpoints (using the service router)
-  getServiceDetails: async (serviceId: string): Promise<any> => {
+  getServiceDetails: async (serviceId: string): Promise<ServiceWithOpenIntervals> => {
     const accessToken = tokenStorage.getAccessToken();
     if (!accessToken) {
       throw new ApiErrorClass('No access token available', 401);
@@ -292,16 +290,58 @@ export const serviceApi = {
       },
     });
     
-    return handleResponse<any>(response);
+    return handleResponse<ServiceWithOpenIntervals>(response);
   },
 
-  getServiceTables: async (serviceId: string): Promise<Table[]> => {
+  // Service Open Intervals Management
+  getServiceOpenIntervals: async (serviceId: string): Promise<ServiceOpenInterval[]> => {
     const accessToken = tokenStorage.getAccessToken();
     if (!accessToken) {
       throw new ApiErrorClass('No access token available', 401);
     }
 
-    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/tables`, {
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/open-intervals`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<ServiceOpenInterval[]>(response);
+  },
+
+  replaceServiceOpenIntervals: async (serviceId: string, intervals: ServiceOpenIntervalCreate[]): Promise<void> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/open-intervals`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(intervals),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new ApiErrorClass(errorData.detail || 'Failed to update service open intervals', response.status);
+    }
+  },
+
+  getServiceTables: async (serviceId: string, activeOnly: boolean = true): Promise<Table[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const url = new URL(`${API_BASE_URL}/services/${serviceId}/tables`);
+    url.searchParams.set('active_only', activeOnly.toString());
+
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -373,9 +413,9 @@ export const serviceApi = {
 
     const url = new URL(`${API_BASE_URL}/services/${serviceId}/bookings`);
     if (filters) {
-      Object.keys(filters).forEach(key => {
-        if (filters[key] !== undefined && filters[key] !== null) {
-          url.searchParams.set(key, filters[key].toString());
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          url.searchParams.append(key, value.toString());
         }
       });
     }
@@ -409,7 +449,60 @@ export const serviceApi = {
     return handleResponse<BookingWithService>(response);
   },
 
-  getServiceAvailability: async (serviceId: string, date: string, partySize: number, tableId?: string): Promise<any> => {
+  getServiceBooking: async (serviceId: string, bookingId: string): Promise<BookingWithService> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/bookings/${bookingId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
+  updateServiceBooking: async (serviceId: string, bookingId: string, bookingUpdate: BookingUpdate): Promise<BookingWithService> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/bookings/${bookingId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bookingUpdate),
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
+  updateServiceBookingStatus: async (serviceId: string, bookingId: string, statusUpdate: BookingStatusUpdate): Promise<BookingWithService> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/bookings/${bookingId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(statusUpdate),
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
+  getServiceAvailability: async (serviceId: string, date: string, partySize: number, tableId?: string): Promise<AvailabilityMatrix> => {
     const accessToken = tokenStorage.getAccessToken();
     if (!accessToken) {
       throw new ApiErrorClass('No access token available', 401);
@@ -430,7 +523,7 @@ export const serviceApi = {
       },
     });
     
-    return handleResponse<any>(response);
+    return handleResponse<AvailabilityMatrix>(response);
   },
 };
 

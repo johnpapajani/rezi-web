@@ -263,7 +263,7 @@ const ServiceDashboard: React.FC = () => {
                           <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                             <div className="flex items-center space-x-2">
                               <ClockIcon className="w-4 h-4 text-gray-400" />
-                              <span className="text-gray-600">{formatDuration(service.duration_minutes)}</span>
+                              <span className="text-gray-600">{formatDuration(service.duration_min)}</span>
                             </div>
                             <div className="flex items-center space-x-2">
                               <CurrencyDollarIcon className="w-4 h-4 text-gray-400" />
