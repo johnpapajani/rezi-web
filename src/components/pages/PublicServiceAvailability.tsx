@@ -331,15 +331,32 @@ const PublicServiceAvailability: React.FC = () => {
 
               {/* Calendar Grid */}
               <div className="p-6">
-                <div className="grid grid-cols-7 gap-1 text-center text-sm font-medium text-gray-500 mb-2">
-                  <div>{t('public.calendar.weekdays.sunday')}</div>
-                  <div>{t('public.calendar.weekdays.monday')}</div>
-                  <div>{t('public.calendar.weekdays.tuesday')}</div>
-                  <div>{t('public.calendar.weekdays.wednesday')}</div>
-                  <div>{t('public.calendar.weekdays.thursday')}</div>
-                  <div>{t('public.calendar.weekdays.friday')}</div>
-                  <div>{t('public.calendar.weekdays.saturday')}</div>
+                {/* Weekday Headers */}
+                <div className="grid grid-cols-7 gap-1 mb-3">
+                  <div className="h-10 w-10 flex items-center justify-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    {t('public.calendar.weekdays.sunday')}
+                  </div>
+                  <div className="h-10 w-10 flex items-center justify-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    {t('public.calendar.weekdays.monday')}
+                  </div>
+                  <div className="h-10 w-10 flex items-center justify-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    {t('public.calendar.weekdays.tuesday')}
+                  </div>
+                  <div className="h-10 w-10 flex items-center justify-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    {t('public.calendar.weekdays.wednesday')}
+                  </div>
+                  <div className="h-10 w-10 flex items-center justify-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    {t('public.calendar.weekdays.thursday')}
+                  </div>
+                  <div className="h-10 w-10 flex items-center justify-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    {t('public.calendar.weekdays.friday')}
+                  </div>
+                  <div className="h-10 w-10 flex items-center justify-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    {t('public.calendar.weekdays.saturday')}
+                  </div>
                 </div>
+                
+                {/* Calendar Days */}
                 <div className="grid grid-cols-7 gap-1">
                   {calendarDays.map((day, index) => (
                     <button
@@ -347,12 +364,12 @@ const PublicServiceAvailability: React.FC = () => {
                       onClick={() => day && !day.isPast && setSelectedDate(day.date)}
                       disabled={!day || day.isPast}
                       className={`
-                        h-10 w-10 rounded text-sm font-medium transition-colors
+                        h-10 w-10 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center
                         ${!day ? 'invisible' : ''}
                         ${day?.isPast ? 'text-gray-300 cursor-not-allowed' : ''}
-                        ${day?.isSelected ? 'bg-blue-600 text-white' : ''}
-                        ${day?.isToday && !day?.isSelected ? 'bg-blue-100 text-blue-600' : ''}
-                        ${day && !day.isPast && !day.isSelected && !day.isToday ? 'hover:bg-gray-100' : ''}
+                        ${day?.isSelected ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-200' : ''}
+                        ${day?.isToday && !day?.isSelected ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-300' : ''}
+                        ${day && !day.isPast && !day.isSelected && !day.isToday ? 'text-gray-900 hover:bg-gray-100 hover:shadow-sm' : ''}
                       `}
                     >
                       {day?.day}
