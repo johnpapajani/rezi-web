@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { publicApi } from '../../utils/api';
 import { Business, ServiceWithOpenIntervals } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -66,10 +66,7 @@ const PublicBusinessPage: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('public.error.businessNotFound')}</h2>
-          <p className="text-gray-600 mb-4">{error || t('public.error.businessNotFoundMessage')}</p>
-          <Link to="/" className="text-blue-600 hover:text-blue-800">
-            {t('public.confirmation.backToHome')}
-          </Link>
+          <p className="text-gray-600">{error || t('public.error.businessNotFoundMessage')}</p>
         </div>
       </div>
     );
@@ -79,15 +76,16 @@ const PublicBusinessPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link 
-              to="/" 
-              className="text-gray-600 hover:text-blue-600 text-sm font-medium transition-colors"
-            >
-              ← {t('public.back')}
-            </Link>
-            
+            {/* Rezi Platform Branding */}
+            <div className="flex items-center">
+              <div className="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                <span className="text-white font-bold text-sm">R</span>
+              </div>
+              <h1 className="text-xl font-bold text-gradient">Rezi</h1>
+            </div>
+
             {/* Language Switcher */}
             <div className="relative">
               <button
@@ -136,18 +134,33 @@ const PublicBusinessPage: React.FC = () => {
           
           {/* Address */}
           {(business.address_line1 || business.city) && (
-            <div className="flex items-center justify-center text-gray-600 mb-8">
-              <MapPinIcon className="h-4 w-4 mr-2 text-blue-500" />
-              <div>
-                {business.address_line1 && <span>{business.address_line1}</span>}
-                {business.address_line2 && <span>, {business.address_line2}</span>}
-                {business.city && (
-                  <span>
-                    {business.address_line1 && ', '}{business.city}
-                    {business.postal_code && ` ${business.postal_code}`}
-                  </span>
-                )}
-              </div>
+            <div className="flex items-center justify-center mb-8">
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                  [
+                    business.address_line1,
+                    business.address_line2,
+                    business.city,
+                    business.postal_code,
+                    business.country_code
+                  ].filter(Boolean).join(', ')
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-gray-600 hover:text-blue-600 transition-colors duration-200 group"
+              >
+                <MapPinIcon className="h-4 w-4 mr-2 text-blue-500 group-hover:text-blue-600" />
+                <div className="group-hover:underline">
+                  {business.address_line1 && <span>{business.address_line1}</span>}
+                  {business.address_line2 && <span>, {business.address_line2}</span>}
+                  {business.city && (
+                    <span>
+                      {business.address_line1 && ', '}{business.city}
+                      {business.postal_code && ` ${business.postal_code}`}
+                    </span>
+                  )}
+                </div>
+              </a>
             </div>
           )}
         </div>
