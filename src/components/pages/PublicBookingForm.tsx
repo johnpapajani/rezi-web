@@ -34,8 +34,7 @@ const PublicBookingForm: React.FC = () => {
     business: Business;
   } || {};
 
-  const [tables, setTables] = useState<Table[]>([]);
-  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+  const [availableTable, setAvailableTable] = useState<Table | null>(null);
   const [customerData, setCustomerData] = useState({
     name: '',
     phone: '',
@@ -59,14 +58,15 @@ const PublicBookingForm: React.FC = () => {
         const tablesData = await publicApi.getServiceTables(slug!, serviceId!);
         // Filter tables that can accommodate the party size
         const suitableTables = tablesData.filter(table => table.seats >= bookingData.partySize);
-        setTables(suitableTables);
         
         // Auto-select the first suitable table
         if (suitableTables.length > 0) {
-          setSelectedTable(suitableTables[0]);
+          setAvailableTable(suitableTables[0]);
+        } else {
+          setAvailableTable(null);
         }
       } catch (err: any) {
-        setError(err.detail || 'Failed to load tables');
+        setError(err.detail || 'Failed to load availability');
       } finally {
         setTablesLoading(false);
       }
@@ -110,8 +110,8 @@ const PublicBookingForm: React.FC = () => {
       errors.email = 'Please enter a valid email address';
     }
 
-    if (!selectedTable) {
-      errors.table = 'Please select a table';
+    if (!availableTable) {
+      errors.table = 'No suitable tables available for your party size';
     }
 
     setValidationErrors(errors);
@@ -125,7 +125,7 @@ const PublicBookingForm: React.FC = () => {
       return;
     }
 
-    if (!selectedTable || !bookingData) {
+    if (!availableTable || !bookingData) {
       return;
     }
 
@@ -135,7 +135,7 @@ const PublicBookingForm: React.FC = () => {
 
       const bookingRequest: BookingCreate = {
         service_id: bookingData.serviceId,
-        table_id: selectedTable.id,
+        table_id: availableTable.id,
         starts_at: bookingData.startTime,
         ends_at: bookingData.endTime,
         party_size: bookingData.partySize,
@@ -340,60 +340,6 @@ const PublicBookingForm: React.FC = () => {
                 </div>
               </div>
 
-              {/* Table Selection */}
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Select Table</h2>
-                
-                {tablesLoading ? (
-                  <div className="flex justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  </div>
-                ) : tables.length > 0 ? (
-                  <div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {tables.map((table) => (
-                        <div
-                          key={table.id}
-                          onClick={() => setSelectedTable(table)}
-                          className={`
-                            p-4 border rounded-lg cursor-pointer transition-colors
-                            ${selectedTable?.id === table.id 
-                              ? 'border-blue-500 bg-blue-50' 
-                              : 'border-gray-200 hover:border-gray-300'
-                            }
-                          `}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h3 className="font-medium text-gray-900">Table {table.code}</h3>
-                              <p className="text-sm text-gray-600">
-                                Seats up to {table.seats} {table.seats === 1 ? 'person' : 'people'}
-                              </p>
-                            </div>
-                            {selectedTable?.id === table.id && (
-                              <CheckCircleIcon className="h-5 w-5 text-blue-600" />
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {validationErrors.table && (
-                      <p className="mt-2 text-sm text-red-600">{validationErrors.table}</p>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <ExclamationTriangleIcon className="h-12 w-12 text-yellow-400 mx-auto mb-4" />
-                    <p className="text-gray-600">
-                      No suitable tables available for a party of {bookingData.partySize}.
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Please go back and select a smaller party size.
-                    </p>
-                  </div>
-                )}
-              </div>
-
               {/* Error Message */}
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -408,10 +354,10 @@ const PublicBookingForm: React.FC = () => {
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <button
                   type="submit"
-                  disabled={loading || tables.length === 0}
+                  disabled={loading || !availableTable}
                   className={`
                     w-full py-3 px-4 rounded-md font-medium transition-colors duration-200
-                    ${loading || tables.length === 0
+                    ${loading || !availableTable
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-green-600 text-white hover:bg-green-700'
                     }

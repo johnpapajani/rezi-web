@@ -288,20 +288,7 @@ const PublicBookingConfirmation: React.FC = () => {
                   </div>
                 )}
 
-                {booking.table_code && (
-                  <div className="flex items-start">
-                    <div className="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex items-center justify-center">
-                      <div className="h-3 w-3 bg-gray-400 rounded"></div>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Table</p>
-                      <p className="font-medium text-gray-900">
-                        Table {booking.table_code}
-                        {booking.table_seats && ` (${booking.table_seats} seats)`}
-                      </p>
-                    </div>
-                  </div>
-                )}
+
               </div>
             </div>
 

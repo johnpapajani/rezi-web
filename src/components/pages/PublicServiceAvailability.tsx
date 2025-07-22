@@ -353,7 +353,7 @@ const PublicServiceAvailability: React.FC = () => {
                       >
                         <div className="font-medium">{formatTime(slot.starts_at)}</div>
                         <div className="text-xs opacity-75">
-                          {slot.available_tables} table{slot.available_tables !== 1 ? 's' : ''}
+                          Available
                         </div>
                       </button>
                     ))}
