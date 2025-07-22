@@ -13,13 +13,11 @@ const Footer: React.FC = () => {
   const footerLinks = {
     company: [
       { key: 'footer.about', href: '#about' },
-      { key: 'footer.careers', href: '#careers' },
       { key: 'footer.contact', href: '#contact' },
     ],
     product: [
       { key: 'footer.features', href: '#features' },
       { key: 'footer.pricing', href: '#pricing' },
-      { key: 'footer.api', href: '#api' },
     ],
     support: [
       { key: 'footer.help', href: '#help' },
@@ -216,7 +214,7 @@ const Footer: React.FC = () => {
         >
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-gray-400 text-sm">
-              © 2024 Rezi. {t('footer.rights')}
+              © 2025 Rezi. {t('footer.rights')}
             </div>
             
             {/* Social Links */}

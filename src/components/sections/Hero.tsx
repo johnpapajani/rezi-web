@@ -13,7 +13,7 @@ const Hero: React.FC = () => {
 
   const stats = [
     {
-      number: '500+',
+      number: '100+',
       label: t('hero.stats.businesses'),
       icon: UserGroupIcon,
     },

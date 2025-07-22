@@ -216,15 +216,6 @@ const Dashboard: React.FC = () => {
                       >
                         {t('dashboard.yourBusinesses.manage')}
                       </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/business/${business.id}/settings`);
-                        }}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        {t('dashboard.yourBusinesses.settings')}
-                      </button>
                     </div>
                   </motion.div>
                 ))}
