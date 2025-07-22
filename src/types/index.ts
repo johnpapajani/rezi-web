@@ -147,6 +147,8 @@ export interface Service {
   description?: string;
   duration_min: number;
   price_minor: number; // Price in minor currency units (e.g., cents)
+  category_id?: string;
+  capacity?: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -210,6 +212,8 @@ export interface ServiceUpdate {
   duration_min?: number;
   price_minor?: number;
   is_active?: boolean;
+  category_id?: string;
+  capacity?: number;
 }
 
 export interface ServiceWithTables extends ServiceWithOpenIntervals {

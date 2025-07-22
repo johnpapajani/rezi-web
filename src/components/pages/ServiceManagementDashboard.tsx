@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { serviceApi, businessApi } from '../../utils/api';
 import { useServiceBookings } from '../../hooks/useServiceBookings';
-import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate, ServiceWithOpenIntervals } from '../../types';
+import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate, ServiceWithOpenIntervals, ServiceUpdate } from '../../types';
 import CreateBookingModal from '../modals/CreateBookingModal';
 import PendingBookingsSection from './PendingBookingsSection';
+import ServiceSettingsSection from './ServiceSettingsSection';
 import { 
   ArrowLeftIcon,
   CalendarDaysIcon,
@@ -51,6 +52,7 @@ const ServiceManagementDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<TabType>('dashboard');
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const [updatingService, setUpdatingService] = useState(false);
 
   // Service bookings hook
   const { 
@@ -255,6 +257,19 @@ const ServiceManagementDashboard: React.FC = () => {
   const handleViewAllPending = () => {
     setStatusFilter(BookingStatus.pending);
     handleTabChange('bookings');
+  };
+
+  // Service update handler
+  const handleUpdateService = async (updates: ServiceUpdate) => {
+    setUpdatingService(true);
+    try {
+      const updatedService = await serviceApi.updateServiceDetails(serviceId!, updates);
+      setService(updatedService);
+    } catch (error: any) {
+      throw error; // Let the component handle the error display
+    } finally {
+      setUpdatingService(false);
+    }
   };
 
   const getStatusColor = (status: BookingStatus) => {
@@ -1253,16 +1268,17 @@ const ServiceManagementDashboard: React.FC = () => {
           />
         )}
 
-        {currentTab === 'settings' && (
+        {currentTab === 'settings' && service && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">{t('serviceManagement.serviceSettings.title')}</h2>
-              <p className="text-gray-600">{t('serviceManagement.serviceSettings.description')}</p>
-            </div>
+            <ServiceSettingsSection 
+              service={service}
+              onUpdateService={handleUpdateService}
+              updating={updatingService}
+            />
           </motion.div>
         )}
       </main>

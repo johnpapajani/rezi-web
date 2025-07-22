@@ -324,6 +324,24 @@ export const serviceApi = {
     return handleResponse<ServiceWithOpenIntervals>(response);
   },
 
+  updateServiceDetails: async (serviceId: string, serviceUpdate: ServiceUpdate): Promise<ServiceWithOpenIntervals> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(serviceUpdate),
+    });
+    
+    return handleResponse<ServiceWithOpenIntervals>(response);
+  },
+
   // Service Open Intervals Management
   getServiceOpenIntervals: async (serviceId: string): Promise<ServiceOpenInterval[]> => {
     const accessToken = tokenStorage.getAccessToken();
