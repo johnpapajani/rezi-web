@@ -33,6 +33,7 @@ import {
   ListBulletIcon,
 } from '@heroicons/react/24/outline';
 import ServiceBookingsCalendar from './ServiceBookingsCalendar';
+import ServiceAvailabilityManagement from './ServiceAvailabilityManagement';
 
 type TabType = 'dashboard' | 'bookings' | 'tables' | 'availability' | 'settings';
 
@@ -1160,17 +1161,11 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
 
-        {currentTab === 'availability' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">{t('serviceManagement.availabilityManagement.title')}</h2>
-              <p className="text-gray-600">{t('serviceManagement.availabilityManagement.description')}</p>
-            </div>
-          </motion.div>
+        {currentTab === 'availability' && service && (
+          <ServiceAvailabilityManagement 
+            serviceId={serviceId!}
+            serviceName={service.name}
+          />
         )}
 
         {currentTab === 'settings' && (
