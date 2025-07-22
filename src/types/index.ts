@@ -257,6 +257,8 @@ export interface BookingWithService extends Booking {
   service_name?: string;
   service_duration_min?: number;
   service_price_minor?: number;
+  table_code?: string;
+  table_seats?: number;
 }
 
 export interface BookingUpdate {

@@ -17,6 +17,10 @@ import BusinessList from './components/pages/BusinessList';
 import BookingList from './components/pages/BookingList';
 import ServiceSelection from './components/pages/ServiceSelection';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import PublicBusinessPage from './components/pages/PublicBusinessPage';
+import PublicServiceAvailability from './components/pages/PublicServiceAvailability';
+import PublicBookingForm from './components/pages/PublicBookingForm';
+import PublicBookingConfirmation from './components/pages/PublicBookingConfirmation';
 
 function App() {
   return (
@@ -28,6 +32,12 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/signin" element={<SignIn />} />
+              
+              {/* Public Booking Routes */}
+              <Route path="/book/:slug" element={<PublicBusinessPage />} />
+              <Route path="/book/:slug/service/:serviceId" element={<PublicServiceAvailability />} />
+              <Route path="/book/:slug/service/:serviceId/booking" element={<PublicBookingForm />} />
+              <Route path="/book/confirmation/:bookingId" element={<PublicBookingConfirmation />} />
               <Route 
                 path="/onboarding" 
                 element={

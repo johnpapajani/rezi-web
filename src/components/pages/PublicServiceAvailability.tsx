@@ -1,0 +1,402 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { publicApi } from '../../utils/api';
+import { Business, ServiceWithOpenIntervals, Table, AvailabilityMatrix, AvailabilitySlot } from '../../types';
+import { 
+  CalendarDaysIcon, 
+  ClockIcon, 
+  ChevronLeftIcon, 
+  ChevronRightIcon,
+  ArrowLeftIcon,
+  UserGroupIcon,
+  CheckCircleIcon
+} from '@heroicons/react/24/outline';
+
+const PublicServiceAvailability: React.FC = () => {
+  const { slug, serviceId } = useParams<{ slug: string; serviceId: string }>();
+  const navigate = useNavigate();
+  
+  const [business, setBusiness] = useState<Business | null>(null);
+  const [service, setService] = useState<ServiceWithOpenIntervals | null>(null);
+  const [tables, setTables] = useState<Table[]>([]);
+  const [availability, setAvailability] = useState<AvailabilityMatrix | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
+  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
+  const [partySize, setPartySize] = useState<number>(2);
+  const [loading, setLoading] = useState(true);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Calendar state
+  const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      if (!slug || !serviceId) return;
+
+      try {
+        setLoading(true);
+        const [businessData, servicesData, tablesData] = await Promise.all([
+          publicApi.getBusinessDetails(slug),
+          publicApi.getBusinessServices(slug),
+          publicApi.getServiceTables(slug, serviceId)
+        ]);
+        
+        setBusiness(businessData);
+        setTables(tablesData);
+        
+        // Find the specific service
+        const foundService = servicesData.find(s => s.id === serviceId);
+        if (!foundService) {
+          setError('Service not found');
+          return;
+        }
+        setService(foundService);
+      } catch (err: any) {
+        setError(err.detail || 'Failed to load service information');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, [slug, serviceId]);
+
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      if (!slug || !serviceId || !selectedDate) return;
+
+      try {
+        setAvailabilityLoading(true);
+        const availabilityData = await publicApi.checkAvailability(
+          slug, 
+          selectedDate, 
+          partySize, 
+          serviceId
+        );
+        setAvailability(availabilityData);
+      } catch (err: any) {
+        console.error('Failed to load availability:', err);
+        setAvailability({ slots: [] });
+      } finally {
+        setAvailabilityLoading(false);
+      }
+    };
+
+    fetchAvailability();
+  }, [slug, serviceId, selectedDate, partySize]);
+
+  const formatPrice = (priceMinor: number, currency: string = 'ALL') => {
+    const price = priceMinor / 100;
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const formatTime = (timeString: string) => {
+    const date = new Date(timeString);
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  };
+
+  const generateCalendarDays = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const today = new Date();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days = [];
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+
+    // Add all days of the month
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const date = new Date(year, month, day);
+      const dateString = date.toISOString().split('T')[0];
+      const isPast = date < today;
+      const isToday = dateString === today.toISOString().split('T')[0];
+      const isSelected = dateString === selectedDate;
+
+      days.push({
+        date: dateString,
+        day,
+        isPast,
+        isToday,
+        isSelected
+      });
+    }
+
+    return days;
+  };
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setCurrentMonth(prev => {
+      const newMonth = new Date(prev);
+      if (direction === 'prev') {
+        newMonth.setMonth(prev.getMonth() - 1);
+      } else {
+        newMonth.setMonth(prev.getMonth() + 1);
+      }
+      return newMonth;
+    });
+  };
+
+  const proceedToBooking = () => {
+    if (!selectedSlot || !service) return;
+    
+    const bookingData = {
+      serviceId: service.id,
+      date: selectedDate,
+      startTime: selectedSlot.starts_at,
+      endTime: selectedSlot.ends_at,
+      partySize
+    };
+
+    navigate(`/book/${slug}/service/${serviceId}/booking`, { 
+      state: { bookingData, service, business } 
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !business || !service) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Service Not Found</h2>
+          <p className="text-gray-600 mb-4">{error || 'The service you are looking for does not exist.'}</p>
+          <Link to={`/book/${slug}`} className="text-blue-600 hover:text-blue-800">
+            Back to services
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const calendarDays = generateCalendarDays();
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center">
+            <Link 
+              to={`/book/${slug}`}
+              className="mr-4 p-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </Link>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">{service.name}</h1>
+              <p className="text-gray-600 text-sm">{business.name}</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+          {/* Service Info & Party Size */}
+          <div className="lg:col-span-1 mb-8 lg:mb-0">
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Service Details</h2>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Duration:</span>
+                  <span className="font-medium">{service.duration_min} minutes</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Price:</span>
+                  <span className="font-medium">{formatPrice(service.price_minor, business.currency)}</span>
+                </div>
+              </div>
+
+              {service.description && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-sm text-gray-600">{service.description}</p>
+                </div>
+              )}
+
+              {/* Party Size Selection */}
+              <div className="mt-6 pt-6 border-t">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Party Size
+                </label>
+                <div className="flex items-center space-x-2">
+                  <UserGroupIcon className="h-5 w-5 text-gray-400" />
+                  <select
+                    value={partySize}
+                    onChange={(e) => setPartySize(parseInt(e.target.value))}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {[...Array(10)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1} {i === 0 ? 'person' : 'people'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Calendar & Time Slots */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow-sm border">
+              {/* Calendar Header */}
+              <div className="px-6 py-4 border-b">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-900">Select Date & Time</h2>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => navigateMonth('prev')}
+                      className="p-2 text-gray-600 hover:text-gray-900"
+                    >
+                      <ChevronLeftIcon className="h-5 w-5" />
+                    </button>
+                    <span className="text-sm font-medium">
+                      {currentMonth.toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        year: 'numeric' 
+                      })}
+                    </span>
+                    <button
+                      onClick={() => navigateMonth('next')}
+                      className="p-2 text-gray-600 hover:text-gray-900"
+                    >
+                      <ChevronRightIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Calendar Grid */}
+              <div className="p-6">
+                <div className="grid grid-cols-7 gap-1 text-center text-sm font-medium text-gray-500 mb-2">
+                  <div>Sun</div>
+                  <div>Mon</div>
+                  <div>Tue</div>
+                  <div>Wed</div>
+                  <div>Thu</div>
+                  <div>Fri</div>
+                  <div>Sat</div>
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {calendarDays.map((day, index) => (
+                    <button
+                      key={index}
+                      onClick={() => day && !day.isPast && setSelectedDate(day.date)}
+                      disabled={!day || day.isPast}
+                      className={`
+                        h-10 w-10 rounded text-sm font-medium transition-colors
+                        ${!day ? 'invisible' : ''}
+                        ${day?.isPast ? 'text-gray-300 cursor-not-allowed' : ''}
+                        ${day?.isSelected ? 'bg-blue-600 text-white' : ''}
+                        ${day?.isToday && !day?.isSelected ? 'bg-blue-100 text-blue-600' : ''}
+                        ${day && !day.isPast && !day.isSelected && !day.isToday ? 'hover:bg-gray-100' : ''}
+                      `}
+                    >
+                      {day?.day}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Time Slots */}
+              <div className="px-6 pb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">
+                  Available Times for {new Date(selectedDate).toLocaleDateString('en-US', { 
+                    weekday: 'long',
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </h3>
+
+                {availabilityLoading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : availability && availability.slots.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    {availability.slots.map((slot, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedSlot(slot)}
+                        className={`
+                          p-3 text-sm rounded border transition-colors
+                          ${selectedSlot?.starts_at === slot.starts_at 
+                            ? 'bg-blue-600 text-white border-blue-600' 
+                            : 'bg-gray-50 text-gray-900 border-gray-200 hover:bg-gray-100'
+                          }
+                        `}
+                      >
+                        <div className="font-medium">{formatTime(slot.starts_at)}</div>
+                        <div className="text-xs opacity-75">
+                          {slot.available_tables} table{slot.available_tables !== 1 ? 's' : ''}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <ClockIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No available times for this date.</p>
+                    <p className="text-sm text-gray-500 mt-1">Try selecting a different date.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Continue Button */}
+            {selectedSlot && (
+              <div className="mt-6 bg-white rounded-lg shadow-sm border p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium text-gray-900">Selected Time</h3>
+                    <p className="text-sm text-gray-600">
+                      {new Date(selectedDate).toLocaleDateString('en-US', { 
+                        weekday: 'long',
+                        month: 'long', 
+                        day: 'numeric' 
+                      })} at {formatTime(selectedSlot.starts_at)}
+                    </p>
+                  </div>
+                  <button
+                    onClick={proceedToBooking}
+                    className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 font-medium flex items-center"
+                  >
+                    <CheckCircleIcon className="h-4 w-4 mr-2" />
+                    Continue to Booking
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PublicServiceAvailability; 

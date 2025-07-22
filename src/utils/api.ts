@@ -912,4 +912,122 @@ export const resourceApi = {
       throw new ApiErrorClass(errorData.detail || 'Failed to delete resource', response.status);
     }
   },
+};
+
+// ============================================================================
+// PUBLIC API (No authentication required)
+// ============================================================================
+
+export const publicApi = {
+  // Get business details by slug
+  getBusinessDetails: async (slug: string): Promise<Business> => {
+    const response = await fetch(`${API_BASE_URL}/public/businesses/${slug}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<Business>(response);
+  },
+
+  // Get business services
+  getBusinessServices: async (slug: string, activeOnly: boolean = true): Promise<ServiceWithOpenIntervals[]> => {
+    const url = new URL(`${API_BASE_URL}/public/businesses/${slug}/services`);
+    if (activeOnly) {
+      url.searchParams.append('active_only', 'true');
+    }
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<ServiceWithOpenIntervals[]>(response);
+  },
+
+  // Get service tables
+  getServiceTables: async (slug: string, serviceId: string, activeOnly: boolean = true): Promise<Table[]> => {
+    const url = new URL(`${API_BASE_URL}/public/businesses/${slug}/services/${serviceId}/tables`);
+    if (activeOnly) {
+      url.searchParams.append('active_only', 'true');
+    }
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<Table[]>(response);
+  },
+
+  // Check availability for a service on a specific date
+  checkAvailability: async (
+    slug: string, 
+    date: string, 
+    partySize: number, 
+    serviceId: string,
+    tableId?: string,
+    slotIncrementMinutes: number = 15
+  ): Promise<AvailabilityMatrix> => {
+    const url = new URL(`${API_BASE_URL}/public/businesses/${slug}/availability`);
+    url.searchParams.append('date_', date);
+    url.searchParams.append('party_size', partySize.toString());
+    url.searchParams.append('service_id', serviceId);
+    url.searchParams.append('slot_increment_minutes', slotIncrementMinutes.toString());
+    
+    if (tableId) {
+      url.searchParams.append('table_id', tableId);
+    }
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<AvailabilityMatrix>(response);
+  },
+
+  // Create a booking
+  createBooking: async (slug: string, bookingData: BookingCreate): Promise<BookingWithService> => {
+    const response = await fetch(`${API_BASE_URL}/public/businesses/${slug}/bookings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bookingData),
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
+  // Get booking details
+  getBookingDetails: async (bookingId: string): Promise<BookingWithService> => {
+    const response = await fetch(`${API_BASE_URL}/public/bookings/${bookingId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
+  // Cancel a booking
+  cancelBooking: async (bookingId: string): Promise<BookingWithService> => {
+    const response = await fetch(`${API_BASE_URL}/public/bookings/${bookingId}/cancel`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
 }; 

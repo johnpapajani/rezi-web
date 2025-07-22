@@ -30,3 +30,11 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Line clamp utilities for text truncation */
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
