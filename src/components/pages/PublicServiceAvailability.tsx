@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { publicApi } from '../../utils/api';
 import { Business, ServiceWithOpenIntervals, Table, AvailabilityMatrix, AvailabilitySlot } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
 import { 
   CalendarDaysIcon, 
   ClockIcon, 
@@ -9,12 +10,14 @@ import {
   ChevronRightIcon,
   ArrowLeftIcon,
   UserGroupIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  GlobeAltIcon
 } from '@heroicons/react/24/outline';
 
 const PublicServiceAvailability: React.FC = () => {
   const { slug, serviceId } = useParams<{ slug: string; serviceId: string }>();
   const navigate = useNavigate();
+  const { t, currentLanguage, setLanguage, languages } = useTranslation();
   
   const [business, setBusiness] = useState<Business | null>(null);
   const [service, setService] = useState<ServiceWithOpenIntervals | null>(null);
@@ -29,6 +32,7 @@ const PublicServiceAvailability: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
   // Calendar state
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
@@ -51,12 +55,12 @@ const PublicServiceAvailability: React.FC = () => {
         // Find the specific service
         const foundService = servicesData.find(s => s.id === serviceId);
         if (!foundService) {
-          setError('Service not found');
+          setError(t('public.error.serviceNotFound'));
           return;
         }
         setService(foundService);
       } catch (err: any) {
-        setError(err.detail || 'Failed to load service information');
+        setError(err.detail || t('public.error.loadingServiceFailed'));
       } finally {
         setLoading(false);
       }
@@ -79,7 +83,7 @@ const PublicServiceAvailability: React.FC = () => {
         );
         setAvailability(availabilityData);
       } catch (err: any) {
-        console.error('Failed to load availability:', err);
+        console.error(t('public.error.loadingAvailabilityFailed'), err);
         setAvailability({ slots: [] });
       } finally {
         setAvailabilityLoading(false);
@@ -100,11 +104,23 @@ const PublicServiceAvailability: React.FC = () => {
 
   const formatTime = (timeString: string) => {
     const date = new Date(timeString);
-    return date.toLocaleTimeString('en-US', { 
+    return date.toLocaleTimeString(currentLanguage === 'sq' ? 'sq-AL' : 'en-US', { 
       hour: 'numeric', 
       minute: '2-digit',
       hour12: true 
     });
+  };
+
+  const formatDate = (date: Date) => {
+    const monthKey = `public.calendar.months.${date.toLocaleDateString('en-US', { month: 'long' }).toLowerCase()}`;
+    const weekdayKey = `public.calendar.weekdays.full.${date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()}`;
+    
+    return {
+      month: t(monthKey),
+      weekday: t(weekdayKey),
+      day: date.getDate(),
+      year: date.getFullYear()
+    };
   };
 
   const generateCalendarDays = () => {
@@ -182,10 +198,10 @@ const PublicServiceAvailability: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Service Not Found</h2>
-          <p className="text-gray-600 mb-4">{error || 'The service you are looking for does not exist.'}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('public.error.serviceNotFound')}</h2>
+          <p className="text-gray-600 mb-4">{error || t('public.error.serviceNotFoundMessage')}</p>
           <Link to={`/book/${slug}`} className="text-blue-600 hover:text-blue-800">
-            Back to services
+            {t('public.error.backToServices')}
           </Link>
         </div>
       </div>
@@ -219,16 +235,16 @@ const PublicServiceAvailability: React.FC = () => {
           {/* Service Info & Party Size */}
           <div className="lg:col-span-1 mb-8 lg:mb-0">
             <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Service Details</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('public.availability.serviceDetails')}</h2>
               
               <div className="space-y-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Duration:</span>
-                  <span className="font-medium">{service.duration_min} minutes</span>
+                  <span className="text-gray-600">{t('public.availability.duration')}</span>
+                  <span className="font-medium">{service.duration_min} {t('common.duration.minutes')}</span>
                 </div>
                 {service.price_minor > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Price:</span>
+                    <span className="text-gray-600">{t('public.availability.price')}</span>
                     <span className="font-medium">{formatPrice(service.price_minor, business.currency)}</span>
                   </div>
                 )}
@@ -243,7 +259,7 @@ const PublicServiceAvailability: React.FC = () => {
               {/* Party Size Selection */}
               <div className="mt-6 pt-6 border-t">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Party Size
+                  {t('public.availability.partySize')}
                 </label>
                 <div className="flex items-center space-x-2">
                   <UserGroupIcon className="h-5 w-5 text-gray-400" />
@@ -254,7 +270,7 @@ const PublicServiceAvailability: React.FC = () => {
                   >
                     {[...Array(10)].map((_, i) => (
                       <option key={i + 1} value={i + 1}>
-                        {i + 1} {i === 0 ? 'person' : 'people'}
+                        {i + 1} {i === 0 ? t('public.availability.person') : t('public.availability.people')}
                       </option>
                     ))}
                   </select>
@@ -269,7 +285,7 @@ const PublicServiceAvailability: React.FC = () => {
               {/* Calendar Header */}
               <div className="px-6 py-4 border-b">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">Select Date & Time</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">{t('public.availability.selectDateTime')}</h2>
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => navigateMonth('prev')}
@@ -278,10 +294,7 @@ const PublicServiceAvailability: React.FC = () => {
                       <ChevronLeftIcon className="h-5 w-5" />
                     </button>
                     <span className="text-sm font-medium">
-                      {currentMonth.toLocaleDateString('en-US', { 
-                        month: 'long', 
-                        year: 'numeric' 
-                      })}
+                      {formatDate(currentMonth).month} {currentMonth.getFullYear()}
                     </span>
                     <button
                       onClick={() => navigateMonth('next')}
@@ -296,13 +309,13 @@ const PublicServiceAvailability: React.FC = () => {
               {/* Calendar Grid */}
               <div className="p-6">
                 <div className="grid grid-cols-7 gap-1 text-center text-sm font-medium text-gray-500 mb-2">
-                  <div>Sun</div>
-                  <div>Mon</div>
-                  <div>Tue</div>
-                  <div>Wed</div>
-                  <div>Thu</div>
-                  <div>Fri</div>
-                  <div>Sat</div>
+                  <div>{t('public.calendar.weekdays.sunday')}</div>
+                  <div>{t('public.calendar.weekdays.monday')}</div>
+                  <div>{t('public.calendar.weekdays.tuesday')}</div>
+                  <div>{t('public.calendar.weekdays.wednesday')}</div>
+                  <div>{t('public.calendar.weekdays.thursday')}</div>
+                  <div>{t('public.calendar.weekdays.friday')}</div>
+                  <div>{t('public.calendar.weekdays.saturday')}</div>
                 </div>
                 <div className="grid grid-cols-7 gap-1">
                   {calendarDays.map((day, index) => (
@@ -328,11 +341,11 @@ const PublicServiceAvailability: React.FC = () => {
               {/* Time Slots */}
               <div className="px-6 pb-6">
                 <h3 className="text-sm font-medium text-gray-700 mb-3">
-                  Available Times for {new Date(selectedDate).toLocaleDateString('en-US', { 
-                    weekday: 'long',
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
+                  {t('public.availability.availableTimesFor')} {(() => {
+                    const date = new Date(selectedDate);
+                    const formatted = formatDate(date);
+                    return `${formatted.weekday}, ${formatted.month} ${formatted.day}`;
+                  })()}
                 </h3>
 
                 {availabilityLoading ? (
@@ -355,7 +368,7 @@ const PublicServiceAvailability: React.FC = () => {
                       >
                         <div className="font-medium">{formatTime(slot.starts_at)}</div>
                         <div className="text-xs opacity-75">
-                          Available
+                          {t('public.availability.available')}
                         </div>
                       </button>
                     ))}
@@ -363,8 +376,8 @@ const PublicServiceAvailability: React.FC = () => {
                 ) : (
                   <div className="text-center py-8">
                     <ClockIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">No available times for this date.</p>
-                    <p className="text-sm text-gray-500 mt-1">Try selecting a different date.</p>
+                    <p className="text-gray-600">{t('public.availability.noAvailableTimes')}</p>
+                    <p className="text-sm text-gray-500 mt-1">{t('public.availability.tryDifferentDate')}</p>
                   </div>
                 )}
               </div>
@@ -375,13 +388,13 @@ const PublicServiceAvailability: React.FC = () => {
               <div className="mt-6 bg-white rounded-lg shadow-sm border p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">Selected Time</h3>
+                    <h3 className="font-medium text-gray-900">{t('public.availability.selectedTime')}</h3>
                     <p className="text-sm text-gray-600">
-                      {new Date(selectedDate).toLocaleDateString('en-US', { 
-                        weekday: 'long',
-                        month: 'long', 
-                        day: 'numeric' 
-                      })} at {formatTime(selectedSlot.starts_at)}
+                      {(() => {
+                        const date = new Date(selectedDate);
+                        const formatted = formatDate(date);
+                        return `${formatted.weekday}, ${formatted.month} ${formatted.day}`;
+                      })()} {t('public.availability.at')} {formatTime(selectedSlot.starts_at)}
                     </p>
                   </div>
                   <button
@@ -389,7 +402,7 @@ const PublicServiceAvailability: React.FC = () => {
                     className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 font-medium flex items-center"
                   >
                     <CheckCircleIcon className="h-4 w-4 mr-2" />
-                    Continue to Booking
+                    {t('public.availability.continueToBooking')}
                   </button>
                 </div>
               </div>

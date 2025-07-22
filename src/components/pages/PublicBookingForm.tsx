@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { publicApi } from '../../utils/api';
 import { Business, ServiceWithOpenIntervals, Table, BookingCreate } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
 import { 
   ArrowLeftIcon,
   UserIcon,
@@ -11,7 +12,8 @@ import {
   ClockIcon,
   CurrencyDollarIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  GlobeAltIcon
 } from '@heroicons/react/24/outline';
 
 interface BookingData {
@@ -26,6 +28,7 @@ const PublicBookingForm: React.FC = () => {
   const { slug, serviceId } = useParams<{ slug: string; serviceId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t, currentLanguage, setLanguage, languages } = useTranslation();
   
   // Get data passed from the previous page
   const { bookingData, service, business } = location.state as {
@@ -44,6 +47,7 @@ const PublicBookingForm: React.FC = () => {
   const [tablesLoading, setTablesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
   useEffect(() => {
     // Redirect if no booking data
@@ -66,7 +70,7 @@ const PublicBookingForm: React.FC = () => {
           setAvailableTable(null);
         }
       } catch (err: any) {
-        setError(err.detail || 'Failed to load availability');
+        setError(err.detail || t('public.error.loadingAvailabilityFailed'));
       } finally {
         setTablesLoading(false);
       }
@@ -97,21 +101,21 @@ const PublicBookingForm: React.FC = () => {
     const errors: {[key: string]: string} = {};
 
     if (!customerData.name.trim()) {
-      errors.name = 'Name is required';
+      errors.name = t('public.booking.validation.nameRequired');
     }
 
     if (!customerData.phone.trim()) {
-      errors.phone = 'Phone number is required';
+      errors.phone = t('public.booking.validation.phoneRequired');
     } else if (!/^\+?[\d\s\-\(\)]+$/.test(customerData.phone.trim())) {
-      errors.phone = 'Please enter a valid phone number';
+      errors.phone = t('public.booking.validation.phoneInvalid');
     }
 
     if (customerData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerData.email.trim())) {
-      errors.email = 'Please enter a valid email address';
+      errors.email = t('public.booking.validation.emailInvalid');
     }
 
     if (!availableTable) {
-      errors.table = 'No suitable tables available for your party size';
+      errors.table = t('public.booking.validation.noTableAvailable');
     }
 
     setValidationErrors(errors);
@@ -153,7 +157,7 @@ const PublicBookingForm: React.FC = () => {
         state: { booking, service, business }
       });
     } catch (err: any) {
-      setError(err.detail || 'Failed to create booking');
+      setError(err.detail || t('public.error.createBookingFailed'));
     } finally {
       setLoading(false);
     }
@@ -188,8 +192,39 @@ const PublicBookingForm: React.FC = () => {
               <ArrowLeftIcon className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Complete Your Booking</h1>
+              <h1 className="text-xl font-bold text-gray-900">{t('public.booking.completeBooking')}</h1>
               <p className="text-gray-600 text-sm">{business.name} • {service.name}</p>
+            </div>
+            
+            {/* Language Switcher */}
+            <div className="relative">
+              <button
+                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 text-sm font-medium transition-colors"
+              >
+                <GlobeAltIcon className="h-4 w-4" />
+                <span>{languages.find(lang => lang.code === currentLanguage)?.flag}</span>
+              </button>
+              
+              {isLanguageOpen && (
+                <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                  {languages.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        setLanguage(lang.code);
+                        setIsLanguageOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
+                        currentLanguage === lang.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                      }`}
+                    >
+                      <span>{lang.flag}</span>
+                      <span>{lang.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -200,7 +235,7 @@ const PublicBookingForm: React.FC = () => {
           {/* Booking Summary */}
           <div className="lg:col-span-1 mb-8 lg:mb-0">
             <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Booking Summary</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('public.booking.bookingSummary')}</h2>
               
               <div className="space-y-4">
                 <div className="flex items-start">
@@ -262,83 +297,83 @@ const PublicBookingForm: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Customer Information */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Information</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('public.booking.yourInformation')}</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name *
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <UserIcon className="h-5 w-5 text-gray-400" />
+                                      <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('public.booking.fullName')} *
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <UserIcon className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                          type="text"
+                          id="name"
+                          value={customerData.name}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          className={`
+                            w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500
+                            ${validationErrors.name ? 'border-red-300' : 'border-gray-300'}
+                          `}
+                          placeholder={t('public.booking.fullNamePlaceholder')}
+                        />
                       </div>
-                      <input
-                        type="text"
-                        id="name"
-                        value={customerData.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
-                        className={`
-                          w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500
-                          ${validationErrors.name ? 'border-red-300' : 'border-gray-300'}
-                        `}
-                        placeholder="Enter your full name"
-                      />
+                      {validationErrors.name && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
+                      )}
                     </div>
-                    {validationErrors.name && (
-                      <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
-                    )}
-                  </div>
 
-                  <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number *
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <PhoneIcon className="h-5 w-5 text-gray-400" />
+                                      <div>
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('public.booking.phoneNumber')} *
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <PhoneIcon className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                          type="tel"
+                          id="phone"
+                          value={customerData.phone}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          className={`
+                            w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500
+                            ${validationErrors.phone ? 'border-red-300' : 'border-gray-300'}
+                          `}
+                          placeholder={t('public.booking.phoneNumberPlaceholder')}
+                        />
                       </div>
-                      <input
-                        type="tel"
-                        id="phone"
-                        value={customerData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        className={`
-                          w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500
-                          ${validationErrors.phone ? 'border-red-300' : 'border-gray-300'}
-                        `}
-                        placeholder="Enter your phone number"
-                      />
+                      {validationErrors.phone && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.phone}</p>
+                      )}
                     </div>
-                    {validationErrors.phone && (
-                      <p className="mt-1 text-sm text-red-600">{validationErrors.phone}</p>
-                    )}
-                  </div>
 
-                  <div className="md:col-span-2">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address (Optional)
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                                      <div className="md:col-span-2">
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('public.booking.emailAddress')}
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                          type="email"
+                          id="email"
+                          value={customerData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          className={`
+                            w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500
+                            ${validationErrors.email ? 'border-red-300' : 'border-gray-300'}
+                          `}
+                          placeholder={t('public.booking.emailPlaceholder')}
+                        />
                       </div>
-                      <input
-                        type="email"
-                        id="email"
-                        value={customerData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        className={`
-                          w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500
-                          ${validationErrors.email ? 'border-red-300' : 'border-gray-300'}
-                        `}
-                        placeholder="Enter your email address"
-                      />
+                      {validationErrors.email && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+                      )}
                     </div>
-                    {validationErrors.email && (
-                      <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
-                    )}
-                  </div>
                 </div>
               </div>
 
@@ -368,15 +403,15 @@ const PublicBookingForm: React.FC = () => {
                   {loading ? (
                     <div className="flex items-center justify-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Creating Booking...
+                      {t('public.booking.creatingBooking')}
                     </div>
                   ) : (
-                    'Confirm Booking'
+                    t('public.booking.confirmBooking')
                   )}
                 </button>
                 
                 <p className="text-xs text-gray-500 text-center mt-2">
-                  By confirming, you agree to our terms and conditions.
+                  {t('public.booking.termsConditions')}
                 </p>
               </div>
             </form>

@@ -2,18 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { publicApi } from '../../utils/api';
 import { Business, ServiceWithOpenIntervals } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
 import { 
   ClockIcon,
-  MapPinIcon
+  MapPinIcon,
+  GlobeAltIcon
 } from '@heroicons/react/24/outline';
 
 const PublicBusinessPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const [business, setBusiness] = useState<Business | null>(null);
   const [services, setServices] = useState<ServiceWithOpenIntervals[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
   useEffect(() => {
     const fetchBusinessData = async () => {
@@ -29,7 +33,7 @@ const PublicBusinessPage: React.FC = () => {
         setBusiness(businessData);
         setServices(servicesData);
       } catch (err: any) {
-        setError(err.detail || 'Failed to load business information');
+        setError(err.detail || t('public.error.loadingFailed'));
       } finally {
         setLoading(false);
       }
@@ -61,10 +65,10 @@ const PublicBusinessPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Business Not Found</h2>
-          <p className="text-gray-600 mb-4">{error || 'The business you are looking for does not exist.'}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('public.error.businessNotFound')}</h2>
+          <p className="text-gray-600 mb-4">{error || t('public.error.businessNotFoundMessage')}</p>
           <Link to="/" className="text-blue-600 hover:text-blue-800">
-            Go back to home
+            {t('public.confirmation.backToHome')}
           </Link>
         </div>
       </div>
@@ -81,8 +85,39 @@ const PublicBusinessPage: React.FC = () => {
               to="/" 
               className="text-gray-600 hover:text-blue-600 text-sm font-medium transition-colors"
             >
-              ← Back
+              ← {t('public.back')}
             </Link>
+            
+            {/* Language Switcher */}
+            <div className="relative">
+              <button
+                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 text-sm font-medium transition-colors"
+              >
+                <GlobeAltIcon className="h-4 w-4" />
+                <span>{languages.find(lang => lang.code === currentLanguage)?.flag}</span>
+              </button>
+              
+              {isLanguageOpen && (
+                <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                  {languages.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        setLanguage(lang.code);
+                        setIsLanguageOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
+                        currentLanguage === lang.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                      }`}
+                    >
+                      <span>{lang.flag}</span>
+                      <span>{lang.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -121,13 +156,13 @@ const PublicBusinessPage: React.FC = () => {
       {/* Services Section */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="mb-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Services</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('public.business.services')}</h2>
           <div className="w-16 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded"></div>
         </div>
 
         {services.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">No services available at this time.</p>
+            <p className="text-gray-600">{t('public.business.noServices')}</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -149,7 +184,7 @@ const PublicBusinessPage: React.FC = () => {
                     <div className="flex items-center text-sm text-gray-500 space-x-4">
                       <div className="flex items-center">
                         <ClockIcon className="h-4 w-4 mr-1 text-gray-400" />
-                        <span>{service.duration_min} min</span>
+                        <span>{service.duration_min} {t('public.service.duration')}</span>
                       </div>
                       {service.price_minor > 0 && (
                         <div className="text-lg font-semibold text-blue-600">
@@ -162,7 +197,7 @@ const PublicBusinessPage: React.FC = () => {
                     onClick={() => navigate(`/book/${slug}/service/${service.id}`)}
                     className="ml-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-md hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg"
                   >
-                    Book
+                    {t('public.service.book')}
                   </button>
                 </div>
               </div>
