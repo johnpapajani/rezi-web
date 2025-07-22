@@ -236,14 +236,16 @@ const PublicBookingForm: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-start">
-                  <CurrencyDollarIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      {formatPrice(service.price_minor, business.currency)}
-                    </p>
+                {service.price_minor > 0 && (
+                  <div className="flex items-start">
+                    <CurrencyDollarIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {formatPrice(service.price_minor, business.currency)}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {service.description && (

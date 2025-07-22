@@ -247,7 +247,7 @@ const PublicBookingConfirmation: React.FC = () => {
                   </div>
                 </div>
 
-                {booking.service_price_minor && (
+                {booking.service_price_minor && booking.service_price_minor > 0 && (
                   <div className="flex items-start">
                     <CurrencyDollarIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                     <div>

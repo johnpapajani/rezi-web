@@ -226,10 +226,12 @@ const PublicServiceAvailability: React.FC = () => {
                   <span className="text-gray-600">Duration:</span>
                   <span className="font-medium">{service.duration_min} minutes</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Price:</span>
-                  <span className="font-medium">{formatPrice(service.price_minor, business.currency)}</span>
-                </div>
+                {service.price_minor > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Price:</span>
+                    <span className="font-medium">{formatPrice(service.price_minor, business.currency)}</span>
+                  </div>
+                )}
               </div>
 
               {service.description && (

@@ -151,9 +151,11 @@ const PublicBusinessPage: React.FC = () => {
                         <ClockIcon className="h-4 w-4 mr-1 text-gray-400" />
                         <span>{service.duration_min} min</span>
                       </div>
-                      <div className="text-lg font-semibold text-blue-600">
-                        {formatPrice(service.price_minor, business.currency)}
-                      </div>
+                      {service.price_minor > 0 && (
+                        <div className="text-lg font-semibold text-blue-600">
+                          {formatPrice(service.price_minor, business.currency)}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <button
