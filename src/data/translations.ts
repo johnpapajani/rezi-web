@@ -337,6 +337,9 @@ export const translations: Translations = {
     'tables.deleting': 'Duke fshirë...',
     'tables.manageTables': 'Menaxho Njësitë',
     'tables.configureTables': 'Konfiguro njësitë dhe vendet e biznesit tuaj',
+    'tables.tableCodeHelp': 'Një identifikues unik për këtë njësi (p.sh., T1, A01, VIP1)',
+    'tables.seatsHelp': 'Numri i personave që mund të përshtatet në këtë njësi',
+    'tables.groupLabel': 'Grupi:',
 
     // Booking List
     'bookings.list.title': 'Menaxhimi i Rezervimeve',
@@ -421,6 +424,18 @@ export const translations: Translations = {
     'bookings.upcoming.tomorrow': 'Nesër',
     'bookings.upcoming.nextBookingsHere': 'Rezervimet tuaja të ardhshme do të shfaqen këtu.',
     'bookings.upcoming.moreBookings': 'rezervime të tjera',
+
+    // Booking Details Modal
+    'bookings.details.title': 'Detajet e Rezervimit',
+    'bookings.details.customer': 'Klienti',
+    'bookings.details.phone': 'Telefoni',
+    'bookings.details.email': 'Email-i',
+    'bookings.details.dateTime': 'Data & Ora',
+    'bookings.details.partySize': 'Madhësia e Grupit',
+    'bookings.details.service': 'Shërbimi',
+    'bookings.details.status': 'Statusi',
+    'bookings.details.close': 'Mbyll',
+    'bookings.details.guests': 'mysafirë',
 
     // Business Onboarding
     'onboarding.title': 'Konfigurimi i Biznesit',
@@ -1504,6 +1519,9 @@ export const translations: Translations = {
     'tables.deleting': 'Deleting...',
     'tables.manageTables': 'Manage Tables',
     'tables.configureTables': 'Configure your tables and seating',
+    'tables.tableCodeHelp': 'A unique identifier for this table (e.g., T1, A01, VIP1)',
+    'tables.seatsHelp': 'Number of people this table can accommodate',
+    'tables.groupLabel': 'Group:',
 
     // Booking List
     'bookings.list.title': 'Booking Management',
@@ -1588,6 +1606,18 @@ export const translations: Translations = {
     'bookings.upcoming.tomorrow': 'Tomorrow',
     'bookings.upcoming.nextBookingsHere': 'Your next bookings will appear here.',
     'bookings.upcoming.moreBookings': 'more bookings',
+
+    // Booking Details Modal
+    'bookings.details.title': 'Booking Details',
+    'bookings.details.customer': 'Customer',
+    'bookings.details.phone': 'Phone',
+    'bookings.details.email': 'Email',
+    'bookings.details.dateTime': 'Date & Time',
+    'bookings.details.partySize': 'Party Size',
+    'bookings.details.service': 'Service',
+    'bookings.details.status': 'Status',
+    'bookings.details.close': 'Close',
+    'bookings.details.guests': 'guests',
 
     // Resources Dashboard
     'resources.dashboard.title': 'Resources Dashboard',

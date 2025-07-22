@@ -456,7 +456,7 @@ const BookingList: React.FC = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Booking Details</h3>
+              <h3 className="text-lg font-medium text-gray-900">{t('bookings.details.title')}</h3>
               <button
                 onClick={() => setShowBookingDetails(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -467,52 +467,52 @@ const BookingList: React.FC = () => {
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Status</label>
+                <label className="block text-sm font-medium text-gray-700">{t('bookings.details.status')}</label>
                 <select
                   value={selectedBooking.status}
                   onChange={(e) => handleStatusChange(selectedBooking.id, e.target.value as BookingStatus)}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="no_show">No Show</option>
+                  <option value="pending">{t('bookings.list.filters.pending')}</option>
+                  <option value="confirmed">{t('bookings.list.filters.confirmed')}</option>
+                  <option value="completed">{t('bookings.list.filters.completed')}</option>
+                  <option value="cancelled">{t('bookings.list.filters.cancelled')}</option>
+                  <option value="no_show">{t('bookings.list.filters.noShow')}</option>
                 </select>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700">Customer</label>
+                <label className="block text-sm font-medium text-gray-700">{t('bookings.details.customer')}</label>
                 <p className="mt-1 text-sm text-gray-900">{selectedBooking.customer_name}</p>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700">Date & Time</label>
+                <label className="block text-sm font-medium text-gray-700">{t('bookings.details.dateTime')}</label>
                 <p className="mt-1 text-sm text-gray-900">{formatDate(selectedBooking.starts_at)}</p>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700">Party Size</label>
+                <label className="block text-sm font-medium text-gray-700">{t('bookings.details.partySize')}</label>
                 <p className="mt-1 text-sm text-gray-900">{selectedBooking.party_size}</p>
               </div>
               
               {selectedBooking.service_name && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Service</label>
+                  <label className="block text-sm font-medium text-gray-700">{t('bookings.details.service')}</label>
                   <p className="mt-1 text-sm text-gray-900">{selectedBooking.service_name}</p>
                 </div>
               )}
               
               {selectedBooking.customer_phone && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700">{t('bookings.details.phone')}</label>
                   <p className="mt-1 text-sm text-gray-900">{selectedBooking.customer_phone}</p>
                 </div>
               )}
               
               {selectedBooking.customer_email && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
+                  <label className="block text-sm font-medium text-gray-700">{t('bookings.details.email')}</label>
                   <p className="mt-1 text-sm text-gray-900">{selectedBooking.customer_email}</p>
                 </div>
               )}
@@ -523,7 +523,7 @@ const BookingList: React.FC = () => {
                 onClick={() => setShowBookingDetails(false)}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
-                Close
+                {t('bookings.details.close')}
               </button>
             </div>
           </div>

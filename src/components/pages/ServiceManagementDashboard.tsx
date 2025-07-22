@@ -981,7 +981,7 @@ const ServiceManagementDashboard: React.FC = () => {
               <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
                 <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">Booking Details</h3>
+                    <h3 className="text-lg font-medium text-gray-900">{t('bookings.details.title')}</h3>
                     <button
                       onClick={() => setShowBookingDetails(false)}
                       className="text-gray-400 hover:text-gray-600"
@@ -992,41 +992,41 @@ const ServiceManagementDashboard: React.FC = () => {
                   
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Status</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('bookings.details.status')}</label>
                       <select
                         value={selectedBooking.status}
                         onChange={(e) => handleStatusChange(selectedBooking.id, e.target.value as BookingStatus)}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       >
-                        <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="no_show">No Show</option>
+                        <option value="pending">{t('bookings.list.filters.pending')}</option>
+                        <option value="confirmed">{t('bookings.list.filters.confirmed')}</option>
+                        <option value="completed">{t('bookings.list.filters.completed')}</option>
+                        <option value="cancelled">{t('bookings.list.filters.cancelled')}</option>
+                        <option value="no_show">{t('bookings.list.filters.noShow')}</option>
                       </select>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Customer</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('bookings.details.customer')}</label>
                       <p className="mt-1 text-sm text-gray-900">{selectedBooking.customer_name}</p>
                     </div>
                     
                     {selectedBooking.customer_phone && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Phone</label>
+                        <label className="block text-sm font-medium text-gray-700">{t('bookings.details.phone')}</label>
                         <p className="mt-1 text-sm text-gray-900">{selectedBooking.customer_phone}</p>
                       </div>
                     )}
                     
                     {selectedBooking.customer_email && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Email</label>
+                        <label className="block text-sm font-medium text-gray-700">{t('bookings.details.email')}</label>
                         <p className="mt-1 text-sm text-gray-900">{selectedBooking.customer_email}</p>
                       </div>
                     )}
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Date & Time</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('bookings.details.dateTime')}</label>
                       <p className="mt-1 text-sm text-gray-900">
                         {new Date(selectedBooking.starts_at).toLocaleDateString()} at{' '}
                         {new Date(selectedBooking.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -1034,8 +1034,8 @@ const ServiceManagementDashboard: React.FC = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Party Size</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedBooking.party_size} guests</p>
+                      <label className="block text-sm font-medium text-gray-700">{t('bookings.details.partySize')}</label>
+                      <p className="mt-1 text-sm text-gray-900">{selectedBooking.party_size} {t('bookings.details.guests')}</p>
                     </div>
                     
                     <div className="flex space-x-3 pt-4">
@@ -1043,7 +1043,7 @@ const ServiceManagementDashboard: React.FC = () => {
                         onClick={() => setShowBookingDetails(false)}
                         className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       >
-                        Close
+                        {t('bookings.details.close')}
                       </button>
                     </div>
                   </div>
@@ -1134,17 +1134,17 @@ const ServiceManagementDashboard: React.FC = () => {
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Seats:</span>
+                          <span className="text-sm text-gray-600">{t('tables.seatsLabel')}</span>
                           <span className="text-sm font-medium text-gray-900">{table.seats}</span>
                         </div>
                         {table.merge_group && (
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Group:</span>
+                            <span className="text-sm text-gray-600">{t('tables.groupLabel')}</span>
                             <span className="text-sm font-medium text-gray-900">{table.merge_group}</span>
                           </div>
                         )}
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Status:</span>
+                          <span className="text-sm text-gray-600">{t('tables.status')}:</span>
                           <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                             table.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                           }`}>
@@ -1235,12 +1235,12 @@ const ServiceManagementDashboard: React.FC = () => {
                     value={tableFormData.code}
                     onChange={(e) => setTableFormData({ ...tableFormData, code: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="T1, A01, VIP1..."
+                    placeholder={t('tables.tableCodePlaceholder')}
                     required
                     maxLength={40}
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    A unique identifier for this table (e.g., T1, A01, VIP1)
+                    {t('tables.tableCodeHelp')}
                   </p>
                 </div>
 
@@ -1257,7 +1257,7 @@ const ServiceManagementDashboard: React.FC = () => {
                     required
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    Number of people this table can accommodate
+                    {t('tables.seatsHelp')}
                   </p>
                 </div>
 
