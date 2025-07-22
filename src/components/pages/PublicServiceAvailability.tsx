@@ -14,6 +14,27 @@ import {
   GlobeAltIcon
 } from '@heroicons/react/24/outline';
 
+// Helper function to format date as YYYY-MM-DD without timezone conversion
+const formatLocalDateAsYYYYMMDD = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Helper function to check if two dates are the same day (ignoring time)
+const isSameDay = (date1: Date, date2: Date): boolean => {
+  return date1.getFullYear() === date2.getFullYear() &&
+         date1.getMonth() === date2.getMonth() &&
+         date1.getDate() === date2.getDate();
+};
+
+// Helper function to parse YYYY-MM-DD string as local date (not UTC)
+const parseLocalDate = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day); // month is 0-indexed
+};
+
 const PublicServiceAvailability: React.FC = () => {
   const { slug, serviceId } = useParams<{ slug: string; serviceId: string }>();
   const navigate = useNavigate();
@@ -25,7 +46,7 @@ const PublicServiceAvailability: React.FC = () => {
   const [availability, setAvailability] = useState<AvailabilityMatrix | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    return formatLocalDateAsYYYYMMDD(today);
   });
   const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const [partySize, setPartySize] = useState<number>(1);
@@ -127,6 +148,8 @@ const PublicServiceAvailability: React.FC = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
     const today = new Date();
+    // Create today's date at start of day for accurate comparison
+    const todayStartOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startingDayOfWeek = firstDay.getDay();
@@ -141,9 +164,9 @@ const PublicServiceAvailability: React.FC = () => {
     // Add all days of the month
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const date = new Date(year, month, day);
-      const dateString = date.toISOString().split('T')[0];
-      const isPast = date < today;
-      const isToday = dateString === today.toISOString().split('T')[0];
+      const dateString = formatLocalDateAsYYYYMMDD(date);
+      const isPast = date < todayStartOfDay;
+      const isToday = isSameDay(date, today);
       const isSelected = dateString === selectedDate;
 
       days.push({
@@ -342,7 +365,7 @@ const PublicServiceAvailability: React.FC = () => {
               <div className="px-6 pb-6">
                 <h3 className="text-sm font-medium text-gray-700 mb-3">
                   {t('public.availability.availableTimesFor')} {(() => {
-                    const date = new Date(selectedDate);
+                    const date = parseLocalDate(selectedDate);
                     const formatted = formatDate(date);
                     return `${formatted.weekday}, ${formatted.month} ${formatted.day}`;
                   })()}
@@ -391,7 +414,7 @@ const PublicServiceAvailability: React.FC = () => {
                     <h3 className="font-medium text-gray-900">{t('public.availability.selectedTime')}</h3>
                     <p className="text-sm text-gray-600">
                       {(() => {
-                        const date = new Date(selectedDate);
+                        const date = parseLocalDate(selectedDate);
                         const formatted = formatDate(date);
                         return `${formatted.weekday}, ${formatted.month} ${formatted.day}`;
                       })()} {t('public.availability.at')} {formatTime(selectedSlot.starts_at)}
