@@ -30,7 +30,9 @@ import {
   PhoneIcon,
   EnvelopeIcon,
   CurrencyEuroIcon,
+  ListBulletIcon,
 } from '@heroicons/react/24/outline';
+import ServiceBookingsCalendar from './ServiceBookingsCalendar';
 
 type TabType = 'dashboard' | 'bookings' | 'tables' | 'availability' | 'settings';
 
@@ -63,6 +65,7 @@ const ServiceManagementDashboard: React.FC = () => {
   const [dateFilter, setDateFilter] = useState<'today' | 'tomorrow' | 'week' | 'month' | ''>('');
   const [selectedBooking, setSelectedBooking] = useState<BookingWithService | null>(null);
   const [showBookingDetails, setShowBookingDetails] = useState(false);
+  const [bookingsViewMode, setBookingsViewMode] = useState<'list' | 'calendar'>('list');
   
   // Table management state
   const [isCreateTableModalOpen, setIsCreateTableModalOpen] = useState(false);
@@ -381,6 +384,31 @@ const ServiceManagementDashboard: React.FC = () => {
     .filter(b => b.status === 'completed')
     .reduce((sum, b) => sum + (service.price_minor * b.party_size), 0);
 
+  const filteredBookings = serviceBookings.filter(booking => {
+    const bookingDate = new Date(booking.starts_at);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    switch (dateFilter) {
+      case 'today':
+        return bookingDate >= today;
+      case 'tomorrow':
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return bookingDate >= today && bookingDate < tomorrow;
+      case 'week':
+        const weekEnd = new Date(today);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+        return bookingDate >= today && bookingDate < weekEnd;
+      case 'month':
+        const monthEnd = new Date(today);
+        monthEnd.setMonth(monthEnd.getMonth() + 1);
+        return bookingDate >= today && bookingDate < monthEnd;
+      default:
+        return true;
+    }
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -689,7 +717,33 @@ const ServiceManagementDashboard: React.FC = () => {
                       Manage all bookings for this service
                     </p>
                   </div>
-                  <div className="mt-4 sm:mt-0">
+                  <div className="mt-4 sm:mt-0 flex items-center space-x-3">
+                    {/* View Toggle */}
+                    <div className="flex bg-gray-100 rounded-lg p-1">
+                      <button
+                        onClick={() => setBookingsViewMode('list')}
+                        className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                          bookingsViewMode === 'list' 
+                            ? 'bg-white text-gray-900 shadow-sm' 
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        <ListBulletIcon className="w-4 h-4 mr-1 inline" />
+                        List
+                      </button>
+                      <button
+                        onClick={() => setBookingsViewMode('calendar')}
+                        className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                          bookingsViewMode === 'calendar' 
+                            ? 'bg-white text-gray-900 shadow-sm' 
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        <CalendarDaysIcon className="w-4 h-4 mr-1 inline" />
+                        Calendar
+                      </button>
+                    </div>
+                    
                     <button
                       onClick={() => {
                         if (!service || !service.duration_min) {
@@ -708,158 +762,162 @@ const ServiceManagementDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Filters */}
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                  {/* Search */}
-                  <div className="flex-1">
-                    <div className="relative">
-                      <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Search by customer name..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Status Filter */}
-                  <div className="min-w-[140px]">
-                    <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value as BookingStatus | '')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">All Statuses</option>
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                      <option value="no_show">No Show</option>
-                    </select>
-                  </div>
-
-                  {/* Date Filter */}
-                  <div className="min-w-[120px]">
-                    <select
-                      value={dateFilter}
-                      onChange={(e) => setDateFilter(e.target.value as any)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">All Dates</option>
-                      <option value="today">Today</option>
-                      <option value="tomorrow">Tomorrow</option>
-                      <option value="week">This Week</option>
-                      <option value="month">This Month</option>
-                    </select>
-                  </div>
+              {bookingsViewMode === 'calendar' ? (
+                <div className="p-6">
+                  <ServiceBookingsCalendar
+                    serviceId={serviceId || ''}
+                    serviceName={service?.name || ''}
+                    bookings={filteredBookings}
+                    onBookingClick={(booking) => {
+                      setSelectedBooking(booking);
+                      setShowBookingDetails(true);
+                    }}
+                  />
                 </div>
-              </div>
-
-              {/* Loading State */}
-              {bookingsLoading && (
-                <div className="p-8 text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="mt-2 text-sm text-gray-500">Loading bookings...</p>
-                </div>
-              )}
-
-              {/* Empty State */}
-              {!bookingsLoading && serviceBookings.length === 0 && (
-                <div className="text-center py-12">
-                  <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No bookings found</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {searchTerm || statusFilter || dateFilter 
-                      ? 'Try adjusting your filters to see more results.'
-                      : 'Get started by creating your first booking.'}
-                  </p>
-                </div>
-              )}
-
-              {/* Bookings List */}
-              {!bookingsLoading && serviceBookings.length > 0 && (
-                <div className="divide-y divide-gray-200">
-                  {serviceBookings.map((booking) => (
-                    <div key={booking.id} className="p-6 hover:bg-gray-50">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3">
-                            <div>
-                              <h3 className="text-sm font-medium text-gray-900">{booking.customer_name}</h3>
-                              <div className="flex items-center space-x-4 mt-1">
-                                <p className="text-sm text-gray-500 flex items-center">
-                                  <CalendarDaysIcon className="w-4 h-4 mr-1" />
-                                  {new Date(booking.starts_at).toLocaleDateString()}
-                                </p>
-                                <p className="text-sm text-gray-500 flex items-center">
-                                  <ClockIcon className="w-4 h-4 mr-1" />
-                                  {new Date(booking.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </p>
-                                <p className="text-sm text-gray-500 flex items-center">
-                                  <UserIcon className="w-4 h-4 mr-1" />
-                                  {booking.party_size} guests
-                                </p>
-                              </div>
-                              {booking.customer_phone && (
-                                <p className="text-sm text-gray-500 flex items-center mt-1">
-                                  <PhoneIcon className="w-4 h-4 mr-1" />
-                                  {booking.customer_phone}
-                                </p>
-                              )}
-                              {booking.customer_email && (
-                                <p className="text-sm text-gray-500 flex items-center mt-1">
-                                  <EnvelopeIcon className="w-4 h-4 mr-1" />
-                                  {booking.customer_email}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center space-x-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
-                            {booking.status}
-                          </span>
-                          
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => {
-                                setSelectedBooking(booking);
-                                setShowBookingDetails(true);
-                              }}
-                              className="text-blue-600 hover:text-blue-900 text-sm font-medium"
-                            >
-                              <EyeIcon className="w-4 h-4" />
-                            </button>
-                            
-                            {booking.status === BookingStatus.pending && (
-                              <button
-                                onClick={() => handleStatusChange(booking.id, BookingStatus.confirmed)}
-                                className="text-green-600 hover:text-green-900 text-sm font-medium"
-                                title="Confirm booking"
-                              >
-                                <CheckIcon className="w-4 h-4" />
-                              </button>
-                            )}
-                            
-                            {(booking.status === BookingStatus.pending || booking.status === BookingStatus.confirmed) && (
-                              <button
-                                onClick={() => handleCancelBooking(booking.id)}
-                                className="text-red-600 hover:text-red-900 text-sm font-medium"
-                                title="Cancel booking"
-                              >
-                                <XMarkIcon className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
+              ) : (
+                <>
+                  {/* Filters */}
+                  <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                      {/* Search */}
+                      <div className="flex-1">
+                        <div className="relative">
+                          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <input
+                            type="text"
+                            placeholder="Search by customer name..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                          />
                         </div>
                       </div>
+
+                      {/* Status Filter */}
+                      <div className="min-w-[140px]">
+                        <select
+                          value={statusFilter}
+                          onChange={(e) => setStatusFilter(e.target.value as BookingStatus | '')}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">All Statuses</option>
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="completed">Completed</option>
+                          <option value="cancelled">Cancelled</option>
+                          <option value="no_show">No Show</option>
+                        </select>
+                      </div>
+
+                      {/* Date Filter */}
+                      <div className="min-w-[120px]">
+                        <select
+                          value={dateFilter}
+                          onChange={(e) => setDateFilter(e.target.value as any)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">All Dates</option>
+                          <option value="today">Today</option>
+                          <option value="tomorrow">Tomorrow</option>
+                          <option value="week">This Week</option>
+                          <option value="month">This Month</option>
+                        </select>
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+
+                  {/* Bookings List */}
+                  <div className="divide-y divide-gray-200">
+                    {bookingsLoading ? (
+                      <div className="p-6">
+                        <div className="space-y-4">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="animate-pulse">
+                              <div className="flex items-center space-x-4 p-4">
+                                <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                                <div className="flex-1">
+                                  <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : filteredBookings.length === 0 ? (
+                      <div className="text-center py-12">
+                        <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
+                        <h3 className="mt-2 text-sm font-medium text-gray-900">No bookings found</h3>
+                        <p className="mt-1 text-sm text-gray-500">
+                          {searchTerm || statusFilter || dateFilter 
+                            ? 'Try adjusting your filters to see more bookings.'
+                            : 'Get started by creating your first booking.'
+                          }
+                        </p>
+                      </div>
+                    ) : (
+                      filteredBookings.map((booking) => (
+                        <motion.div
+                          key={booking.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                          onClick={() => {
+                            setSelectedBooking(booking);
+                            setShowBookingDetails(true);
+                          }}
+                        >
+                          {/* Existing booking list item content */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              <div className="flex-shrink-0">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
+                                  booking.status === 'confirmed' ? 'bg-green-500' :
+                                  booking.status === 'pending' ? 'bg-yellow-500' :
+                                  booking.status === 'cancelled' ? 'bg-red-500' :
+                                  booking.status === 'completed' ? 'bg-blue-500' :
+                                  'bg-gray-500'
+                                }`}>
+                                  {booking.customer_name.charAt(0).toUpperCase()}
+                                </div>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {booking.customer_name}
+                                </p>
+                                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                  <div className="flex items-center">
+                                    <CalendarDaysIcon className="mr-1.5 h-4 w-4" />
+                                    {new Date(booking.starts_at).toLocaleDateString()}
+                                  </div>
+                                  <div className="flex items-center">
+                                    <ClockIcon className="mr-1.5 h-4 w-4" />
+                                    {new Date(booking.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </div>
+                                  <div className="flex items-center">
+                                    <UserIcon className="mr-1.5 h-4 w-4" />
+                                    {booking.party_size} {booking.party_size === 1 ? 'person' : 'people'}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                                booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                booking.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                booking.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {booking.status}
+                              </span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))
+                    )}
+                  </div>
+                </>
               )}
             </div>
 

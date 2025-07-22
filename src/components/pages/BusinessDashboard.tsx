@@ -27,12 +27,13 @@ import {
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useBusiness } from '../../hooks/useBusiness';
-import { useBookings, useUpcomingBookings, useCalendarBookings } from '../../hooks/useBookings';
+import { useBookings, useUpcomingBookings } from '../../hooks/useBookings';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useTables } from '../../hooks/useTables';
 import { useServices } from '../../hooks/useServices';
 import UpcomingBookings from '../dashboard/UpcomingBookings';
 import { BookingStatus, Table, TableCreate, TableUpdate, BookingWithService, BusinessUpdate } from '../../types';
+import ResourceManagement from './ResourceManagement';
 
 // Wrapper components that remove headers
 const BookingListWrapper: React.FC = () => {
@@ -279,309 +280,6 @@ const BookingListWrapper: React.FC = () => {
               </div>
             ))
           )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const BookingCalendarWrapper: React.FC = () => {
-  const { bizId } = useParams<{ bizId: string }>();
-  const { t } = useTranslation();
-  const { calendarBookings, loading, error, fetchCalendarBookings } = useCalendarBookings({ bizId: bizId || '' });
-  
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
-
-  // Generate calendar days for month view
-  const generateCalendarDays = () => {
-    const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    const startDay = start.getDay();
-    
-    const days: Date[] = [];
-    
-    // Add previous month's trailing days
-    for (let i = startDay - 1; i >= 0; i--) {
-      const date = new Date(start);
-      date.setDate(date.getDate() - (i + 1));
-      days.push(date);
-    }
-    
-    // Add current month's days
-    for (let i = 1; i <= end.getDate(); i++) {
-      days.push(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
-    }
-    
-    // Add next month's leading days
-    const totalCells = Math.ceil(days.length / 7) * 7;
-    for (let i = days.length; i < totalCells; i++) {
-      const date = new Date(end);
-      date.setDate(date.getDate() + (i - days.length + 1));
-      days.push(date);
-    }
-    
-    return days;
-  };
-
-  // Load bookings based on current view
-  useEffect(() => {
-    if (bizId) {
-      let start: Date, end: Date;
-      
-      switch (viewMode) {
-        case 'month':
-          start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-          end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-          break;
-        case 'week':
-          const weekStart = new Date(currentDate);
-          weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-          const weekEnd = new Date(weekStart);
-          weekEnd.setDate(weekEnd.getDate() + 6);
-          start = weekStart;
-          end = weekEnd;
-          break;
-        case 'day':
-          start = new Date(currentDate);
-          start.setHours(0, 0, 0, 0);
-          end = new Date(currentDate);
-          end.setHours(23, 59, 59, 999);
-          break;
-        default:
-          start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-          end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-      }
-      
-      fetchCalendarBookings(start.toISOString(), end.toISOString());
-    }
-  }, [bizId, currentDate, viewMode, fetchCalendarBookings]);
-
-  const getBookingsForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return calendarBookings.filter(booking => 
-      booking.starts_at.split('T')[0] === dateStr
-    );
-  };
-
-  const getStatusColor = (status: BookingStatus) => {
-    switch (status) {
-      case BookingStatus.confirmed:
-        return 'bg-green-500';
-      case BookingStatus.pending:
-        return 'bg-yellow-500';
-      case BookingStatus.cancelled:
-        return 'bg-red-500';
-      case BookingStatus.completed:
-        return 'bg-blue-500';
-      case BookingStatus.no_show:
-        return 'bg-gray-500';
-      case BookingStatus.rescheduled:
-        return 'bg-purple-500';
-      default:
-        return 'bg-gray-500';
-    }
-  };
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString(undefined, { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
-  const navigate_ = (direction: 'prev' | 'next') => {
-    const newDate = new Date(currentDate);
-    
-    switch (viewMode) {
-      case 'month':
-        if (direction === 'prev') {
-          newDate.setMonth(newDate.getMonth() - 1);
-        } else {
-          newDate.setMonth(newDate.getMonth() + 1);
-        }
-        break;
-      case 'week':
-        if (direction === 'prev') {
-          newDate.setDate(newDate.getDate() - 7);
-        } else {
-          newDate.setDate(newDate.getDate() + 7);
-        }
-        break;
-      case 'day':
-        if (direction === 'prev') {
-          newDate.setDate(newDate.getDate() - 1);
-        } else {
-          newDate.setDate(newDate.getDate() + 1);
-        }
-        break;
-    }
-    
-    setCurrentDate(newDate);
-  };
-
-  const getViewTitle = () => {
-    switch (viewMode) {
-      case 'month':
-        return currentDate.toLocaleDateString(undefined, { 
-          year: 'numeric', 
-          month: 'long' 
-        });
-      case 'week':
-        const weekStart = new Date(currentDate);
-        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekEnd.getDate() + 6);
-        return `${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`;
-      case 'day':
-        return currentDate.toLocaleDateString(undefined, { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        });
-      default:
-        return currentDate.toLocaleDateString();
-    }
-  };
-
-  const isToday = (date: Date) => {
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  };
-
-  const isCurrentMonth = (date: Date) => {
-    return date.getMonth() === currentDate.getMonth() && 
-           date.getFullYear() === currentDate.getFullYear();
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-red-600 mb-4">{error}</div>
-        <button 
-          onClick={() => fetchCalendarBookings()}
-          className="text-blue-600 hover:text-blue-800"
-        >
-          {t('bookings.calendar.tryAgain')}
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Calendar Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate_('prev')}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-            >
-              <ArrowLeftIcon className="w-5 h-5" />
-            </button>
-            <h2 className="text-xl font-semibold text-gray-900">{getViewTitle()}</h2>
-            <button
-              onClick={() => navigate_('next')}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-            >
-              <ArrowLeftIcon className="w-5 h-5 transform rotate-180" />
-            </button>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setViewMode('month')}
-              className={`px-3 py-1 rounded-md text-sm font-medium ${
-                viewMode === 'month' 
-                  ? 'bg-blue-100 text-blue-700' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              {t('bookings.calendar.viewModes.month')}
-            </button>
-            <button
-              onClick={() => setViewMode('week')}
-              className={`px-3 py-1 rounded-md text-sm font-medium ${
-                viewMode === 'week' 
-                  ? 'bg-blue-100 text-blue-700' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              {t('bookings.calendar.viewModes.week')}
-            </button>
-            <button
-              onClick={() => setViewMode('day')}
-              className={`px-3 py-1 rounded-md text-sm font-medium ${
-                viewMode === 'day' 
-                  ? 'bg-blue-100 text-blue-700' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              {t('bookings.calendar.viewModes.day')}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Calendar Grid */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="grid grid-cols-7 gap-px bg-gray-200">
-          {/* Day headers */}
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <div key={day} className="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700">
-              {day}
-            </div>
-          ))}
-          
-          {/* Calendar days */}
-          {generateCalendarDays().map((date, index) => {
-            const bookings = getBookingsForDate(date);
-            const isTodayDate = isToday(date);
-            const isCurrentMonthDate = isCurrentMonth(date);
-            
-            return (
-              <div
-                key={index}
-                className={`min-h-[120px] p-2 ${
-                  isCurrentMonthDate ? 'bg-white' : 'bg-gray-50'
-                } ${isTodayDate ? 'ring-2 ring-blue-500' : ''}`}
-              >
-                <div className={`text-sm font-medium ${
-                  isCurrentMonthDate ? 'text-gray-900' : 'text-gray-400'
-                } ${isTodayDate ? 'text-blue-600' : ''}`}>
-                  {date.getDate()}
-                </div>
-                <div className="mt-1 space-y-1">
-                  {bookings.slice(0, 3).map((booking) => (
-                    <div
-                      key={booking.id}
-                      className={`text-xs p-1 rounded truncate ${getStatusColor(booking.status)} text-white`}
-                      title={`${booking.customer_name} - ${formatTime(booking.starts_at)}`}
-                    >
-                      {booking.customer_name}
-                    </div>
-                  ))}
-                  {bookings.length > 3 && (
-                    <div className="text-xs text-gray-500">
-                      +{bookings.length - 3} more
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
         </div>
       </div>
     </div>
@@ -876,7 +574,7 @@ const SettingsWrapper: React.FC = () => {
   );
 };
 
-type TabType = 'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar';
+type TabType = 'dashboard' | 'settings' | 'tables' | 'bookings';
 
 const BusinessDashboard: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
@@ -921,7 +619,6 @@ const BusinessDashboard: React.FC = () => {
     const path = location.pathname;
     if (path.includes('/settings')) setCurrentTab('settings');
     else if (path.includes('/bookings')) setCurrentTab('bookings');
-    else if (path.includes('/calendar')) setCurrentTab('calendar');
     else if (path.includes('/tables')) setCurrentTab('tables');
     else setCurrentTab('dashboard');
   }, [location.pathname]);
@@ -1176,16 +873,6 @@ const BusinessDashboard: React.FC = () => {
               >
                 {t('business.dashboard.tabs.bookings')}
               </button>
-              <button
-                onClick={() => handleTabChange('calendar')}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                  currentTab === 'calendar'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {t('business.dashboard.tabs.calendar')}
-              </button>
             </nav>
           </div>
         </div>
@@ -1364,7 +1051,7 @@ const BusinessDashboard: React.FC = () => {
                     <h3 className="text-lg font-medium text-gray-900 mb-4">{t('business.dashboard.quickActions.title')}</h3>
                     <div className="space-y-3">
                       <button
-                        onClick={() => handleTabChange('bookings')}
+                        onClick={() => navigate(`/business/${bizId}/select-service`)}
                         className="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"
                       >
                         <div className="flex items-center space-x-3">
@@ -1372,19 +1059,6 @@ const BusinessDashboard: React.FC = () => {
                           <div>
                             <p className="font-medium text-gray-900">{t('business.dashboard.quickActions.newBooking.title')}</p>
                             <p className="text-sm text-gray-500">{t('business.dashboard.quickActions.newBooking.description')}</p>
-                          </div>
-                        </div>
-                      </button>
-                      
-                      <button
-                        onClick={() => handleTabChange('calendar')}
-                        className="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <CalendarDaysIcon className="w-5 h-5 text-green-600" />
-                          <div>
-                            <p className="font-medium text-gray-900">{t('business.dashboard.quickActions.viewCalendar.title')}</p>
-                            <p className="text-sm text-gray-500">{t('business.dashboard.quickActions.viewCalendar.description')}</p>
                           </div>
                         </div>
                       </button>
@@ -1422,130 +1096,7 @@ const BusinessDashboard: React.FC = () => {
           )}
 
           {currentTab === 'tables' && (
-            <motion.div
-              key="tables"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {/* Error Display */}
-              {tablesError && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
-                    <span className="text-red-800 font-medium">Error: {tablesError}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Tables Grid */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-medium text-gray-900">
-                      {t('tables.title')} ({tables.length})
-                    </h2>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {t('tables.subtitle')}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    <PlusIcon className="w-4 h-4 mr-2" />
-                    {t('tables.addTable')}
-                  </button>
-                </div>
-
-                {tablesLoading ? (
-                  <div className="p-6">
-                    <div className="space-y-4">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="animate-pulse">
-                          <div className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
-                            <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
-                            <div className="flex-1">
-                              <div className="h-5 bg-gray-200 rounded w-1/3 mb-2"></div>
-                              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : tables.length === 0 ? (
-                  <div className="text-center py-12">
-                    <RectangleGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">{t('tables.noTables')}</h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {t('tables.noTablesDescription')}
-                    </p>
-                    <div className="mt-6">
-                      <button
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        <PlusIcon className="w-4 h-4 mr-2" />
-                        {t('tables.addTable')}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-                    {tables.map((table) => (
-                      <motion.div
-                        key={table.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-blue-300 transition-colors"
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center space-x-2">
-                            <div className={`w-3 h-3 rounded-full ${table.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                            <h3 className="text-lg font-medium text-gray-900">{table.code}</h3>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => openEditModal(table)}
-                              className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => setDeletingTable(table)}
-                              className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                            >
-                              <TrashIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-500">{t('tables.seatsLabel')}</span>
-                            <span className="font-medium text-gray-900">{table.seats}</span>
-                          </div>
-                          {table.merge_group && (
-                            <div className="flex justify-between text-sm">
-                              <span className="text-gray-500">{t('tables.mergeGroupLabel')}</span>
-                              <span className="font-medium text-gray-900">{table.merge_group}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-500">{t('tables.status')}:</span>
-                            <span className={`font-medium ${table.is_active ? 'text-green-600' : 'text-gray-500'}`}>
-                              {table.is_active ? t('tables.statusActive') : t('tables.statusInactive')}
-                            </span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </motion.div>
+            <ResourceManagement />
           )}
 
           {currentTab === 'settings' && (
@@ -1561,27 +1112,7 @@ const BusinessDashboard: React.FC = () => {
           )}
 
           {currentTab === 'bookings' && (
-            <motion.div
-              key="bookings"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <BookingListWrapper />
-            </motion.div>
-          )}
-
-          {currentTab === 'calendar' && (
-            <motion.div
-              key="calendar"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <BookingCalendarWrapper />
-            </motion.div>
+            <BookingListWrapper />
           )}
         </AnimatePresence>
       </div>

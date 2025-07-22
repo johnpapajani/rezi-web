@@ -15,7 +15,6 @@ import BusinessManagement from './components/pages/BusinessManagement';
 import BusinessDashboard from './components/pages/BusinessDashboard';
 import BusinessList from './components/pages/BusinessList';
 import BookingList from './components/pages/BookingList';
-import BookingCalendar from './components/pages/BookingCalendar';
 import ServiceSelection from './components/pages/ServiceSelection';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 

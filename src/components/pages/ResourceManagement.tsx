@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useResources } from '../../hooks/useResources';
+import { useResourceStats } from '../../hooks/useResourceStats';
 import { useBusiness } from '../../hooks/useBusiness';
-import { Resource, ResourceCreate, ResourceUpdate } from '../../types';
 import { 
   ArrowLeftIcon,
-  PlusIcon,
-  PencilIcon,
-  TrashIcon,
-  CheckIcon,
-  XMarkIcon,
-  ExclamationTriangleIcon,
-  RectangleGroupIcon
+  RectangleGroupIcon,
+  CalendarDaysIcon,
+  ClockIcon,
+  ChartBarIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 
 const ResourceManagement: React.FC = () => {
@@ -24,68 +22,21 @@ const ResourceManagement: React.FC = () => {
   const { 
     resources, 
     loading: resourcesLoading, 
-    error: resourcesError, 
-    creating, 
-    updating, 
-    deleting,
-    createResource, 
-    updateResource, 
-    deleteResource 
+    error: resourcesError
   } = useResources({ bizId: bizId! });
+  
+  const { 
+    stats, 
+    loading: statsLoading, 
+    error: statsError 
+  } = useResourceStats({ bizId: bizId!, resources });
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingResource, setEditingResource] = useState<Resource | null>(null);
-  const [deletingResource, setDeletingResource] = useState<Resource | null>(null);
-  const [formData, setFormData] = useState<ResourceCreate>({
-    code: '',
-    seats: 2,
-    merge_group: '',
-    is_active: true
-  });
-
-  const handleCreateResource = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await createResource(formData);
-      setIsCreateModalOpen(false);
-      setFormData({ code: '', seats: 2, merge_group: '', is_active: true });
-    } catch (error) {
-      // Error is handled by the hook
-    }
-  };
-
-  const handleUpdateResource = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingResource) return;
-    
-    try {
-      await updateResource(editingResource.id, formData);
-      setEditingResource(null);
-      setFormData({ code: '', seats: 2, merge_group: '', is_active: true });
-    } catch (error) {
-      // Error is handled by the hook
-    }
-  };
-
-  const handleDeleteResource = async () => {
-    if (!deletingResource) return;
-    
-    try {
-      await deleteResource(deletingResource.id);
-      setDeletingResource(null);
-    } catch (error) {
-      // Error is handled by the hook
-    }
-  };
-
-  const openEditModal = (resource: Resource) => {
-    setEditingResource(resource);
-    setFormData({
-      code: resource.code,
-      seats: resource.seats,
-      merge_group: resource.merge_group || '',
-      is_active: resource.is_active
-    });
+  const getStatsForResource = (resourceId: string) => {
+    return stats.find(stat => stat.resourceId === resourceId) || {
+      todayCount: 0,
+      thisWeekCount: 0,
+      thisMonthCount: 0
+    };
   };
 
   if (businessLoading || resourcesLoading) {
@@ -109,7 +60,7 @@ const ResourceManagement: React.FC = () => {
                 <RectangleGroupIcon className="w-8 h-8 text-blue-600 mr-3" />
                 <div>
                   <h1 className="text-xl font-semibold text-gray-900">
-                    {t('resources.title')}
+                    {t('resources.dashboard.title')}
                   </h1>
                   <p className="text-sm text-gray-500">
                     {business?.name}
@@ -117,14 +68,6 @@ const ResourceManagement: React.FC = () => {
                 </div>
               </div>
             </div>
-            
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <PlusIcon className="w-4 h-4 mr-2" />
-              {t('resources.addResource')}
-            </button>
           </div>
         </div>
       </header>
@@ -132,11 +75,13 @@ const ResourceManagement: React.FC = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Error Display */}
-        {resourcesError && (
+        {(resourcesError || statsError) && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="flex items-center space-x-2">
               <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
-              <span className="text-red-800 font-medium">Error: {resourcesError}</span>
+              <span className="text-red-800 font-medium">
+                Error: {resourcesError || statsError}
+              </span>
             </div>
           </div>
         )}
@@ -146,236 +91,127 @@ const ResourceManagement: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Resources Grid */}
+          {/* Resources Overview */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-medium text-gray-900">
-                {t('resources.title')} ({resources.length})
+                {t('resources.dashboard.overview')} ({resources.length})
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                {t('resources.subtitle')}
+                {t('resources.dashboard.subtitle')}
               </p>
             </div>
 
             {resources.length === 0 ? (
               <div className="text-center py-12">
                 <RectangleGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('resources.noResources')}</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">
+                  {t('resources.noResources')}
+                </h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  {t('resources.noResourcesDescription')}
+                  {t('resources.dashboard.noResourcesDescription')}
                 </p>
-                <div className="mt-6">
-                  <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    <PlusIcon className="w-4 h-4 mr-2" />
-                    {t('resources.addResource')}
-                  </button>
-                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-                {resources.map((resource) => (
-                  <motion.div
-                    key={resource.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-blue-300 transition-colors"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${resource.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                        <h3 className="text-lg font-medium text-gray-900">{resource.code}</h3>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => openEditModal(resource)}
-                          className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                        >
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeletingResource(resource)}
-                          className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">{t('resources.seatsLabel')}</span>
-                        <span className="font-medium text-gray-900">{resource.seats}</span>
-                      </div>
-                      {resource.merge_group && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">{t('resources.mergeGroupLabel')}</span>
-                          <span className="font-medium text-gray-900">{resource.merge_group}</span>
+                {resources.map((resource) => {
+                  const resourceStats = getStatsForResource(resource.id);
+                  
+                  return (
+                    <motion.div
+                      key={resource.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 border border-gray-200 hover:shadow-lg transition-all duration-200"
+                    >
+                      {/* Resource Header */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-4 h-4 rounded-full ${resource.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                          <h3 className="text-lg font-semibold text-gray-900">{resource.code}</h3>
                         </div>
-                      )}
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">{t('resources.status')}:</span>
-                        <span className={`font-medium ${resource.is_active ? 'text-green-600' : 'text-gray-500'}`}>
-                          {resource.is_active ? t('resources.statusActive') : t('resources.statusInactive')}
-                        </span>
+                        <div className="text-sm text-gray-500">
+                          {resource.seats} {t('resources.seatsLabel')}
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+
+                      {/* Resource Stats */}
+                      <div className="space-y-4">
+                        {/* Today's Reservations */}
+                        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
+                          <div className="flex items-center space-x-2">
+                            <CalendarDaysIcon className="w-5 h-5 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-900">
+                              {t('resources.dashboard.today')}
+                            </span>
+                          </div>
+                          <div className="text-xl font-bold text-blue-600">
+                            {statsLoading ? (
+                              <div className="animate-pulse bg-blue-200 h-6 w-8 rounded"></div>
+                            ) : (
+                              resourceStats.todayCount
+                            )}
+                          </div>
+                        </div>
+
+                        {/* This Week's Reservations */}
+                        <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
+                          <div className="flex items-center space-x-2">
+                            <ClockIcon className="w-5 h-5 text-green-600" />
+                            <span className="text-sm font-medium text-green-900">
+                              {t('resources.dashboard.thisWeek')}
+                            </span>
+                          </div>
+                          <div className="text-xl font-bold text-green-600">
+                            {statsLoading ? (
+                              <div className="animate-pulse bg-green-200 h-6 w-8 rounded"></div>
+                            ) : (
+                              resourceStats.thisWeekCount
+                            )}
+                          </div>
+                        </div>
+
+                        {/* This Month's Reservations */}
+                        <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-100">
+                          <div className="flex items-center space-x-2">
+                            <ChartBarIcon className="w-5 h-5 text-purple-600" />
+                            <span className="text-sm font-medium text-purple-900">
+                              {t('resources.dashboard.thisMonth')}
+                            </span>
+                          </div>
+                          <div className="text-xl font-bold text-purple-600">
+                            {statsLoading ? (
+                              <div className="animate-pulse bg-purple-200 h-6 w-8 rounded"></div>
+                            ) : (
+                              resourceStats.thisMonthCount
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Resource Details */}
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        <div className="flex items-center justify-between text-sm text-gray-600">
+                          <span>{t('resources.status')}:</span>
+                          <span className={`font-medium ${resource.is_active ? 'text-green-600' : 'text-gray-500'}`}>
+                            {resource.is_active ? t('resources.statusActive') : t('resources.statusInactive')}
+                          </span>
+                        </div>
+                        {resource.merge_group && (
+                          <div className="flex items-center justify-between text-sm text-gray-600 mt-1">
+                            <span>{t('resources.mergeGroupLabel')}</span>
+                            <span className="font-medium">{resource.merge_group}</span>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
           </div>
         </motion.div>
       </main>
-
-      {/* Create/Edit Resource Modal */}
-      <AnimatePresence>
-        {(isCreateModalOpen || editingResource) && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
-            >
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingResource ? t('resources.editResource') : t('resources.createResource')}
-              </h3>
-              
-              <form onSubmit={editingResource ? handleUpdateResource : handleCreateResource} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('resources.resourceCode')}
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.code}
-                    onChange={(e) => setFormData((prev: ResourceCreate) => ({ ...prev, code: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={t('resources.resourceCodePlaceholder')}
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('resources.seats')}
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.seats}
-                    onChange={(e) => setFormData((prev: ResourceCreate) => ({ ...prev, seats: parseInt(e.target.value) }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('resources.mergeGroup')}
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.merge_group}
-                    onChange={(e) => setFormData((prev: ResourceCreate) => ({ ...prev, merge_group: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={t('resources.mergeGroupPlaceholder')}
-                  />
-                  <p className="mt-1 text-sm text-gray-500">
-                    {t('resources.mergeGroupHelp')}
-                  </p>
-                </div>
-                
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData((prev: ResourceCreate) => ({ ...prev, is_active: e.target.checked }))}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="is_active" className="ml-2 block text-sm text-gray-700">
-                    {t('resources.active')}
-                  </label>
-                </div>
-                
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsCreateModalOpen(false);
-                      setEditingResource(null);
-                      setFormData({ code: '', seats: 2, merge_group: '', is_active: true });
-                    }}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                  >
-                    {t('resources.cancel')}
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={creating || updating}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {creating || updating ? t('resources.saving') : (editingResource ? t('resources.update') : t('resources.create'))}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Delete Resource Modal */}
-      <AnimatePresence>
-        {deletingResource && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
-            >
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {t('resources.deleteResource')}
-              </h3>
-              
-              <p className="text-gray-600 mb-6">
-                {t('resources.confirmDelete')} <strong>{deletingResource.code}</strong>?
-                {t('resources.confirmDeleteDescription')}
-              </p>
-              
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => setDeletingResource(null)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  {t('resources.cancel')}
-                </button>
-                <button
-                  onClick={handleDeleteResource}
-                  disabled={deleting}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
-                >
-                  {deleting ? t('resources.deleting') : t('resources.delete')}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
