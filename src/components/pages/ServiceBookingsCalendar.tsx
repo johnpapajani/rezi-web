@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -7,9 +7,6 @@ import {
   ClockIcon,
   UserIcon,
   BuildingStorefrontIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  XMarkIcon,
   ViewColumnsIcon,
   Squares2X2Icon,
   ListBulletIcon,
@@ -38,8 +35,6 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('month');
-  const [selectedBooking, setSelectedBooking] = useState<BookingWithService | null>(null);
-  const [showBookingDetails, setShowBookingDetails] = useState(false);
 
   // Navigation helpers
   const navigateDate = (direction: 'prev' | 'next') => {
@@ -263,8 +258,6 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
   };
 
   const handleBookingClick = (booking: BookingWithService) => {
-    setSelectedBooking(booking);
-    setShowBookingDetails(true);
     if (onBookingClick) {
       onBookingClick(booking);
     }
@@ -671,85 +664,6 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
         {viewMode === 'day' && <DayView />}
         {viewMode === 'agenda' && <AgendaView />}
       </motion.div>
-
-      {/* Booking Details Modal */}
-      <AnimatePresence>
-        {showBookingDetails && selectedBooking && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-            onClick={() => setShowBookingDetails(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {safeT('calendar.bookingDetails', 'Booking Details')}
-                </h3>
-                <button
-                  onClick={() => setShowBookingDetails(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <XMarkIcon className="w-6 h-6" />
-                </button>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-lg font-medium text-gray-900">{selectedBooking.customer_name}</h4>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeColor(selectedBooking.status)}`}>
-                    {safeT(`calendar.status.${selectedBooking.status}`, selectedBooking.status)}
-                  </span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-500">{safeT('calendar.date', 'Date')}</span>
-                    <div className="font-medium">{formatDateMedium(new Date(selectedBooking.starts_at))}</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">{safeT('calendar.time', 'Time')}</span>
-                    <div className="font-medium">{formatTime(selectedBooking.starts_at)} - {formatTime(selectedBooking.ends_at)}</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">{safeT('calendar.partySize', 'Party Size')}</span>
-                    <div className="font-medium">{selectedBooking.party_size} {selectedBooking.party_size === 1 ? safeT('calendar.person', 'person') : safeT('calendar.people', 'people')}</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">{safeT('calendar.service', 'Service')}</span>
-                    <div className="font-medium">{serviceName}</div>
-                  </div>
-                </div>
-                
-                {(selectedBooking.customer_email || selectedBooking.customer_phone) && (
-                  <div className="space-y-2">
-                    <h5 className="text-sm font-medium text-gray-900">{safeT('calendar.contactInfo', 'Contact Information')}</h5>
-                    {selectedBooking.customer_email && (
-                      <div className="flex items-center text-sm text-gray-600">
-                        <EnvelopeIcon className="w-4 h-4 mr-2" />
-                        {selectedBooking.customer_email}
-                      </div>
-                    )}
-                    {selectedBooking.customer_phone && (
-                      <div className="flex items-center text-sm text-gray-600">
-                        <PhoneIcon className="w-4 h-4 mr-2" />
-                        {selectedBooking.customer_phone}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

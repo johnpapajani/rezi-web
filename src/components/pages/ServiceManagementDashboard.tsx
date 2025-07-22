@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
-import { serviceApi } from '../../utils/api';
+import { serviceApi, businessApi } from '../../utils/api';
 import { useServiceBookings } from '../../hooks/useServiceBookings';
 import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate, ServiceWithOpenIntervals } from '../../types';
 import CreateBookingModal from '../modals/CreateBookingModal';
+import PendingBookingsSection from './PendingBookingsSection';
 import { 
   ArrowLeftIcon,
   CalendarDaysIcon,
@@ -43,6 +44,7 @@ const ServiceManagementDashboard: React.FC = () => {
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   
   const [service, setService] = useState<ServiceWithOpenIntervals | null>(null);
+  const [business, setBusiness] = useState<any>(null);
   const [tables, setTables] = useState<Table[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -172,6 +174,12 @@ const ServiceManagementDashboard: React.FC = () => {
 
       setService(serviceData);
       setTables(tablesData);
+
+      // Fetch business details to get slug for public URL
+      if (serviceData.business_id) {
+        const businessData = await businessApi.getBusiness(serviceData.business_id);
+        setBusiness(businessData);
+      }
     } catch (err: any) {
       setError(err.detail || 'Failed to fetch service data');
     } finally {
@@ -222,6 +230,31 @@ const ServiceManagementDashboard: React.FC = () => {
         console.error('Failed to cancel booking:', error);
       }
     }
+  };
+
+  // Pending bookings handlers
+  const handleConfirmBooking = async (bookingId: string) => {
+    await updateBookingStatus(bookingId, BookingStatus.confirmed);
+  };
+
+  const handleRejectBooking = async (bookingId: string) => {
+    await updateBookingStatus(bookingId, BookingStatus.cancelled);
+  };
+
+  const handleConfirmAllPending = async () => {
+    const pendingBookings = serviceBookings.filter(booking => booking.status === BookingStatus.pending);
+    for (const booking of pendingBookings) {
+      try {
+        await updateBookingStatus(booking.id, BookingStatus.confirmed);
+      } catch (error) {
+        console.error(`Failed to confirm booking ${booking.id}:`, error);
+      }
+    }
+  };
+
+  const handleViewAllPending = () => {
+    setStatusFilter(BookingStatus.pending);
+    handleTabChange('bookings');
   };
 
   const getStatusColor = (status: BookingStatus) => {
@@ -441,6 +474,12 @@ const ServiceManagementDashboard: React.FC = () => {
 
   const reservationStats = getReservationStats();
 
+  // Calculate pending bookings
+  const pendingBookings = serviceBookings.filter(booking => booking.status === BookingStatus.pending);
+  const sortedPendingBookings = pendingBookings.sort((a, b) => 
+    new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
+  );
+
   const filteredBookings = serviceBookings.filter(booking => {
     const bookingDate = new Date(booking.starts_at);
     const today = new Date();
@@ -471,23 +510,23 @@ const ServiceManagementDashboard: React.FC = () => {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:py-0 sm:h-16 space-y-3 sm:space-y-0">
+            <div className="flex items-center min-w-0">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="mr-3 sm:mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 flex-shrink-0"
               >
                 <ArrowLeftIcon className="w-5 h-5" />
               </button>
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+              <div className="flex items-center min-w-0">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                   <span className="text-white font-bold text-sm">{service.name.charAt(0)}</span>
                 </div>
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
+                <div className="min-w-0">
+                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                     {service.name}
                   </h1>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 hidden sm:block">
                     {t('serviceManagement.serviceDetails')}
                   </p>
                 </div>
@@ -561,7 +600,26 @@ const ServiceManagementDashboard: React.FC = () => {
       {/* Tab Navigation */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="-mb-px flex space-x-8">
+          {/* Mobile Dropdown */}
+          <div className="sm:hidden mb-4">
+            <select
+              value={currentTab}
+              onChange={(e) => handleTabChange(e.target.value as any)}
+              className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            >
+              <option value="dashboard">
+                {t('common.dashboard')}
+                {pendingBookings.length > 0 ? ` (${pendingBookings.length})` : ''}
+              </option>
+              <option value="bookings">{t('serviceManagement.tabs.bookings')}</option>
+              <option value="tables">{t('serviceManagement.tabs.tables')}</option>
+              <option value="availability">{t('serviceManagement.tabs.availability')}</option>
+              <option value="settings">{t('common.settings')}</option>
+            </select>
+          </div>
+          
+          {/* Desktop Tabs */}
+          <nav className="-mb-px hidden sm:flex space-x-8">
             <button
               onClick={() => handleTabChange('dashboard')}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
@@ -570,7 +628,14 @@ const ServiceManagementDashboard: React.FC = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              {t('common.dashboard')}
+              <div className="flex items-center space-x-2">
+                <span>{t('common.dashboard')}</span>
+                {pendingBookings.length > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    {pendingBookings.length}
+                  </span>
+                )}
+              </div>
             </button>
             <button
               onClick={() => handleTabChange('bookings')}
@@ -625,11 +690,31 @@ const ServiceManagementDashboard: React.FC = () => {
             transition={{ duration: 0.5 }}
             className="space-y-8"
           >
+            {/* Pending Bookings Section */}
+            <PendingBookingsSection
+              pendingBookings={sortedPendingBookings}
+              onConfirmBooking={handleConfirmBooking}
+              onRejectBooking={handleRejectBooking}
+              onConfirmAll={handleConfirmAllPending}
+              onViewAllPending={handleViewAllPending}
+            />
+
             {/* Reservation Statistics */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-2">{t('serviceManagement.dashboard.title')}</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 mb-2">
+                <h2 className="text-lg font-medium text-gray-900">{t('serviceManagement.dashboard.title')}</h2>
+                {business && (
+                  <button
+                    onClick={() => window.open(`/book/${business.slug}/service/${serviceId}`, '_blank')}
+                    className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-colors touch-manipulation"
+                  >
+                    <GlobeAltIcon className="w-4 h-4 mr-2" />
+                    {t('serviceManagement.viewPublicPage')}
+                  </button>
+                )}
+              </div>
               <p className="text-sm text-gray-500 mb-6">{t('serviceManagement.dashboard.subtitle')}</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <div className="text-center">
                   <div className="mx-auto w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
                     <CalendarDaysIcon className="w-6 h-6 text-blue-600" />

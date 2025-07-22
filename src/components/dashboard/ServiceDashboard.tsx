@@ -171,17 +171,26 @@ const ServiceDashboard: React.FC = () => {
       transition={{ delay: 0.2 }}
       className="bg-white rounded-lg shadow-sm border border-gray-200 p-8"
     >
-      <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
           {t('serviceDashboard.availableServices')}
         </h2>
-        <button
-          onClick={handleCreateService}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <PlusIcon className="w-4 h-4 mr-2" />
-          {t('serviceDashboard.addService')}
-        </button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+          <button
+            onClick={() => window.open(`/book/${business?.slug}`, '_blank')}
+            className="inline-flex items-center justify-center px-4 py-2 border border-green-300 text-sm font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 touch-manipulation"
+          >
+            <GlobeAltIcon className="w-4 h-4 mr-2" />
+            {t('serviceManagement.viewPublicPage')}
+          </button>
+          <button
+            onClick={handleCreateService}
+            className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation"
+          >
+            <PlusIcon className="w-4 h-4 mr-2" />
+            {t('serviceDashboard.addService')}
+          </button>
+        </div>
       </div>
 
       {services.length === 0 ? (
@@ -203,7 +212,7 @@ const ServiceDashboard: React.FC = () => {
           {activeServices.length > 0 && (
             <div className="mb-8">
               <h3 className="text-lg font-medium text-gray-900 mb-4">{t('serviceDashboard.activeServices')}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {activeServices.map((service, index) => (
                   <motion.div
                     key={service.id}
@@ -224,7 +233,7 @@ const ServiceDashboard: React.FC = () => {
                       <p className="text-sm text-gray-600 mb-4 line-clamp-2">{service.description}</p>
                     )}
 
-                    <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm mb-4">
                       <div className="flex items-center space-x-2">
                         <ClockIcon className="w-4 h-4 text-gray-400" />
                         <span className="text-gray-600">{formatDuration(service.duration_min)}</span>
@@ -261,7 +270,7 @@ const ServiceDashboard: React.FC = () => {
           {inactiveServices.length > 0 && (
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-4">{t('serviceDashboard.inactiveServices')}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {inactiveServices.map((service, index) => (
                   <motion.div
                     key={service.id}
@@ -333,7 +342,7 @@ const ServiceDashboard: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.basic.title')}</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 {t('business.fields.name.required')}
@@ -374,9 +383,9 @@ const ServiceDashboard: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.regional.title')}</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
                 <CurrencyDollarIcon className="w-4 h-4 inline mr-1" />
                 {t('business.fields.currency')}
               </label>
@@ -425,8 +434,8 @@ const ServiceDashboard: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.address.title')}</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="sm:col-span-2">
               <label htmlFor="address_line1" className="block text-sm font-medium text-gray-700 mb-2">
                 {t('business.fields.addressLine1')}
               </label>
@@ -517,31 +526,31 @@ const ServiceDashboard: React.FC = () => {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:py-0 sm:h-16 space-y-3 sm:space-y-0">
+            <div className="flex items-center min-w-0">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="mr-3 sm:mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 flex-shrink-0"
               >
                 <ArrowLeftIcon className="w-5 h-5" />
               </button>
-              <div className="flex items-center">
+              <div className="flex items-center min-w-0">
                 {business?.logo_url ? (
                   <img
                     src={business.logo_url}
                     alt={business.name}
-                    className="w-8 h-8 rounded-lg object-cover mr-3"
+                    className="w-8 h-8 rounded-lg object-cover mr-3 flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                     <BuildingStorefrontIcon className="w-5 h-5 text-white" />
                   </div>
                 )}
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
+                <div className="min-w-0">
+                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                     {business?.name}
                   </h1>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 hidden sm:block">
                     {currentTab === 'services' ? t('serviceDashboard.subtitle') : t('business.management.settings')}
                   </p>
                 </div>
@@ -606,7 +615,20 @@ const ServiceDashboard: React.FC = () => {
 
           {/* Tab Navigation */}
           <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
+            {/* Mobile Dropdown */}
+            <div className="sm:hidden mb-4">
+              <select
+                value={currentTab}
+                onChange={(e) => setCurrentTab(e.target.value as any)}
+                className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="services">{t('business.dashboard.tabs.services')}</option>
+                <option value="settings">{t('business.dashboard.tabs.settings')}</option>
+              </select>
+            </div>
+            
+            {/* Desktop Tabs */}
+            <nav className="-mb-px hidden sm:flex space-x-8">
               <button
                 onClick={() => setCurrentTab('services')}
                 className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${

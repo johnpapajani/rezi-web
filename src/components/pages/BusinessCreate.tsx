@@ -150,20 +150,20 @@ const BusinessCreatePage: React.FC = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div className="flex items-center space-x-4 min-w-0">
               <button
                 onClick={() => navigate('/businesses')}
-                className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
               >
                 <ArrowLeftIcon className="w-5 h-5" />
               </button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">{t('business.create.title')}</h1>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('business.create.title')}</h1>
                 <p className="text-sm text-gray-600">{t('business.create.subtitle')}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center sm:justify-start">
               <BuildingStorefrontIcon className="w-6 h-6 text-blue-600" />
             </div>
           </div>
@@ -213,7 +213,7 @@ const BusinessCreatePage: React.FC = () => {
                 <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.basic.title')}</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                     {t('business.fields.name.required')}
@@ -385,7 +385,7 @@ const BusinessCreatePage: React.FC = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
                       {t('business.fields.city')}
@@ -418,11 +418,11 @@ const BusinessCreatePage: React.FC = () => {
             </div>
 
             {/* Form Actions */}
-            <div className="flex justify-end space-x-4">
+            <div className="flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
               <button
                 type="button"
                 onClick={() => navigate('/businesses')}
-                className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 sm:py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors touch-manipulation"
                 disabled={creating}
               >
                 {t('business.create.cancel')}
@@ -430,7 +430,7 @@ const BusinessCreatePage: React.FC = () => {
               <button
                 type="submit"
                 disabled={creating}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+                className="px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 touch-manipulation"
               >
                 {creating && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

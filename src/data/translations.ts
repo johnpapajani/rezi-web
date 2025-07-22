@@ -253,6 +253,8 @@ export const translations: Translations = {
     'business.dashboard.quickActions.viewCalendar.description': 'Shiko oraret e ardhshme',
     'business.dashboard.quickActions.settings.title': 'Cilësimet',
     'business.dashboard.quickActions.settings.description': 'Konfiguron biznezin',
+    'business.dashboard.quickActions.viewPublicPage.title': 'Shiko Faqen Publike',
+    'business.dashboard.quickActions.viewPublicPage.description': 'Shiko si klientët shohin biznesin tuaj',
 
     // Main Dashboard Updates
     'dashboard.yourBusinesses.title': 'Bizneset Tuaja',
@@ -838,6 +840,8 @@ export const translations: Translations = {
     'serviceManagement.dashboard.thisWeek': 'Këtë Javë',
     'serviceManagement.dashboard.thisMonth': 'Këtë Muaj',
     'serviceManagement.dashboard.totalBookings': 'Totali i Rezervimeve',
+    'serviceManagement.viewPublicPage': 'Shiko Faqen Publike',
+    'serviceManagement.viewPublicPageDescription': 'Shiko si klientët rezervojnë këtë shërbim',
 
     // Public Booking System
     'public.back': 'Prapa',
@@ -964,6 +968,28 @@ export const translations: Translations = {
     'public.error.loadingAvailabilityFailed': 'Dështoi ngarkimi i disponueshmërisë',
     'public.error.createBookingFailed': 'Dështoi krijimi i rezervimit',
     'public.error.cancelBookingFailed': 'Dështoi anulimi i rezervimit',
+
+    // Pending Bookings Section
+    'serviceManagement.pendingBookings.title': 'Rezervime në Pritje',
+    'serviceManagement.pendingBookings.subtitle': 'Këto rezervime kanë nevojë për konfirmimin tuaj',
+    'serviceManagement.pendingBookings.noPending': 'Nuk ka rezervime në pritje',
+    'serviceManagement.pendingBookings.noPendingDescription': 'Të gjitha rezervimet janë konfirmuar ose përfunduar',
+    'serviceManagement.pendingBookings.confirmAll': 'Konfirmo Të Gjitha',
+    'serviceManagement.pendingBookings.viewAll': 'Shiko Të Gjitha në Pritje',
+    'serviceManagement.pendingBookings.confirm': 'Konfirmo',
+    'serviceManagement.pendingBookings.reject': 'Refuzo',
+    'serviceManagement.pendingBookings.confirming': 'Duke konfirmuar...',
+    'serviceManagement.pendingBookings.rejecting': 'Duke refuzuar...',
+    'serviceManagement.pendingBookings.confirmed': 'Rezervimi u konfirmua me sukses',
+    'serviceManagement.pendingBookings.rejected': 'Rezervimi u refuzua me sukses',
+    'serviceManagement.pendingBookings.error': 'Dështoi përditësimi i statusit të rezervimit',
+    'serviceManagement.pendingBookings.confirmAllMessage': 'Jeni të sigurt që doni të konfirmoni të gjitha rezervimet në pritje?',
+    'serviceManagement.pendingBookings.rejectConfirm': 'Jeni të sigurt që doni të refuzoni këtë rezervim?',
+    'serviceManagement.pendingBookings.count': 'rezervim në pritje',
+    'serviceManagement.pendingBookings.countPlural': 'rezervime në pritje',
+    'serviceManagement.pendingBookings.urgentTitle': 'Kërkon Vëmendje të Menjëhershme',
+    'serviceManagement.pendingBookings.todayTitle': 'Rezervimet e Sotme në Pritje',
+    'serviceManagement.pendingBookings.upcomingTitle': 'Rezervimet e Ardhshme në Pritje',
   },
   en: {
     // Header & Navigation
@@ -1243,6 +1269,28 @@ export const translations: Translations = {
     'serviceManagement.dashboard.thisMonth': 'This Month',
     'serviceManagement.dashboard.totalBookings': 'Total Bookings',
 
+    // Pending Bookings Section
+    'serviceManagement.pendingBookings.title': 'Pending Bookings',
+    'serviceManagement.pendingBookings.subtitle': 'These bookings require your confirmation',
+    'serviceManagement.pendingBookings.noPending': 'No pending bookings',
+    'serviceManagement.pendingBookings.noPendingDescription': 'All bookings are confirmed or completed',
+    'serviceManagement.pendingBookings.confirmAll': 'Confirm All',
+    'serviceManagement.pendingBookings.viewAll': 'View All Pending',
+    'serviceManagement.pendingBookings.confirm': 'Confirm',
+    'serviceManagement.pendingBookings.reject': 'Reject',
+    'serviceManagement.pendingBookings.confirming': 'Confirming...',
+    'serviceManagement.pendingBookings.rejecting': 'Rejecting...',
+    'serviceManagement.pendingBookings.confirmed': 'Booking confirmed successfully',
+    'serviceManagement.pendingBookings.rejected': 'Booking rejected successfully',
+    'serviceManagement.pendingBookings.error': 'Failed to update booking status',
+    'serviceManagement.pendingBookings.confirmAllMessage': 'Are you sure you want to confirm all pending bookings?',
+    'serviceManagement.pendingBookings.rejectConfirm': 'Are you sure you want to reject this booking?',
+    'serviceManagement.pendingBookings.count': 'pending booking',
+    'serviceManagement.pendingBookings.countPlural': 'pending bookings',
+    'serviceManagement.pendingBookings.urgentTitle': 'Requires Immediate Attention',
+    'serviceManagement.pendingBookings.todayTitle': 'Today\'s Pending Bookings',
+    'serviceManagement.pendingBookings.upcomingTitle': 'Upcoming Pending Bookings',
+
     // Service Open Intervals
     'serviceOpenIntervals.title': 'Service Operating Hours',
     'serviceOpenIntervals.save': 'Save Hours',
@@ -1437,6 +1485,8 @@ export const translations: Translations = {
     'business.dashboard.quickActions.viewCalendar.description': 'See upcoming schedules',
     'business.dashboard.quickActions.settings.title': 'Settings',
     'business.dashboard.quickActions.settings.description': 'Configure business',
+    'business.dashboard.quickActions.viewPublicPage.title': 'View Public Page',
+    'business.dashboard.quickActions.viewPublicPage.description': 'See how customers view your business',
 
     // Main Dashboard Updates
     'dashboard.yourBusinesses.title': 'Your Businesses',

@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:py-0 sm:h-16 space-y-3 sm:space-y-0">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">R</span>
@@ -45,7 +45,7 @@ const Dashboard: React.FC = () => {
               </span>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
               {/* Language Selector */}
               <div className="relative">
                 <button
@@ -89,11 +89,11 @@ const Dashboard: React.FC = () => {
 
               <div className="flex items-center space-x-2">
                 <UserCircleIcon className="w-6 h-6 text-gray-400" />
-                <span className="text-sm text-gray-700">{user?.email}</span>
+                <span className="text-sm text-gray-700 truncate max-w-[200px]">{user?.email}</span>
               </div>
               <button
                 onClick={handleSignOut}
-                className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors"
+                className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors px-3 py-2 rounded-lg hover:bg-red-50 touch-manipulation"
               >
                 <ArrowRightOnRectangleIcon className="w-5 h-5" />
                 <span className="text-sm">{t('dashboard.signOut')}</span>
@@ -190,31 +190,31 @@ const Dashboard: React.FC = () => {
                     key={business.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer space-y-3 sm:space-y-0"
                     onClick={() => navigate(`/business/${business.id}`)}
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-bold text-lg">
                           {business.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-medium text-gray-900">{business.name}</h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="min-w-0">
+                        <h3 className="text-lg font-medium text-gray-900 truncate">{business.name}</h3>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
                           <span className="capitalize">{business.role}</span>
                           {business.city && <span>• {business.city}</span>}
                           <span>• {business.currency}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/business/${business.id}/select-service`);
                         }}
-                        className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+                        className="text-purple-600 hover:text-purple-800 text-sm font-medium px-3 py-2 rounded-md hover:bg-purple-50 transition-colors touch-manipulation"
                       >
                         {t('dashboard.yourBusinesses.manage')}
                       </button>

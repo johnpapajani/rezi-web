@@ -353,16 +353,16 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <div>
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+            <div className="min-w-0 pr-4">
               <h3 className="text-lg font-semibold text-gray-900">
                 {t('booking.create.title')}
               </h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 mt-1 truncate">
                 {t('booking.create.subtitle').replace('{serviceName}', serviceName)}
               </p>
             </div>
@@ -391,7 +391,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
                   <ClockIcon className="w-5 h-5 text-blue-600" />
                   <h4 className="text-sm font-medium text-blue-900">{t('booking.create.serviceHours.title')}</h4>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                   {serviceOpenIntervals
                     .sort((a, b) => a.weekday - b.weekday)
                     .map((interval, index) => {
@@ -425,7 +425,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
                 </h4>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('booking.create.fields.customerName')} *
@@ -583,7 +583,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {availableTables.map((table) => (
                     <label
                       key={table.id}
@@ -650,18 +650,18 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
             )}
 
             {/* Form Actions */}
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200">
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-4 py-3 sm:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors touch-manipulation"
               >
                 {t('booking.create.actions.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={submitting || loading || availableTables.length === 0}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+                className="px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 touch-manipulation"
               >
                 {submitting && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

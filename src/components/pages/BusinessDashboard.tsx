@@ -416,7 +416,7 @@ const SettingsWrapper: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.basic.title')}</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 {t('business.fields.name.required')}
@@ -457,9 +457,9 @@ const SettingsWrapper: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.regional.title')}</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
                 <CurrencyDollarIcon className="w-4 h-4 inline mr-1" />
                 {t('business.fields.currency')}
               </label>
@@ -538,9 +538,9 @@ const SettingsWrapper: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
                   {t('business.fields.city')}
                 </label>
                 <input
@@ -779,7 +779,7 @@ const BusinessDashboard: React.FC = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigate('/dashboard')}
@@ -788,7 +788,7 @@ const BusinessDashboard: React.FC = () => {
                 <ArrowLeftIcon className="w-5 h-5" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{business?.name}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{business?.name}</h1>
                 <p className="text-sm text-gray-600">{t('business.dashboard.title')}</p>
               </div>
             </div>
@@ -846,7 +846,22 @@ const BusinessDashboard: React.FC = () => {
           
           {/* Navigation Tabs */}
           <div className="mt-4 border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
+            {/* Mobile Dropdown */}
+            <div className="sm:hidden mb-4">
+              <select
+                value={currentTab}
+                onChange={(e) => handleTabChange(e.target.value as any)}
+                className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="dashboard">{t('business.dashboard.tabs.dashboard')}</option>
+                <option value="settings">{t('business.dashboard.tabs.settings')}</option>
+                <option value="tables">{t('business.dashboard.tabs.tables')}</option>
+                <option value="bookings">{t('business.dashboard.tabs.bookings')}</option>
+              </select>
+            </div>
+            
+            {/* Desktop Tabs */}
+            <nav className="-mb-px hidden sm:flex space-x-8">
               <button
                 onClick={() => handleTabChange('dashboard')}
                 className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
@@ -904,7 +919,7 @@ const BusinessDashboard: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               {/* Key Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -999,7 +1014,7 @@ const BusinessDashboard: React.FC = () => {
               </div>
 
               {/* Dashboard Content */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                 {/* Upcoming Bookings */}
                 <div className="lg:col-span-2">
                   <UpcomingBookings bizId={bizId} />
@@ -1066,11 +1081,11 @@ const BusinessDashboard: React.FC = () => {
                     <div className="space-y-3">
                       <button
                         onClick={() => navigate(`/business/${bizId}/select-service`)}
-                        className="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"
+                        className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors touch-manipulation"
                       >
                         <div className="flex items-center space-x-3">
-                          <PlusIcon className="w-5 h-5 text-blue-600" />
-                          <div>
+                          <PlusIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                          <div className="min-w-0">
                             <p className="font-medium text-gray-900">{t('business.dashboard.quickActions.newBooking.title')}</p>
                             <p className="text-sm text-gray-500">{t('business.dashboard.quickActions.newBooking.description')}</p>
                           </div>
@@ -1079,11 +1094,11 @@ const BusinessDashboard: React.FC = () => {
 
                       <button
                         onClick={() => handleTabChange('settings')}
-                        className="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"
+                        className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors touch-manipulation"
                       >
                         <div className="flex items-center space-x-3">
-                          <CogIcon className="w-5 h-5 text-purple-600" />
-                          <div>
+                          <CogIcon className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                          <div className="min-w-0">
                             <p className="font-medium text-gray-900">{t('business.dashboard.quickActions.settings.title')}</p>
                             <p className="text-sm text-gray-500">{t('business.dashboard.quickActions.settings.description')}</p>
                           </div>
@@ -1091,12 +1106,25 @@ const BusinessDashboard: React.FC = () => {
                       </button>
 
                       <button
-                        onClick={() => handleTabChange('tables')}
-                        className="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"
+                        onClick={() => window.open(`/book/${business?.slug}`, '_blank')}
+                        className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-green-300 transition-colors touch-manipulation"
                       >
                         <div className="flex items-center space-x-3">
-                          <RectangleGroupIcon className="w-5 h-5 text-orange-600" />
-                          <div>
+                          <GlobeAltIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="font-medium text-gray-900">{t('business.dashboard.quickActions.viewPublicPage.title')}</p>
+                            <p className="text-sm text-gray-500">{t('business.dashboard.quickActions.viewPublicPage.description')}</p>
+                          </div>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => handleTabChange('tables')}
+                        className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors touch-manipulation"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <RectangleGroupIcon className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                          <div className="min-w-0">
                             <p className="font-medium text-gray-900">{t('tables.manageTables')}</p>
                             <p className="text-sm text-gray-500">{t('tables.configureTables')}</p>
                           </div>

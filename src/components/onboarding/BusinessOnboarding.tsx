@@ -385,20 +385,20 @@ const BusinessOnboarding: React.FC = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div className="flex items-center space-x-4 min-w-0">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
               >
                 <ArrowLeftIcon className="w-5 h-5" />
               </button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">{t('onboarding.title')}</h1>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('onboarding.title')}</h1>
                 <p className="text-sm text-gray-600">{t('onboarding.subtitle')}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center sm:justify-start">
               <SparklesIcon className="w-6 h-6 text-blue-600" />
             </div>
           </div>
@@ -471,7 +471,7 @@ const BusinessOnboarding: React.FC = () => {
                   <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.basic.title')}</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                       {t('business.fields.name.required')}
@@ -482,7 +482,7 @@ const BusinessOnboarding: React.FC = () => {
                       name="name"
                       value={businessData.name}
                       onChange={handleBusinessInputChange}
-                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-manipulation ${
                         validationErrors.name ? 'border-red-500' : 'border-gray-300'
                       }`}
                       required
@@ -542,9 +542,9 @@ const BusinessOnboarding: React.FC = () => {
                   <h2 className="text-lg font-semibold text-gray-900">{t('business.sections.regional.title')}</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
                       <CurrencyDollarIcon className="w-4 h-4 inline mr-1" />
                       {t('business.fields.currency')}
                     </label>
@@ -623,9 +623,9 @@ const BusinessOnboarding: React.FC = () => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
                         {t('business.fields.city')}
                       </label>
                       <input
@@ -705,7 +705,7 @@ const BusinessOnboarding: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             {t('onboarding.serviceName')}
@@ -835,7 +835,7 @@ const BusinessOnboarding: React.FC = () => {
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {(tables[serviceIndex] || []).map((table, tableIndex) => (
                           <div key={tableIndex} className="border border-gray-200 rounded-lg p-3">
                             <div className="flex items-center justify-between mb-3">
@@ -896,11 +896,11 @@ const BusinessOnboarding: React.FC = () => {
         </AnimatePresence>
 
         {/* Navigation */}
-        <div className="flex justify-between items-center mt-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between items-stretch sm:items-center space-y-3 sm:space-y-0 mt-8">
           <button
             onClick={handleBack}
             disabled={currentStep === 1}
-            className={`flex items-center space-x-2 px-6 py-2 rounded-lg transition-colors ${
+            className={`flex items-center justify-center space-x-2 px-6 py-3 sm:py-2 rounded-lg transition-colors touch-manipulation ${
               currentStep === 1
                 ? 'text-gray-400 cursor-not-allowed'
                 : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
@@ -913,7 +913,7 @@ const BusinessOnboarding: React.FC = () => {
           <button
             onClick={handleNext}
             disabled={creatingBusiness || servicesHook.creating || tablesHook.creating}
-            className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center justify-center space-x-2 px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
           >
             {(creatingBusiness || servicesHook.creating || tablesHook.creating) && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
