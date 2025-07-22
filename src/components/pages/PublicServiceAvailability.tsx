@@ -25,7 +25,7 @@ const PublicServiceAvailability: React.FC = () => {
     return today.toISOString().split('T')[0];
   });
   const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
-  const [partySize, setPartySize] = useState<number>(2);
+  const [partySize, setPartySize] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
