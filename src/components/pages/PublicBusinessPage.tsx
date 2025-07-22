@@ -97,7 +97,7 @@ const PublicBusinessPage: React.FC = () => {
               className="h-20 w-20 mx-auto rounded-lg object-cover mb-6"
             />
           )}
-          <h1 className="text-4xl font-bold text-gradient mb-4">{business.name}</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{business.name}</h1>
           
           {/* Address */}
           {(business.address_line1 || business.city) && (
@@ -130,7 +130,7 @@ const PublicBusinessPage: React.FC = () => {
             <p className="text-gray-600">No services available at this time.</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {services.map((service) => (
               <div
                 key={service.id}
