@@ -237,7 +237,15 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
   // View Components
   const MonthView = () => {
     const calendarDays = generateCalendarDays();
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayNames = [
+      safeT('calendar.days.sun', 'Sun'),
+      safeT('calendar.days.mon', 'Mon'), 
+      safeT('calendar.days.tue', 'Tue'),
+      safeT('calendar.days.wed', 'Wed'),
+      safeT('calendar.days.thu', 'Thu'),
+      safeT('calendar.days.fri', 'Fri'),
+      safeT('calendar.days.sat', 'Sat')
+    ];
     
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

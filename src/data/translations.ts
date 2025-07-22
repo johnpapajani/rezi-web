@@ -675,8 +675,28 @@ export const translations: Translations = {
     'calendar.views.week': 'Javë',
     'calendar.views.day': 'Ditë',
     'calendar.views.agenda': 'Agjendë',
+    'calendar.views.list': 'Listë',
+    'calendar.views.calendar': 'Kalendar',
 
-    // Calendar Days
+    // Calendar Navigation & Controls
+    'calendar.navigation.previous': 'I mëparshëm',
+    'calendar.navigation.next': 'I ardhshëm',
+    'calendar.navigation.goToToday': 'Shko te sot',
+    'calendar.viewMode.switchTo': 'Ndërro në',
+    'calendar.filter.byStatus': 'Filtro sipas statusit',
+    'calendar.filter.byDate': 'Filtro sipas datës',
+    'calendar.search.placeholder': 'Kërko sipas emrit të klientit...',
+    
+    // Calendar Days Full Names
+    'calendar.days.sunday': 'E diel',
+    'calendar.days.monday': 'E hënë',
+    'calendar.days.tuesday': 'E martë',
+    'calendar.days.wednesday': 'E mërkurë',
+    'calendar.days.thursday': 'E enjte',
+    'calendar.days.friday': 'E premte',
+    'calendar.days.saturday': 'E shtunë',
+
+    // Calendar Days Short Names
     'calendar.days.sun': 'Die',
     'calendar.days.mon': 'Hën',
     'calendar.days.tue': 'Mar',
@@ -685,6 +705,56 @@ export const translations: Translations = {
     'calendar.days.fri': 'Pre',
     'calendar.days.sat': 'Sht',
 
+    // Calendar Months
+    'calendar.months.january': 'Janar',
+    'calendar.months.february': 'Shkurt',
+    'calendar.months.march': 'Mars',
+    'calendar.months.april': 'Prill',
+    'calendar.months.may': 'Maj',
+    'calendar.months.june': 'Qershor',
+    'calendar.months.july': 'Korrik',
+    'calendar.months.august': 'Gusht',
+    'calendar.months.september': 'Shtator',
+    'calendar.months.october': 'Tetor',
+    'calendar.months.november': 'Nëntor',
+    'calendar.months.december': 'Dhjetor',
+
+    // Time & Duration
+    'calendar.time.am': 'PD',
+    'calendar.time.pm': 'MD',
+    'calendar.duration.minutes': 'minuta',
+    'calendar.duration.hours': 'orë',
+    'calendar.timeSlot.from': 'nga',
+    'calendar.timeSlot.to': 'deri',
+
+    // Booking Actions in Calendar
+    'calendar.booking.viewDetails': 'Shiko detajet',
+    'calendar.booking.edit': 'Modifiko',
+    'calendar.booking.cancel': 'Anulo',
+    'calendar.booking.confirm': 'Konfirmo',
+    'calendar.booking.markCompleted': 'Shëno si të përfunduar',
+    'calendar.booking.markNoShow': 'Shëno si nuk erdhi',
+    'calendar.booking.reschedule': 'Riplanifiko',
+
+    // Week View Specific
+    'calendar.weekView.allDay': 'Gjithë ditën',
+    'calendar.weekView.noEventsForHour': 'Nuk ka ngjarje për këtë orë',
+    
+    // Month View Specific  
+    'calendar.monthView.weekNumber': 'Java nr.',
+    'calendar.monthView.showMoreBookings': 'Shfaq më shumë rezervime',
+
+    // Agenda View Specific
+    'calendar.agendaView.title': 'Agjenda e Rezervimeve',
+    'calendar.agendaView.noBookingsInRange': 'Nuk ka rezervime në këtë interval',
+    'calendar.agendaView.showNext': 'Shfaq të ardhshmet',
+    'calendar.agendaView.showPrevious': 'Shfaq të mëparshmet',
+
+    // Day View Specific
+    'calendar.dayView.hourFormat': 'Formati i orës',
+    'calendar.dayView.12hour': '12 orësh',
+    'calendar.dayView.24hour': '24 orësh',
+
     // Calendar Status
     'calendar.status.pending': 'Në pritje',
     'calendar.status.confirmed': 'Konfirmuar',
@@ -692,6 +762,56 @@ export const translations: Translations = {
     'calendar.status.completed': 'Përfunduar',
     'calendar.status.no_show': 'Nuk erdhi',
     'calendar.status.rescheduled': 'Riplanifikuar',
+
+    // Filter Options
+    'calendar.filter.allStatuses': 'Të gjitha statuset',
+    'calendar.filter.allDates': 'Të gjitha datat',
+    'calendar.filter.today': 'Sot',
+    'calendar.filter.tomorrow': 'Nesër',
+    'calendar.filter.thisWeek': 'Këtë javë',
+    'calendar.filter.thisMonth': 'Këtë muaj',
+
+    // Common Calendar Interactions
+    'calendar.clickToSelect': 'Kliko për të zgjedhur',
+    'calendar.clickToView': 'Kliko për të parë detajet',
+    'calendar.doubleClickToEdit': 'Kliko dy herë për të modifikuar',
+    'calendar.dragToMove': 'Zvarrit për të lëvizur',
+    'calendar.retry': 'Provo përsëri',
+    'calendar.close': 'Mbyll',
+    'calendar.save': 'Ruaj',
+    'calendar.cancel': 'Anulo',
+    'calendar.delete': 'Fshi',
+    'calendar.edit': 'Modifiko',
+    'calendar.view': 'Shiko',
+    'calendar.print': 'Printo',
+    'calendar.export': 'Eksporto',
+    'calendar.import': 'Importo',
+    'calendar.settings': 'Cilësimet',
+    'calendar.help': 'Ndihmë',
+
+    // Empty States
+    'calendar.emptyState.title': 'Nuk ka rezervime',
+    'calendar.emptyState.description': 'Nuk ka rezervime për këtë periudhë kohe',
+    'calendar.emptyState.createFirst': 'Krijo rezervimin e parë',
+    'calendar.emptyState.selectDifferentDate': 'Zgjidhni një datë tjetër',
+
+    // Confirmation Messages
+    'calendar.confirm.deleteBooking': 'A jeni të sigurt që doni të fshini këtë rezervim?',
+    'calendar.confirm.cancelBooking': 'A jeni të sigurt që doni të anuloni këtë rezervim?',
+    'calendar.confirm.markCompleted': 'Shëno këtë rezervim si të përfunduar?',
+    'calendar.confirm.markNoShow': 'Shëno këtë rezervim si "nuk erdhi"?',
+
+    // Success Messages
+    'calendar.success.bookingCreated': 'Rezervimi u krijua me sukses',
+    'calendar.success.bookingUpdated': 'Rezervimi u përditësua me sukses',
+    'calendar.success.bookingDeleted': 'Rezervimi u fshi me sukses',
+    'calendar.success.statusUpdated': 'Statusi i rezervimit u përditësua',
+
+    // Error Messages
+    'calendar.error.loadingBookings': 'Gabim në ngarkimin e rezervimeve',
+    'calendar.error.savingBooking': 'Gabim në ruajtjen e rezervimit',
+    'calendar.error.deletingBooking': 'Gabim në fshirjen e rezervimit',
+    'calendar.error.networkError': 'Gabim në rrjet. Kontrolloni lidhjen tuaj.',
   },
   en: {
     // Header & Navigation
@@ -1367,8 +1487,28 @@ export const translations: Translations = {
     'calendar.views.week': 'Week',
     'calendar.views.day': 'Day',
     'calendar.views.agenda': 'Agenda',
+    'calendar.views.list': 'List',
+    'calendar.views.calendar': 'Calendar',
 
-    // Calendar Days
+    // Calendar Navigation & Controls
+    'calendar.navigation.previous': 'Previous',
+    'calendar.navigation.next': 'Next',
+    'calendar.navigation.goToToday': 'Go to Today',
+    'calendar.viewMode.switchTo': 'Switch to',
+    'calendar.filter.byStatus': 'Filter by status',
+    'calendar.filter.byDate': 'Filter by date',
+    'calendar.search.placeholder': 'Search by customer name...',
+    
+    // Calendar Days Full Names
+    'calendar.days.sunday': 'Sunday',
+    'calendar.days.monday': 'Monday',
+    'calendar.days.tuesday': 'Tuesday',
+    'calendar.days.wednesday': 'Wednesday',
+    'calendar.days.thursday': 'Thursday',
+    'calendar.days.friday': 'Friday',
+    'calendar.days.saturday': 'Saturday',
+
+    // Calendar Days Short Names
     'calendar.days.sun': 'Sun',
     'calendar.days.mon': 'Mon',
     'calendar.days.tue': 'Tue',
@@ -1377,6 +1517,56 @@ export const translations: Translations = {
     'calendar.days.fri': 'Fri',
     'calendar.days.sat': 'Sat',
 
+    // Calendar Months
+    'calendar.months.january': 'January',
+    'calendar.months.february': 'February',
+    'calendar.months.march': 'March',
+    'calendar.months.april': 'April',
+    'calendar.months.may': 'May',
+    'calendar.months.june': 'June',
+    'calendar.months.july': 'July',
+    'calendar.months.august': 'August',
+    'calendar.months.september': 'September',
+    'calendar.months.october': 'October',
+    'calendar.months.november': 'November',
+    'calendar.months.december': 'December',
+
+    // Time & Duration
+    'calendar.time.am': 'AM',
+    'calendar.time.pm': 'PM',
+    'calendar.duration.minutes': 'minutes',
+    'calendar.duration.hours': 'hours',
+    'calendar.timeSlot.from': 'from',
+    'calendar.timeSlot.to': 'to',
+
+    // Booking Actions in Calendar
+    'calendar.booking.viewDetails': 'View Details',
+    'calendar.booking.edit': 'Edit',
+    'calendar.booking.cancel': 'Cancel',
+    'calendar.booking.confirm': 'Confirm',
+    'calendar.booking.markCompleted': 'Mark as Completed',
+    'calendar.booking.markNoShow': 'Mark as No Show',
+    'calendar.booking.reschedule': 'Reschedule',
+
+    // Week View Specific
+    'calendar.weekView.allDay': 'All Day',
+    'calendar.weekView.noEventsForHour': 'No events for this hour',
+    
+    // Month View Specific  
+    'calendar.monthView.weekNumber': 'Week Number',
+    'calendar.monthView.showMoreBookings': 'Show More Bookings',
+
+    // Agenda View Specific
+    'calendar.agendaView.title': 'Agenda',
+    'calendar.agendaView.noBookingsInRange': 'No bookings in this range',
+    'calendar.agendaView.showNext': 'Show Next',
+    'calendar.agendaView.showPrevious': 'Show Previous',
+
+    // Day View Specific
+    'calendar.dayView.hourFormat': 'Hour Format',
+    'calendar.dayView.12hour': '12-hour',
+    'calendar.dayView.24hour': '24-hour',
+
     // Calendar Status
     'calendar.status.pending': 'Pending',
     'calendar.status.confirmed': 'Confirmed',
@@ -1384,5 +1574,55 @@ export const translations: Translations = {
     'calendar.status.completed': 'Completed',
     'calendar.status.no_show': 'No Show',
     'calendar.status.rescheduled': 'Rescheduled',
+
+    // Filter Options
+    'calendar.filter.allStatuses': 'All statuses',
+    'calendar.filter.allDates': 'All dates',
+    'calendar.filter.today': 'Today',
+    'calendar.filter.tomorrow': 'Tomorrow',
+    'calendar.filter.thisWeek': 'This week',
+    'calendar.filter.thisMonth': 'This month',
+
+    // Common Calendar Interactions
+    'calendar.clickToSelect': 'Click to select',
+    'calendar.clickToView': 'Click to view details',
+    'calendar.doubleClickToEdit': 'Double-click to edit',
+    'calendar.dragToMove': 'Drag to move',
+    'calendar.retry': 'Try again',
+    'calendar.close': 'Close',
+    'calendar.save': 'Save',
+    'calendar.cancel': 'Cancel',
+    'calendar.delete': 'Delete',
+    'calendar.edit': 'Edit',
+    'calendar.view': 'View',
+    'calendar.print': 'Print',
+    'calendar.export': 'Export',
+    'calendar.import': 'Import',
+    'calendar.settings': 'Settings',
+    'calendar.help': 'Help',
+
+    // Empty States
+    'calendar.emptyState.title': 'No bookings',
+    'calendar.emptyState.description': 'No bookings for this time period',
+    'calendar.emptyState.createFirst': 'Create first booking',
+    'calendar.emptyState.selectDifferentDate': 'Select a different date',
+
+    // Confirmation Messages
+    'calendar.confirm.deleteBooking': 'Are you sure you want to delete this booking?',
+    'calendar.confirm.cancelBooking': 'Are you sure you want to cancel this booking?',
+    'calendar.confirm.markCompleted': 'Mark this booking as completed?',
+    'calendar.confirm.markNoShow': 'Mark this booking as "no show"?',
+
+    // Success Messages
+    'calendar.success.bookingCreated': 'Booking created successfully',
+    'calendar.success.bookingUpdated': 'Booking updated successfully',
+    'calendar.success.bookingDeleted': 'Booking deleted successfully',
+    'calendar.success.statusUpdated': 'Booking status updated',
+
+    // Error Messages
+    'calendar.error.loadingBookings': 'Error loading bookings',
+    'calendar.error.savingBooking': 'Error saving booking',
+    'calendar.error.deletingBooking': 'Error deleting booking',
+    'calendar.error.networkError': 'Network error. Check your connection.',
   }
 }; 
