@@ -384,6 +384,48 @@ const ServiceManagementDashboard: React.FC = () => {
     .filter(b => b.status === 'completed')
     .reduce((sum, b) => sum + (service.price_minor * b.party_size), 0);
 
+  // Calculate reservation statistics for dashboard
+  const getReservationStats = () => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    // Start of this week (Sunday)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    
+    // Start of this month
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    // End of today
+    const endOfToday = new Date(today);
+    endOfToday.setHours(23, 59, 59, 999);
+    
+    // Filter bookings for each period
+    const todayBookings = serviceBookings.filter(booking => {
+      const bookingDate = new Date(booking.starts_at);
+      return bookingDate >= today && bookingDate <= endOfToday;
+    });
+    
+    const thisWeekBookings = serviceBookings.filter(booking => {
+      const bookingDate = new Date(booking.starts_at);
+      return bookingDate >= startOfWeek && bookingDate >= now;
+    });
+    
+    const thisMonthBookings = serviceBookings.filter(booking => {
+      const bookingDate = new Date(booking.starts_at);
+      return bookingDate >= startOfMonth && bookingDate >= now;
+    });
+    
+    return {
+      today: todayBookings.length,
+      thisWeek: thisWeekBookings.length,
+      thisMonth: thisMonthBookings.length,
+      totalBookings: serviceBookings.length
+    };
+  };
+
+  const reservationStats = getReservationStats();
+
   const filteredBookings = serviceBookings.filter(booking => {
     const bookingDate = new Date(booking.starts_at);
     const today = new Date();
@@ -568,39 +610,38 @@ const ServiceManagementDashboard: React.FC = () => {
             transition={{ duration: 0.5 }}
             className="space-y-8"
           >
-            {/* Service Overview */}
+            {/* Reservation Statistics */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">{t('serviceManagement.overview.title')}</h2>
+              <h2 className="text-lg font-medium text-gray-900 mb-2">{t('serviceManagement.dashboard.title')}</h2>
+              <p className="text-sm text-gray-500 mb-6">{t('serviceManagement.dashboard.subtitle')}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="mx-auto w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
-                    <ClockIcon className="w-6 h-6 text-blue-600" />
+                    <CalendarDaysIcon className="w-6 h-6 text-blue-600" />
                   </div>
-                  <p className="text-2xl font-semibold text-gray-900">{formatDuration(service.duration_min)}</p>
-                  <p className="text-sm text-gray-600">{t('common.duration')}</p>
+                  <p className="text-3xl font-bold text-blue-600">{reservationStats.today}</p>
+                  <p className="text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.today')}</p>
                 </div>
                 <div className="text-center">
                   <div className="mx-auto w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-3">
-                    <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
+                    <ClockIcon className="w-6 h-6 text-green-600" />
                   </div>
-                  <p className="text-2xl font-semibold text-gray-900">
-                    {service.price_minor > 0 ? formatPrice(service.price_minor) : t('common.free')}
-                  </p>
-                  <p className="text-sm text-gray-600">{t('serviceManagement.overview.basePrice')}</p>
+                  <p className="text-3xl font-bold text-green-600">{reservationStats.thisWeek}</p>
+                  <p className="text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.thisWeek')}</p>
                 </div>
                 <div className="text-center">
                   <div className="mx-auto w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
-                    <RectangleGroupIcon className="w-6 h-6 text-purple-600" />
+                    <ChartBarIcon className="w-6 h-6 text-purple-600" />
                   </div>
-                  <p className="text-2xl font-semibold text-gray-900">{tables.length}</p>
-                  <p className="text-sm text-gray-600">{t('serviceManagement.overview.tables')}</p>
+                  <p className="text-3xl font-bold text-purple-600">{reservationStats.thisMonth}</p>
+                  <p className="text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.thisMonth')}</p>
                 </div>
                 <div className="text-center">
                   <div className="mx-auto w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-3">
-                    <CalendarDaysIcon className="w-6 h-6 text-orange-600" />
+                    <RectangleGroupIcon className="w-6 h-6 text-orange-600" />
                   </div>
-                  <p className="text-2xl font-semibold text-gray-900">{confirmedBookings}</p>
-                  <p className="text-sm text-gray-600">{t('serviceManagement.overview.confirmedBookings')}</p>
+                  <p className="text-3xl font-bold text-orange-600">{reservationStats.totalBookings}</p>
+                  <p className="text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.totalBookings')}</p>
                 </div>
               </div>
             </div>

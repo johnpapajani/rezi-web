@@ -812,6 +812,14 @@ export const translations: Translations = {
     'calendar.error.savingBooking': 'Gabim në ruajtjen e rezervimit',
     'calendar.error.deletingBooking': 'Gabim në fshirjen e rezervimit',
     'calendar.error.networkError': 'Gabim në rrjet. Kontrolloni lidhjen tuaj.',
+
+    // Service Dashboard
+    'serviceManagement.dashboard.title': 'Statistikat e Rezervimeve',
+    'serviceManagement.dashboard.subtitle': 'Rezervimet për shërbimin tuaj',
+    'serviceManagement.dashboard.today': 'Sot',
+    'serviceManagement.dashboard.thisWeek': 'Këtë Javë',
+    'serviceManagement.dashboard.thisMonth': 'Këtë Muaj',
+    'serviceManagement.dashboard.totalBookings': 'Totali i Rezervimeve',
   },
   en: {
     // Header & Navigation
@@ -1083,6 +1091,14 @@ export const translations: Translations = {
     'serviceManagement.serviceSettings.title': 'Service Settings',
     'serviceManagement.serviceSettings.description': 'Service settings interface will be implemented here.',
     'serviceManagement.serviceDetails': 'Service Details',
+
+    // Service Dashboard
+    'serviceManagement.dashboard.title': 'Reservation Statistics',
+    'serviceManagement.dashboard.subtitle': 'Reservations for your service',
+    'serviceManagement.dashboard.today': 'Today',
+    'serviceManagement.dashboard.thisWeek': 'This Week',
+    'serviceManagement.dashboard.thisMonth': 'This Month',
+    'serviceManagement.dashboard.totalBookings': 'Total Bookings',
 
     // Service Open Intervals
     'serviceOpenIntervals.title': 'Service Operating Hours',
