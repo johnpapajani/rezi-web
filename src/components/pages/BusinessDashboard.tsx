@@ -75,24 +75,38 @@ const BookingListWrapper: React.FC = () => {
       
       switch (dateFilter) {
         case 'today':
-          filters.date_from = today.toISOString().split('T')[0];
-          filters.date_to = today.toISOString().split('T')[0];
+          const todayStart = new Date(today);
+          todayStart.setHours(0, 0, 0, 0);
+          const todayEnd = new Date(today);
+          todayEnd.setHours(23, 59, 59, 999);
+          filters.date_from = todayStart.toISOString();
+          filters.date_to = todayEnd.toISOString();
           break;
         case 'tomorrow':
-          filters.date_from = tomorrow.toISOString().split('T')[0];
-          filters.date_to = tomorrow.toISOString().split('T')[0];
+          const tomorrowStart = new Date(tomorrow);
+          tomorrowStart.setHours(0, 0, 0, 0);
+          const tomorrowEnd = new Date(tomorrow);
+          tomorrowEnd.setHours(23, 59, 59, 999);
+          filters.date_from = tomorrowStart.toISOString();
+          filters.date_to = tomorrowEnd.toISOString();
           break;
         case 'week':
+          const weekStart = new Date(today);
+          weekStart.setHours(0, 0, 0, 0);
           const weekEnd = new Date(today);
           weekEnd.setDate(weekEnd.getDate() + 7);
-          filters.date_from = today.toISOString().split('T')[0];
-          filters.date_to = weekEnd.toISOString().split('T')[0];
+          weekEnd.setHours(23, 59, 59, 999);
+          filters.date_from = weekStart.toISOString();
+          filters.date_to = weekEnd.toISOString();
           break;
         case 'month':
+          const monthStart = new Date(today);
+          monthStart.setHours(0, 0, 0, 0);
           const monthEnd = new Date(today);
           monthEnd.setMonth(monthEnd.getMonth() + 1);
-          filters.date_from = today.toISOString().split('T')[0];
-          filters.date_to = monthEnd.toISOString().split('T')[0];
+          monthEnd.setHours(23, 59, 59, 999);
+          filters.date_from = monthStart.toISOString();
+          filters.date_to = monthEnd.toISOString();
           break;
       }
     }

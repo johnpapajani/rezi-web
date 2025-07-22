@@ -77,7 +77,7 @@ export interface SignInData {
 }
 
 export interface ApiError {
-  detail: string;
+  detail: string | object | any[];
 }
 
 export interface LogoutResponse {

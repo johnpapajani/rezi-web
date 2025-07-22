@@ -28,14 +28,17 @@ export const useResourceStats = ({ bizId, resources }: UseResourceStatsProps) =>
 
       // Get date ranges
       const today = new Date();
-      const todayStr = today.toISOString().split('T')[0];
+      today.setHours(23, 59, 59, 999); // End of today
+      const todayStr = today.toISOString();
       
       const startOfWeek = new Date(today);
       startOfWeek.setDate(today.getDate() - today.getDay());
-      const startOfWeekStr = startOfWeek.toISOString().split('T')[0];
+      startOfWeek.setHours(0, 0, 0, 0);
+      const startOfWeekStr = startOfWeek.toISOString();
       
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const startOfMonthStr = startOfMonth.toISOString().split('T')[0];
+      startOfMonth.setHours(0, 0, 0, 0);
+      const startOfMonthStr = startOfMonth.toISOString();
 
       // Fetch bookings for the entire month to calculate all stats
       const bookings = await bookingApi.searchBookings(bizId, {

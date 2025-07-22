@@ -14,7 +14,38 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
     let errorMessage = 'An error occurred';
     try {
       const errorData: ApiError = await response.json();
-      errorMessage = errorData.detail || errorMessage;
+      
+      // Handle different types of error details
+      if (errorData.detail) {
+        if (Array.isArray(errorData.detail)) {
+          // Handle validation errors array (like Pydantic validation errors)
+          const validationErrors = errorData.detail.map((error: any) => {
+            if (typeof error === 'string') {
+              return error;
+            }
+            // Handle validation error objects with structure like {type, loc, msg, input, ctx, url}
+            const field = error.loc && error.loc.length > 0 ? error.loc[error.loc.length - 1] : 'field';
+            const message = error.msg || error.message || 'Invalid value';
+            return `${field}: ${message}`;
+          }).join(', ');
+          errorMessage = `Validation errors: ${validationErrors}`;
+        } else if (typeof errorData.detail === 'string') {
+          errorMessage = errorData.detail;
+        } else if (typeof errorData.detail === 'object') {
+          // Handle single validation error object
+          const detailObj = errorData.detail as any;
+          if (detailObj.msg || detailObj.message) {
+            const field = detailObj.loc && detailObj.loc.length > 0 
+              ? detailObj.loc[detailObj.loc.length - 1] 
+              : 'field';
+            const message = detailObj.msg || detailObj.message;
+            errorMessage = `${field}: ${message}`;
+          } else {
+            // Fallback for unknown object structures
+            errorMessage = JSON.stringify(errorData.detail);
+          }
+        }
+      }
     } catch {
       errorMessage = `HTTP ${response.status}: ${response.statusText}`;
     }
