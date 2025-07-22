@@ -67,13 +67,49 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
   };
 
   // Date formatting helpers
+  const getMonthName = (monthIndex: number) => {
+    const monthKeys = [
+      'calendar.months.january', 'calendar.months.february', 'calendar.months.march',
+      'calendar.months.april', 'calendar.months.may', 'calendar.months.june',
+      'calendar.months.july', 'calendar.months.august', 'calendar.months.september',
+      'calendar.months.october', 'calendar.months.november', 'calendar.months.december'
+    ];
+    return safeT(monthKeys[monthIndex], new Date(2023, monthIndex, 1).toLocaleDateString(undefined, { month: 'long' }));
+  };
+
+  const getDayName = (dayIndex: number, short: boolean = false) => {
+    const longDayKeys = [
+      'calendar.days.sunday', 'calendar.days.monday', 'calendar.days.tuesday',
+      'calendar.days.wednesday', 'calendar.days.thursday', 'calendar.days.friday', 'calendar.days.saturday'
+    ];
+    const shortDayKeys = [
+      'calendar.days.sun', 'calendar.days.mon', 'calendar.days.tue',
+      'calendar.days.wed', 'calendar.days.thu', 'calendar.days.fri', 'calendar.days.sat'
+    ];
+    const keys = short ? shortDayKeys : longDayKeys;
+    const fallback = new Date(2023, 0, dayIndex + 1).toLocaleDateString(undefined, { weekday: short ? 'short' : 'long' });
+    return safeT(keys[dayIndex], fallback);
+  };
+
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString(undefined, { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+    const dayName = getDayName(date.getDay());
+    const monthName = getMonthName(date.getMonth());
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${dayName}, ${monthName} ${day}, ${year}`;
+  };
+
+  const formatDateShort = (date: Date) => {
+    const monthName = getMonthName(date.getMonth());
+    const year = date.getFullYear();
+    return `${monthName} ${year}`;
+  };
+
+  const formatDateMedium = (date: Date) => {
+    const monthName = getMonthName(date.getMonth());
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${monthName} ${day}, ${year}`;
   };
 
   const formatTime = (dateString: string) => {
@@ -335,7 +371,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
           {weekDays.map((date, index) => (
             <div key={index} className="p-3 text-center border-l border-gray-200">
               <div className="text-sm font-semibold text-gray-700">
-                {date.toLocaleDateString(undefined, { weekday: 'short' })}
+                {getDayName(date.getDay(), true)}
               </div>
               <div className={`text-lg font-bold ${isToday(date) ? 'text-blue-600' : 'text-gray-900'}`}>
                 {date.getDate()}
@@ -510,8 +546,8 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
                     </div>
                     <div>
                       <h4 className="text-lg font-semibold text-gray-900">{booking.customer_name}</h4>
-                      <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-                        <div>{new Date(booking.starts_at).toLocaleDateString()}</div>
+                                              <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
+                          <div>{formatDateMedium(new Date(booking.starts_at))}</div>
                         <div>{formatTime(booking.starts_at)} - {formatTime(booking.ends_at)}</div>
                         <div>{booking.party_size} {booking.party_size === 1 ? safeT('calendar.person', 'person') : safeT('calendar.people', 'people')}</div>
                       </div>
@@ -551,7 +587,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
           
           <div className="text-center">
             <h3 className="text-lg font-semibold text-gray-900">
-              {viewMode === 'month' && currentDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+              {viewMode === 'month' && formatDateShort(currentDate)}
               {viewMode === 'week' && `${safeT('calendar.week', 'Week of')} ${formatDate(currentDate)}`}
               {(viewMode === 'day' || viewMode === 'agenda') && formatDate(currentDate)}
             </h3>
@@ -676,7 +712,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">{safeT('calendar.date', 'Date')}</span>
-                    <div className="font-medium">{new Date(selectedBooking.starts_at).toLocaleDateString()}</div>
+                    <div className="font-medium">{formatDateMedium(new Date(selectedBooking.starts_at))}</div>
                   </div>
                   <div>
                     <span className="text-gray-500">{safeT('calendar.time', 'Time')}</span>
