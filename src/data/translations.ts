@@ -149,6 +149,8 @@ export const translations: Translations = {
     'business.management.noChanges': 'Nuk u zbuluan ndryshime',
     'business.management.updating': 'Duke përditësuar...',
     'business.management.update': 'Përditëso Biznesin',
+    'business.management.save': 'Ruaj Ndryshimet',
+    'business.management.saving': 'Duke ruajtur...',
     'business.management.cancel': 'Anulo',
     'business.management.businessIdRequired': 'ID-ja e Biznesit është e Kërkuar',
     'business.management.businessIdRequiredDesc': 'Ju lutem jepni një ID biznesi të vlefshme',
@@ -171,7 +173,9 @@ export const translations: Translations = {
     'business.fields.addressLine2': 'Adresa Linja 2',
     'business.fields.addressLine2.placeholder': 'Apartamenti, suitë, njësi, etj. (opsionale)',
     'business.fields.city': 'Qyteti',
+    'business.fields.city.placeholder': 'Tiranë',
     'business.fields.postalCode': 'Kodi Postar',
+    'business.fields.postalCode.placeholder': '1001',
 
     // Business List
     'business.list.title': 'Bizneset e Mia',
@@ -1187,6 +1191,8 @@ export const translations: Translations = {
     'business.management.noChanges': 'No changes detected',
     'business.management.updating': 'Updating...',
     'business.management.update': 'Update Business',
+    'business.management.save': 'Save Changes',
+    'business.management.saving': 'Saving...',
     'business.management.cancel': 'Cancel',
     'business.management.businessIdRequired': 'Business ID Required',
     'business.management.businessIdRequiredDesc': 'Please provide a valid business ID',
@@ -1209,7 +1215,9 @@ export const translations: Translations = {
     'business.fields.addressLine2': 'Address Line 2',
     'business.fields.addressLine2.placeholder': 'Apartment, suite, unit, etc. (optional)',
     'business.fields.city': 'City',
+    'business.fields.city.placeholder': 'New York',
     'business.fields.postalCode': 'Postal Code',
+    'business.fields.postalCode.placeholder': '10001',
 
     // Business List
     'business.list.title': 'My Businesses',
