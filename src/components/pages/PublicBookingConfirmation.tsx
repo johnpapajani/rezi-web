@@ -47,11 +47,11 @@ const PublicBookingConfirmation: React.FC = () => {
 
   useEffect(() => {
     const fetchBookingData = async () => {
-          if (!bookingId) {
-      setError(t('public.confirmation.bookingDetailsNotAvailable'));
-      setLoading(false);
-      return;
-    }
+      if (!bookingId) {
+        setError(t('public.confirmation.bookingDetailsNotAvailable'));
+        setLoading(false);
+        return;
+      }
 
       // If we already have state data, check if we need to refresh it
       if (stateData?.booking) {
@@ -69,21 +69,12 @@ const PublicBookingConfirmation: React.FC = () => {
         return;
       }
 
-      // No state data - check for phone in URL params
-      const urlParams = new URLSearchParams(location.search);
-      const phoneParam = urlParams.get('phone');
-      
-      if (!phoneParam) {
-        setError(t('public.confirmation.phoneRequiredError'));
-        setLoading(false);
-        return;
-      }
-
+      // No state data - try booking lookup by ID first (for email confirmation links)
       try {
-        const bookingData = await publicApi.getBookingDetails(bookingId!, phoneParam);
+        const bookingData = await publicApi.getBookingDetailsById(bookingId!);
         setBooking(bookingData);
         
-        // Fetch business data if we have business_id
+        // Try to fetch business data if we have business_id
         if (bookingData.business_id) {
           try {
             // We need the business slug to fetch business details
@@ -94,10 +85,41 @@ const PublicBookingConfirmation: React.FC = () => {
             console.warn('Failed to fetch business data:', businessErr);
           }
         }
-      } catch (err: any) {
-        setError(err.detail || t('public.error.loadingFailed'));
-      } finally {
         setLoading(false);
+        return;
+      } catch (err: any) {
+        console.warn('Booking lookup by ID failed, trying phone verification:', err);
+        
+        // If booking lookup by ID fails, try phone verification
+        const urlParams = new URLSearchParams(location.search);
+        const phoneParam = urlParams.get('phone');
+        
+        if (!phoneParam) {
+          setError(t('public.confirmation.bookingNotFound') + '. If you have the phone number used for this booking, you can add ?phone=YOUR_PHONE_NUMBER to the URL to verify access.');
+          setLoading(false);
+          return;
+        }
+
+        try {
+          const bookingData = await publicApi.getBookingDetails(bookingId!, phoneParam);
+          setBooking(bookingData);
+          
+          // Try to fetch business data if we have business_id
+          if (bookingData.business_id) {
+            try {
+              // We need the business slug to fetch business details
+              // For now, we'll just set the business data to null
+              // In a production app, you might want to add a separate API endpoint
+              setBusiness(null);
+            } catch (businessErr) {
+              console.warn('Failed to fetch business data:', businessErr);
+            }
+          }
+        } catch (phoneErr: any) {
+          setError(phoneErr.detail || t('public.error.loadingFailed'));
+        } finally {
+          setLoading(false);
+        }
       }
     };
 
@@ -168,15 +190,9 @@ const PublicBookingConfirmation: React.FC = () => {
 
   const shareBooking = () => {
     if (navigator.share && booking) {
-      // Include phone parameter in URL for sharing if not from state data
-      let shareUrl = window.location.href;
-      if (!stateData && booking.customer_phone) {
-        const url = new URL(window.location.href);
-        if (!url.searchParams.has('phone')) {
-          url.searchParams.set('phone', booking.customer_phone);
-          shareUrl = url.toString();
-        }
-      }
+      // Use current URL - if booking is accessible by ID alone, keep it simple
+      // If phone was needed, it's already in the URL
+      const shareUrl = window.location.href;
       
       navigator.share({
         title: 'Booking Confirmation',
@@ -184,28 +200,32 @@ const PublicBookingConfirmation: React.FC = () => {
         url: shareUrl
       });
     } else {
-      // Fallback to copying URL
-      let copyUrl = window.location.href;
-      if (!stateData && booking?.customer_phone) {
-        const url = new URL(window.location.href);
-        if (!url.searchParams.has('phone')) {
-          url.searchParams.set('phone', booking.customer_phone);
-          copyUrl = url.toString();
-        }
-      }
-      
-      navigator.clipboard.writeText(copyUrl);
+      // Fallback to copying current URL
+      navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
   const handleCancelBooking = async () => {
-    if (!booking?.id || !booking?.customer_phone) return;
+    if (!booking?.id) return;
 
     try {
       setCanceling(true);
-      const canceledBooking = await publicApi.cancelBooking(booking.id, booking.customer_phone);
+      
+      let canceledBooking;
+      
+      // Try canceling by ID first
+      try {
+        canceledBooking = await publicApi.cancelBookingById(booking.id);
+      } catch (err: any) {
+        // If ID-only cancellation fails, try with phone verification
+        if (booking.customer_phone) {
+          canceledBooking = await publicApi.cancelBooking(booking.id, booking.customer_phone);
+        } else {
+          throw err; // Re-throw the original error if no phone available
+        }
+      }
       
       // Ensure the booking status is set to cancelled
       const updatedBooking = {

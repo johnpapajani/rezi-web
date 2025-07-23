@@ -1061,12 +1061,36 @@ export const publicApi = {
     return handleResponse<BookingWithService>(response);
   },
 
+  // Get booking details by ID only (for email confirmation links)
+  getBookingDetailsById: async (bookingId: string): Promise<BookingWithService> => {
+    const response = await fetch(`${API_BASE_URL}/public/bookings/${bookingId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
   // Cancel a booking with phone number verification
   cancelBooking: async (bookingId: string, phoneNumber: string): Promise<BookingWithService> => {
     const url = new URL(`${API_BASE_URL}/public/bookings/${bookingId}/cancel`);
     url.searchParams.append('phone_number', phoneNumber);
 
     const response = await fetch(url.toString(), {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<BookingWithService>(response);
+  },
+
+  // Cancel a booking by ID only (for email confirmation links)
+  cancelBookingById: async (bookingId: string): Promise<BookingWithService> => {
+    const response = await fetch(`${API_BASE_URL}/public/bookings/${bookingId}/cancel`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
