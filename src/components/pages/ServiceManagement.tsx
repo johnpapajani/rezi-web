@@ -5,6 +5,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useServices } from '../../hooks/useServices';
 import { useBusiness } from '../../hooks/useBusiness';
 import { useAuth } from '../../hooks/useAuth';
+import { useServiceCategories } from '../../hooks/useServiceCategories';
 import { Service, ServiceCreate, ServiceUpdate, ServiceOpenIntervalCreate, Weekday } from '../../types';
 import { 
   ArrowLeftIcon,
@@ -31,6 +32,7 @@ const ServiceManagement: React.FC = () => {
   const { user, signOut } = useAuth();
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const { business, loading: businessLoading } = useBusiness({ bizId: bizId! });
+  const { categories, loading: categoriesLoading } = useServiceCategories();
   const { 
     services, 
     loading: servicesLoading, 
@@ -53,6 +55,7 @@ const ServiceManagement: React.FC = () => {
     description: '',
     duration_min: 120,
     price_minor: 0,
+    category_id: '',
     is_active: true,
     open_intervals: [
       { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
@@ -113,6 +116,7 @@ const ServiceManagement: React.FC = () => {
         description: formData.description,
         duration_min: formData.duration_min,
         price_minor: formData.price_minor,
+        category_id: formData.category_id || undefined,
         is_active: formData.is_active,
       };
       await updateService(editingService.id, updateData);
@@ -142,6 +146,7 @@ const ServiceManagement: React.FC = () => {
       description: service.description || '',
       duration_min: service.duration_min,
       price_minor: service.price_minor,
+      category_id: service.category_id || '',
       is_active: service.is_active,
       open_intervals: [
         { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
@@ -162,6 +167,7 @@ const ServiceManagement: React.FC = () => {
       description: '',
       duration_min: 120,
       price_minor: 0,
+      category_id: '',
       is_active: true,
       open_intervals: [
         { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
@@ -175,7 +181,7 @@ const ServiceManagement: React.FC = () => {
     });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     
     setFormData(prev => ({
@@ -317,7 +323,7 @@ const ServiceManagement: React.FC = () => {
               {/* User Info */}
               <div className="flex items-center space-x-2">
                 <UserCircleIcon className="w-6 h-6 text-gray-400" />
-                <span className="text-sm text-gray-700">{user?.email}</span>
+                <span className="text-sm text-gray-700">{user?.name}</span>
               </div>
 
               {/* Sign Out */}
@@ -531,6 +537,29 @@ const ServiceManagement: React.FC = () => {
                     <p className="mt-1 text-sm text-gray-500">
                       {t('services.serviceSlugHelp')}
                     </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('services.category')}
+                    </label>
+                    <select
+                      name="category_id"
+                      value={formData.category_id}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={categoriesLoading}
+                    >
+                      <option value="">{t('services.selectCategory')}</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    {categoriesLoading && (
+                      <p className="mt-1 text-sm text-gray-500">{t('services.loadingCategories')}</p>
+                    )}
                   </div>
 
                   <div>

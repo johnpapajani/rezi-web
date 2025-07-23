@@ -89,7 +89,7 @@ const Dashboard: React.FC = () => {
 
               <div className="flex items-center space-x-2">
                 <UserCircleIcon className="w-6 h-6 text-gray-400" />
-                <span className="text-sm text-gray-700 truncate max-w-[200px]">{user?.email}</span>
+                <span className="text-sm text-gray-700 truncate max-w-[200px]">{user?.name}</span>
               </div>
               <button
                 onClick={handleSignOut}
@@ -123,7 +123,7 @@ const Dashboard: React.FC = () => {
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
-              {t('dashboard.welcome')}, {user?.email}!
+              {t('dashboard.welcome')}, {user?.name}!
             </h1>
             <p className="mt-2 text-gray-600">
               {t('dashboard.subtitle')}

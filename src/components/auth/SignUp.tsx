@@ -6,7 +6,8 @@ import {
   EyeSlashIcon, 
   EnvelopeIcon, 
   PhoneIcon,
-  ExclamationCircleIcon 
+  ExclamationCircleIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -17,6 +18,7 @@ const SignUp: React.FC = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -35,6 +37,10 @@ const SignUp: React.FC = () => {
 
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
+
+    if (!formData.name.trim()) {
+      errors.name = t('auth.errors.nameRequired');
+    }
 
     if (!formData.email) {
       errors.email = t('auth.errors.emailRequired');
@@ -72,6 +78,7 @@ const SignUp: React.FC = () => {
 
     try {
       await signUp({
+        name: formData.name.trim(),
         email: formData.email,
         password: formData.password,
         phone: formData.phone || undefined,
@@ -147,6 +154,34 @@ const SignUp: React.FC = () => {
           )}
 
           <div className="space-y-5">
+                         {/* Name */}
+             <div>
+               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                 {t('auth.fields.name')}
+               </label>
+               <div className="relative">
+                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                   <UserIcon className="w-5 h-5 text-gray-400" />
+                 </div>
+                 <input
+                   id="name"
+                   name="name"
+                   type="text"
+                   autoComplete="name"
+                   required
+                   value={formData.name}
+                   onChange={handleInputChange}
+                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                     formErrors.name ? 'border-red-300' : 'border-gray-300'
+                   }`}
+                   placeholder={t('auth.placeholders.name')}
+                 />
+               </div>
+               {formErrors.name && (
+                 <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+               )}
+             </div>
+
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">

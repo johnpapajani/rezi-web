@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useBusinessCreate } from '../../hooks/useBusinessCreate';
 import { useServices } from '../../hooks/useServices';
 import { useTables } from '../../hooks/useTables';
+import { useServiceCategories } from '../../hooks/useServiceCategories';
 import { useTranslation } from '../../hooks/useTranslation';
 import { BusinessCreate, ServiceCreate, TableCreate, ServiceOpenIntervalCreate } from '../../types';
 import {
@@ -30,6 +31,7 @@ const BusinessOnboarding: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { creating: creatingBusiness, error: businessError, createBusiness, clearError } = useBusinessCreate();
+  const { categories, loading: categoriesLoading } = useServiceCategories();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
@@ -84,6 +86,7 @@ const BusinessOnboarding: React.FC = () => {
       description: t('onboarding.defaultService.description'),
       duration_min: 120,
       price_minor: 0, // Free base service, pricing handled per item
+      category_id: '',
       is_active: true,
       open_intervals: defaultServiceIntervals,
     }]);
@@ -210,6 +213,7 @@ const BusinessOnboarding: React.FC = () => {
       description: '',
       duration_min: 120,
       price_minor: 0,
+      category_id: '',
       is_active: true,
       open_intervals: defaultServiceIntervals,
     }]);
@@ -721,6 +725,28 @@ const BusinessOnboarding: React.FC = () => {
                           />
                           {validationErrors[`service_${index}_name`] && (
                             <p className="mt-1 text-sm text-red-600">{validationErrors[`service_${index}_name`]}</p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {t('onboarding.serviceCategory')}
+                          </label>
+                          <select
+                            value={service.category_id || ''}
+                            onChange={(e) => handleServiceChange(index, 'category_id', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            disabled={categoriesLoading}
+                          >
+                            <option value="">{t('onboarding.selectCategory')}</option>
+                            {categories.map((category) => (
+                              <option key={category.id} value={category.id}>
+                                {category.name}
+                              </option>
+                            ))}
+                          </select>
+                          {categoriesLoading && (
+                            <p className="mt-1 text-sm text-gray-500">{t('onboarding.loadingCategories')}</p>
                           )}
                         </div>
 

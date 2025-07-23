@@ -41,6 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleAuthResponse = (response: AuthResponse) => {
     const userData: User = {
       id: response.user_id,
+      name: response.name,
       email: response.email,
       phone: response.phone,
       locale: response.locale,

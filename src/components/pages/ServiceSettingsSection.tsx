@@ -13,6 +13,7 @@ import {
   InformationCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useServiceCategories } from '../../hooks/useServiceCategories';
 import { ServiceWithOpenIntervals, ServiceUpdate } from '../../types';
 
 interface ServiceSettingsSectionProps {
@@ -27,6 +28,7 @@ const ServiceSettingsSection: React.FC<ServiceSettingsSectionProps> = ({
   updating,
 }) => {
   const { t } = useTranslation();
+  const { categories, loading: categoriesLoading } = useServiceCategories();
   const [formData, setFormData] = useState<ServiceUpdate>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -382,10 +384,18 @@ const ServiceSettingsSection: React.FC<ServiceSettingsSectionProps> = ({
                 value={formData.category_id || ''}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={categoriesLoading}
               >
                 <option value="">{t('serviceManagement.settings.advanced.category.placeholder')}</option>
-                {/* TODO: Add categories from API */}
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
+              {categoriesLoading && (
+                <p className="mt-1 text-sm text-gray-500">{t('serviceManagement.loadingCategories')}</p>
+              )}
             </div>
 
             <div className="md:col-span-2">

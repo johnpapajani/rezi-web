@@ -1,4 +1,4 @@
-import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, BookingCreate, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate, ServiceWithOpenIntervals, ServiceOpenInterval, ServiceOpenIntervalCreate, AvailabilityMatrix } from '../types';
+import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, BookingCreate, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate, ServiceWithOpenIntervals, ServiceOpenInterval, ServiceOpenIntervalCreate, AvailabilityMatrix, ServiceCategory } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -213,6 +213,23 @@ export const businessApi = {
 
 // Service API functions
 export const serviceApi = {
+  getServiceCategories: async (): Promise<ServiceCategory[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/service-categories`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<ServiceCategory[]>(response);
+  },
+
   getServices: async (bizId: string, activeOnly: boolean = true): Promise<ServiceWithTables[]> => {
     const accessToken = tokenStorage.getAccessToken();
     if (!accessToken) {

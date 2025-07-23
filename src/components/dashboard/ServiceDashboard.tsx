@@ -601,7 +601,7 @@ const ServiceDashboard: React.FC = () => {
 
               <div className="flex items-center space-x-2">
                 <UserCircleIcon className="w-6 h-6 text-gray-400" />
-                <span className="text-sm text-gray-700">{user?.email}</span>
+                <span className="text-sm text-gray-700">{user?.name}</span>
               </div>
               <button
                 onClick={handleSignOut}

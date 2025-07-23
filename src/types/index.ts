@@ -46,6 +46,7 @@ export interface FAQ {
 // Authentication types
 export interface User {
   id: string;
+  name: string;
   email: string;
   phone?: string;
   locale: string;
@@ -57,6 +58,7 @@ export interface AuthResponse {
   refresh_token: string;
   token_type: string;
   user_id: string;
+  name: string;
   email: string;
   phone?: string;
   locale: string;
@@ -64,6 +66,7 @@ export interface AuthResponse {
 }
 
 export interface SignUpData {
+  name: string;
   email: string;
   password: string;
   phone?: string;
@@ -139,6 +142,12 @@ export interface BusinessCreate {
 }
 
 // Service types
+export interface ServiceCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export interface Service {
   id: string;
   business_id: string;
@@ -201,6 +210,7 @@ export interface ServiceCreate {
   description?: string;
   duration_min: number;
   price_minor: number;
+  category_id?: string;
   is_active?: boolean;
   open_intervals?: ServiceOpenIntervalCreate[];
 }
