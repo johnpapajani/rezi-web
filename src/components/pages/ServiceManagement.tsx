@@ -346,15 +346,6 @@ const ServiceManagement: React.FC = () => {
                 <ArrowRightOnRectangleIcon className="w-5 h-5" />
                 <span className="text-sm">{t('dashboard.signOut')}</span>
               </button>
-
-              {/* Add Service Button */}
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <PlusIcon className="w-4 h-4 mr-2" />
-                {t('services.addService')}
-              </button>
             </div>
           </div>
         </div>
@@ -362,6 +353,21 @@ const ServiceManagement: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">{t('services.title')}</h2>
+            <p className="text-gray-600">{t('services.description')}</p>
+          </div>
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm"
+          >
+            <PlusIcon className="w-4 h-4 mr-2" />
+            {t('services.addService')}
+          </button>
+        </div>
+
         {/* Error Message */}
         {servicesError && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3">
@@ -378,15 +384,6 @@ const ServiceManagement: React.FC = () => {
             <p className="mt-2 text-gray-600 max-w-md mx-auto">
               {t('services.noServices.description')}
             </p>
-            <div className="mt-8">
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm"
-              >
-                <PlusIcon className="w-5 h-5 mr-2" />
-                {t('services.addService')}
-              </button>
-            </div>
             <div className="mt-6 text-sm text-gray-500">
               <p>{t('services.createServiceHelp')}</p>
             </div>
