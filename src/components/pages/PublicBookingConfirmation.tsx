@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { publicApi } from '../../utils/api';
 import { Business, ServiceWithOpenIntervals, BookingWithService, BookingStatus } from '../../types';
 import { formatTimeInTimezone, formatDateTimeInTimezone } from '../../utils/timezone';
@@ -16,14 +17,16 @@ import {
   ExclamationTriangleIcon,
   DocumentDuplicateIcon,
   ShareIcon,
-  XCircleIcon
+  XCircleIcon,
+  GlobeAltIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 
 const PublicBookingConfirmation: React.FC = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const { t, currentLanguage } = useTranslation();
+  const { t, currentLanguage, setLanguage, languages } = useTranslation();
   
   // Get data passed from the previous page if available
   const stateData = location.state as {
@@ -40,6 +43,7 @@ const PublicBookingConfirmation: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
   useEffect(() => {
     const fetchBookingData = async () => {
@@ -265,9 +269,50 @@ const PublicBookingConfirmation: React.FC = () => {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">{t('public.confirmation.title')}</h1>
-            <p className="text-gray-600">{t('public.confirmation.subtitle')}</p>
+          <div className="flex items-center justify-between">
+            <div className="flex-1 text-center">
+              <h1 className="text-2xl font-bold text-gray-900">{t('public.confirmation.title')}</h1>
+              <p className="text-gray-600">{t('public.confirmation.subtitle')}</p>
+            </div>
+            
+            {/* Language Switcher */}
+            <div className="relative">
+              <button
+                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 text-sm font-medium transition-colors"
+              >
+                <GlobeAltIcon className="h-4 w-4" />
+                <span>{languages.find(lang => lang.code === currentLanguage)?.flag}</span>
+                <ChevronDownIcon className="w-4 h-4" />
+              </button>
+              
+              <AnimatePresence>
+                {isLanguageOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                  >
+                    {languages.map((language) => (
+                      <button
+                        key={language.code}
+                        onClick={() => {
+                          setLanguage(language.code);
+                          setIsLanguageOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
+                          currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                        }`}
+                      >
+                        <span>{language.flag}</span>
+                        <span>{language.name}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </header>
