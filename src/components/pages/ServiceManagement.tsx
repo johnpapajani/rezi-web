@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useServices } from '../../hooks/useServices';
@@ -29,6 +29,7 @@ import {
 const ServiceManagement: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, signOut } = useAuth();
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const { business, loading: businessLoading } = useBusiness({ bizId: bizId! });
@@ -67,6 +68,17 @@ const ServiceManagement: React.FC = () => {
       { weekday: Weekday.sunday, start_time: '10:00', end_time: '21:00' },
     ],
   });
+
+  // Auto-open create modal if 'create' parameter is present
+  useEffect(() => {
+    if (searchParams.get('create') === 'true') {
+      setIsCreateModalOpen(true);
+      // Remove the parameter from URL to clean it up
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('create');
+      setSearchParams(newSearchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const weekdayNames = [
     { weekday: Weekday.monday, name: t('days.monday') },

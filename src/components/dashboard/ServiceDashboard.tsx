@@ -92,7 +92,7 @@ const ServiceDashboard: React.FC = () => {
   };
 
   const handleCreateService = () => {
-    navigate(`/business/${bizId}/services`);
+    navigate(`/business/${bizId}/services?create=true`);
   };
 
   // Business Settings handlers
