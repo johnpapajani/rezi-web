@@ -82,7 +82,8 @@ const PublicBookingForm: React.FC = () => {
 
   const formatPrice = (priceMinor: number, currency: string = 'ALL') => {
     const price = priceMinor / 100;
-    return new Intl.NumberFormat('en-US', {
+    const locale = currentLanguage === 'sq' ? 'sq-AL' : 'en-US';
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 0,
@@ -97,7 +98,8 @@ const PublicBookingForm: React.FC = () => {
 
   const formatTime = (timeString: string) => {
     const businessTimezone = business?.timezone || 'UTC';
-    return formatTimeInTimezone(timeString, businessTimezone, 'en-US');
+    const locale = currentLanguage === 'sq' ? 'sq-AL' : 'en-US';
+    return formatTimeInTimezone(timeString, businessTimezone, locale);
   };
 
   const validateForm = () => {
@@ -255,7 +257,7 @@ const PublicBookingForm: React.FC = () => {
                   <CalendarDaysIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">
-                      {parseLocalDate(bookingData.date).toLocaleDateString('en-US', { 
+                      {parseLocalDate(bookingData.date).toLocaleDateString(currentLanguage === 'sq' ? 'sq-AL' : 'en-US', { 
                         weekday: 'long',
                         month: 'long', 
                         day: 'numeric',
@@ -271,7 +273,7 @@ const PublicBookingForm: React.FC = () => {
                     <p className="font-medium text-gray-900">
                       {formatTime(bookingData.startTime)} - {formatTime(bookingData.endTime)}
                     </p>
-                    <p className="text-sm text-gray-600">{service.duration_min} minutes</p>
+                    <p className="text-sm text-gray-600">{service.duration_min} {t('public.booking.minutes')}</p>
                     {business?.timezone && business?.timezone !== 'UTC' && (
                       <p className="text-xs text-gray-500 mt-1">
                         {business.name} {t('public.booking.localTime')}
@@ -284,7 +286,7 @@ const PublicBookingForm: React.FC = () => {
                   <UserIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">
-                      {bookingData.partySize} {bookingData.partySize === 1 ? 'person' : 'people'}
+                      {bookingData.partySize} {bookingData.partySize === 1 ? t('public.availability.person') : t('public.availability.people')}
                     </p>
                   </div>
                 </div>
@@ -303,7 +305,7 @@ const PublicBookingForm: React.FC = () => {
 
               {service.description && (
                 <div className="mt-6 pt-6 border-t">
-                  <h3 className="text-sm font-medium text-gray-900 mb-2">Service Details</h3>
+                  <h3 className="text-sm font-medium text-gray-900 mb-2">{t('public.booking.serviceDetails')}</h3>
                   <p className="text-sm text-gray-600">{service.description}</p>
                 </div>
               )}

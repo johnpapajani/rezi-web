@@ -896,6 +896,8 @@ export const translations: Translations = {
     'public.booking.creatingBooking': 'Po krijohet rezervimi...',
     'public.booking.termsConditions': 'Duke konfirmuar, ju pranoni kushtet dhe kondicionet tona.',
     'public.booking.localTime': 'ora lokale',
+    'public.booking.minutes': 'minuta',
+    'public.booking.serviceDetails': 'Detajet e Shërbimit',
 
     // Booking Form Validation
     'public.booking.validation.nameRequired': 'Emri është i detyrueshëm',
@@ -927,9 +929,13 @@ export const translations: Translations = {
     'public.confirmation.confirmationCall': 'Do të merrni një telefonatë konfirmimi nga biznesi',
     'public.confirmation.callForChanges': 'Nëse doni të bëni ndryshime, ju lutem telefononi biznesin direkt',
     'public.confirmation.cancellationPolicy': 'Anulimet duhet të bëhen të paktën 1 orë përpara',
-    'public.confirmation.backToHome': 'Kthehu në Fillim',
+    'public.confirmation.backToHome': '← Kthehu në Biznes',
     'public.confirmation.bookingNotFound': 'Rezervimi Nuk u Gjet',
     'public.confirmation.bookingNotFoundMessage': 'Rezervimi që kërkoni nuk ekziston.',
+    'public.confirmation.searchForBooking': 'Kërko rezervimin tuaj',
+    'public.confirmation.goBackHome': 'Kthehu në biznes',
+    'public.confirmation.phoneRequiredError': 'Numri i telefonit është i nevojshëm për të parë detajet e rezervimit. Ju lutem përdorni faqen e kërkimit të rezervimeve.',
+    'public.confirmation.bookingDetailsNotAvailable': 'Detajet e rezervimit nuk janë të disponueshme. Ju lutem përdorni faqen e kërkimit të rezervimeve për të gjetur rezervimin tuaj.',
     'public.confirmation.localTime': 'ora lokale',
 
     // Cancel Booking Modal
@@ -1986,6 +1992,8 @@ export const translations: Translations = {
     'public.booking.creatingBooking': 'Creating Booking...',
     'public.booking.termsConditions': 'By confirming, you agree to our terms and conditions.',
     'public.booking.localTime': 'local time',
+    'public.booking.minutes': 'minutes',
+    'public.booking.serviceDetails': 'Service Details',
 
     // Booking Form Validation
     'public.booking.validation.nameRequired': 'Name is required',
@@ -2017,9 +2025,13 @@ export const translations: Translations = {
     'public.confirmation.confirmationCall': 'You will receive a confirmation call from the business',
     'public.confirmation.callForChanges': 'If you need to make changes, please call the business directly',
     'public.confirmation.cancellationPolicy': 'Cancellations must be made at least 1 hour in advance',
-    'public.confirmation.backToHome': 'Back to Home',
+    'public.confirmation.backToHome': '← Back to Business',
     'public.confirmation.bookingNotFound': 'Booking Not Found',
     'public.confirmation.bookingNotFoundMessage': 'The booking you are looking for does not exist.',
+    'public.confirmation.searchForBooking': 'Search for your booking',
+    'public.confirmation.goBackHome': 'Go back to business',
+    'public.confirmation.phoneRequiredError': 'Phone number is required to view booking details. Please use the booking search page.',
+    'public.confirmation.bookingDetailsNotAvailable': 'Booking details are not available. Please use the booking search page to find your booking.',
     'public.confirmation.localTime': 'local time',
 
     // Cancel Booking Modal

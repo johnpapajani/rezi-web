@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { publicApi } from '../../utils/api';
-import { Business, ServiceWithOpenIntervals, BookingWithService } from '../../types';
+import { Business, ServiceWithOpenIntervals, BookingWithService, BookingStatus } from '../../types';
 import { formatTimeInTimezone, formatDateTimeInTimezone } from '../../utils/timezone';
 import { useTranslation } from '../../hooks/useTranslation';
 import { 
@@ -23,7 +23,7 @@ const PublicBookingConfirmation: React.FC = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   
   // Get data passed from the previous page if available
   const stateData = location.state as {
@@ -33,25 +33,78 @@ const PublicBookingConfirmation: React.FC = () => {
   } || null;
 
   const [booking, setBooking] = useState<BookingWithService | null>(stateData?.booking || null);
-  const [loading, setLoading] = useState(!stateData);
+  const [business, setBusiness] = useState<Business | null>(stateData?.business || null);
+  const [service, setService] = useState<ServiceWithOpenIntervals | null>(stateData?.service || null);
+  const [loading, setLoading] = useState(true);
   const [canceling, setCanceling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   useEffect(() => {
-    // If we don't have data from state and it's needed, show error
-    // The confirmation page should only be reached with booking data from the previous page
-    if (!stateData && bookingId) {
-      setError('Booking details are not available. Please use the booking search page to find your booking.');
+    const fetchBookingData = async () => {
+          if (!bookingId) {
+      setError(t('public.confirmation.bookingDetailsNotAvailable'));
       setLoading(false);
+      return;
     }
-  }, [bookingId, stateData]);
+
+      // If we already have state data, check if we need to refresh it
+      if (stateData?.booking) {
+        // Use state data initially but still fetch fresh data to ensure status is current
+        if (stateData.booking.customer_phone) {
+          try {
+            const freshBookingData = await publicApi.getBookingDetails(bookingId!, stateData.booking.customer_phone);
+            setBooking(freshBookingData);
+          } catch (err: any) {
+            // If fresh fetch fails, keep using state data
+            console.warn('Failed to fetch fresh booking data, using state data:', err);
+          }
+        }
+        setLoading(false);
+        return;
+      }
+
+      // No state data - check for phone in URL params
+      const urlParams = new URLSearchParams(location.search);
+      const phoneParam = urlParams.get('phone');
+      
+      if (!phoneParam) {
+        setError(t('public.confirmation.phoneRequiredError'));
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const bookingData = await publicApi.getBookingDetails(bookingId!, phoneParam);
+        setBooking(bookingData);
+        
+        // Fetch business data if we have business_id
+        if (bookingData.business_id) {
+          try {
+            // We need the business slug to fetch business details
+            // For now, we'll just set the business data to null
+            // In a production app, you might want to add a separate API endpoint
+            setBusiness(null);
+          } catch (businessErr) {
+            console.warn('Failed to fetch business data:', businessErr);
+          }
+        }
+      } catch (err: any) {
+        setError(err.detail || t('public.error.loadingFailed'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookingData();
+  }, [bookingId, stateData, location.search]);
 
   const formatPrice = (priceMinor: number | undefined, currency: string = 'ALL') => {
     if (priceMinor === undefined) return 'N/A';
     const price = priceMinor / 100;
-    return new Intl.NumberFormat('en-US', {
+    const locale = currentLanguage === 'sq' ? 'sq-AL' : 'en-US';
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 0,
@@ -60,12 +113,14 @@ const PublicBookingConfirmation: React.FC = () => {
 
   const formatTime = (timeString: string) => {
     const businessTimezone = business?.timezone || 'UTC';
-    return formatTimeInTimezone(timeString, businessTimezone, 'en-US');
+    const locale = currentLanguage === 'sq' ? 'sq-AL' : 'en-US';
+    return formatTimeInTimezone(timeString, businessTimezone, locale);
   };
 
   const formatDateTime = (timeString: string) => {
     const businessTimezone = business?.timezone || 'UTC';
-    return formatDateTimeInTimezone(timeString, businessTimezone, 'en-US');
+    const locale = currentLanguage === 'sq' ? 'sq-AL' : 'en-US';
+    return formatDateTimeInTimezone(timeString, businessTimezone, locale);
   };
 
   const copyBookingId = () => {
@@ -78,14 +133,33 @@ const PublicBookingConfirmation: React.FC = () => {
 
   const shareBooking = () => {
     if (navigator.share && booking) {
+      // Include phone parameter in URL for sharing if not from state data
+      let shareUrl = window.location.href;
+      if (!stateData && booking.customer_phone) {
+        const url = new URL(window.location.href);
+        if (!url.searchParams.has('phone')) {
+          url.searchParams.set('phone', booking.customer_phone);
+          shareUrl = url.toString();
+        }
+      }
+      
       navigator.share({
         title: 'Booking Confirmation',
         text: `Booking confirmed for ${booking.service_name} on ${formatDateTime(booking.starts_at)}`,
-        url: window.location.href
+        url: shareUrl
       });
     } else {
       // Fallback to copying URL
-      navigator.clipboard.writeText(window.location.href);
+      let copyUrl = window.location.href;
+      if (!stateData && booking?.customer_phone) {
+        const url = new URL(window.location.href);
+        if (!url.searchParams.has('phone')) {
+          url.searchParams.set('phone', booking.customer_phone);
+          copyUrl = url.toString();
+        }
+      }
+      
+      navigator.clipboard.writeText(copyUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -97,10 +171,18 @@ const PublicBookingConfirmation: React.FC = () => {
     try {
       setCanceling(true);
       const canceledBooking = await publicApi.cancelBooking(booking.id, booking.customer_phone);
-      setBooking(canceledBooking);
+      
+      // Ensure the booking status is set to cancelled
+      const updatedBooking = {
+        ...canceledBooking,
+        status: BookingStatus.cancelled
+      };
+      
+      setBooking(updatedBooking);
       setShowCancelConfirm(false);
+      setError(null); // Clear any previous errors
     } catch (err: any) {
-      setError(err.detail || 'Failed to cancel booking');
+      setError(err.detail || t('public.error.cancelBookingFailed'));
     } finally {
       setCanceling(false);
     }
@@ -131,15 +213,15 @@ const PublicBookingConfirmation: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Booking Not Found</h2>
-          <p className="text-gray-600 mb-4">{error || 'The booking you are looking for does not exist.'}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('public.confirmation.bookingNotFound')}</h2>
+          <p className="text-gray-600 mb-4">{error || t('public.confirmation.bookingNotFoundMessage')}</p>
           <div className="space-x-4">
             <Link to="/booking-search" className="text-blue-600 hover:text-blue-800 font-medium">
-              Search for your booking
+              {t('public.confirmation.searchForBooking')}
             </Link>
             <span className="text-gray-400">|</span>
-            <Link to="/" className="text-blue-600 hover:text-blue-800 font-medium">
-              Go back to home
+            <Link to={business?.slug ? `/book/${business.slug}` : "/"} className="text-blue-600 hover:text-blue-800 font-medium">
+              {t('public.confirmation.goBackHome')}
             </Link>
           </div>
         </div>
@@ -147,16 +229,14 @@ const PublicBookingConfirmation: React.FC = () => {
     );
   }
 
-  const business = stateData?.business;
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">Booking Confirmation</h1>
-            <p className="text-gray-600">Your booking has been confirmed</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('public.confirmation.title')}</h1>
+            <p className="text-gray-600">{t('public.confirmation.subtitle')}</p>
           </div>
         </div>
       </header>
@@ -167,9 +247,9 @@ const PublicBookingConfirmation: React.FC = () => {
           <div className="flex items-center">
             <CheckCircleIcon className="h-8 w-8 text-green-600 mr-4" />
             <div>
-              <h2 className="text-lg font-semibold text-green-900">Booking Confirmed!</h2>
+              <h2 className="text-lg font-semibold text-green-900">{t('public.confirmation.bookingConfirmed')}</h2>
               <p className="text-green-700">
-                Your booking has been successfully created. You will receive a confirmation call soon.
+                {t('public.confirmation.bookingCreatedSuccessfully')}
               </p>
             </div>
           </div>
@@ -209,9 +289,9 @@ const PublicBookingConfirmation: React.FC = () => {
                 <div className="flex items-start">
                   <CalendarDaysIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-600">Date & Time</p>
+                    <p className="text-sm text-gray-600">{t('public.confirmation.dateTime')}</p>
                     <p className="font-medium text-gray-900">
-                      {new Date(booking.starts_at).toLocaleDateString('en-US', { 
+                      {new Date(booking.starts_at).toLocaleDateString(currentLanguage === 'sq' ? 'sq-AL' : 'en-US', { 
                         weekday: 'long',
                         month: 'long', 
                         day: 'numeric',
@@ -233,9 +313,9 @@ const PublicBookingConfirmation: React.FC = () => {
                 <div className="flex items-start">
                   <UserIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-600">Party Size</p>
+                    <p className="text-sm text-gray-600">{t('public.confirmation.partySize')}</p>
                     <p className="font-medium text-gray-900">
-                      {booking.party_size} {booking.party_size === 1 ? 'person' : 'people'}
+                      {booking.party_size} {booking.party_size === 1 ? t('public.availability.person') : t('public.availability.people')}
                     </p>
                   </div>
                 </div>
@@ -244,7 +324,7 @@ const PublicBookingConfirmation: React.FC = () => {
                   <div className="flex items-start">
                     <CurrencyDollarIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                     <div>
-                      <p className="text-sm text-gray-600">Price</p>
+                      <p className="text-sm text-gray-600">{t('public.confirmation.price')}</p>
                       <p className="font-medium text-gray-900">
                         {formatPrice(booking.service_price_minor, business?.currency)}
                       </p>
@@ -258,7 +338,7 @@ const PublicBookingConfirmation: React.FC = () => {
                 <div className="flex items-start">
                   <UserIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-600">Customer</p>
+                    <p className="text-sm text-gray-600">{t('public.confirmation.customer')}</p>
                     <p className="font-medium text-gray-900">{booking.customer_name}</p>
                   </div>
                 </div>
@@ -266,7 +346,7 @@ const PublicBookingConfirmation: React.FC = () => {
                 <div className="flex items-start">
                   <PhoneIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-600">Phone</p>
+                    <p className="text-sm text-gray-600">{t('public.confirmation.phone')}</p>
                     <p className="font-medium text-gray-900">{booking.customer_phone}</p>
                   </div>
                 </div>
@@ -275,7 +355,7 @@ const PublicBookingConfirmation: React.FC = () => {
                   <div className="flex items-start">
                     <EnvelopeIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                     <div>
-                      <p className="text-sm text-gray-600">Email</p>
+                      <p className="text-sm text-gray-600">{t('public.confirmation.email')}</p>
                       <p className="font-medium text-gray-900">{booking.customer_email}</p>
                     </div>
                   </div>
@@ -291,7 +371,7 @@ const PublicBookingConfirmation: React.FC = () => {
                 <div className="flex items-start">
                   <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-600">Location</p>
+                    <p className="text-sm text-gray-600">{t('public.confirmation.location')}</p>
                     <div className="font-medium text-gray-900">
                       {business.address_line1 && <div>{business.address_line1}</div>}
                       {business.address_line2 && <div>{business.address_line2}</div>}
@@ -311,7 +391,7 @@ const PublicBookingConfirmation: React.FC = () => {
             <div className="mt-6 pt-6 border-t">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Booking ID</p>
+                  <p className="text-sm text-gray-600">{t('public.confirmation.bookingId')}</p>
                   <p className="font-mono text-sm text-gray-900">{booking.id}</p>
                 </div>
                 <button
@@ -319,7 +399,7 @@ const PublicBookingConfirmation: React.FC = () => {
                   className="flex items-center text-sm text-blue-600 hover:text-blue-800"
                 >
                   <DocumentDuplicateIcon className="h-4 w-4 mr-1" />
-                  {copied ? 'Copied!' : 'Copy ID'}
+                  {copied ? t('public.confirmation.copied') : t('public.confirmation.copyId')}
                 </button>
               </div>
             </div>
@@ -333,7 +413,7 @@ const PublicBookingConfirmation: React.FC = () => {
                 className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 font-medium flex items-center justify-center"
               >
                 <ShareIcon className="h-4 w-4 mr-2" />
-                Share Booking
+                {t('public.confirmation.shareBooking')}
               </button>
               
               {canCancelBooking() && (
@@ -342,14 +422,14 @@ const PublicBookingConfirmation: React.FC = () => {
                   className="flex-1 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200 font-medium flex items-center justify-center"
                 >
                   <XCircleIcon className="h-4 w-4 mr-2" />
-                  Cancel Booking
+                  {t('public.confirmation.cancelBooking')}
                 </button>
               )}
             </div>
 
             {!canCancelBooking() && booking.status !== 'cancelled' && (
               <p className="text-xs text-gray-500 text-center mt-2">
-                Bookings can only be cancelled up to 1 hour before the appointment.
+                {t('public.confirmation.cannotCancel')}
               </p>
             )}
           </div>
@@ -362,13 +442,13 @@ const PublicBookingConfirmation: React.FC = () => {
               <div className="h-5 w-5 text-blue-400">ℹ️</div>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">Important Information</h3>
+              <h3 className="text-sm font-medium text-blue-800">{t('public.confirmation.importantInfo')}</h3>
               <div className="mt-2 text-sm text-blue-700">
                 <ul className="list-disc pl-5 space-y-1">
-                  <li>Please arrive 5-10 minutes before your scheduled time</li>
-                  <li>You will receive a confirmation call from the business</li>
-                  <li>If you need to make changes, please call the business directly</li>
-                  <li>Cancellations must be made at least 1 hour in advance</li>
+                  <li>{t('public.confirmation.arriveEarly')}</li>
+                  <li>{t('public.confirmation.confirmationCall')}</li>
+                  <li>{t('public.confirmation.callForChanges')}</li>
+                  <li>{t('public.confirmation.cancellationPolicy')}</li>
                 </ul>
               </div>
             </div>
@@ -388,10 +468,10 @@ const PublicBookingConfirmation: React.FC = () => {
         {/* Back to Home */}
         <div className="mt-8 text-center">
           <Link
-            to="/"
+            to={business?.slug ? `/book/${business.slug}` : "/booking-search"}
             className="text-blue-600 hover:text-blue-800 font-medium"
           >
-            ← Back to Home
+            {t('public.confirmation.backToHome')}
           </Link>
         </div>
       </div>
@@ -402,24 +482,24 @@ const PublicBookingConfirmation: React.FC = () => {
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center mb-4">
               <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">Cancel Booking</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('public.cancel.title')}</h3>
             </div>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to cancel this booking? This action cannot be undone.
+              {t('public.cancel.message')}
             </p>
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowCancelConfirm(false)}
                 className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors duration-200"
               >
-                Keep Booking
+                {t('public.cancel.keepBooking')}
               </button>
               <button
                 onClick={handleCancelBooking}
                 disabled={canceling}
                 className="flex-1 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
               >
-                {canceling ? 'Canceling...' : 'Yes, Cancel'}
+                {canceling ? t('public.cancel.canceling') : t('public.cancel.yesCancel')}
               </button>
             </div>
           </div>

@@ -129,7 +129,8 @@ const PublicServiceAvailability: React.FC = () => {
 
   const formatPrice = (priceMinor: number, currency: string = 'ALL') => {
     const price = priceMinor / 100;
-    return new Intl.NumberFormat('en-US', {
+    const locale = currentLanguage === 'sq' ? 'sq-AL' : 'en-US';
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 0,
