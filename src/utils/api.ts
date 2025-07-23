@@ -1,4 +1,4 @@
-import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, BookingCreate, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate, ServiceWithOpenIntervals, ServiceOpenInterval, ServiceOpenIntervalCreate, AvailabilityMatrix, ServiceCategory } from '../types';
+import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, BookingCreate, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate, ServiceWithOpenIntervals, ServiceOpenInterval, ServiceOpenIntervalCreate, AvailabilityMatrix, ServiceCategory, ServiceCategoryLocalized } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -213,21 +213,25 @@ export const businessApi = {
 
 // Service API functions
 export const serviceApi = {
-  getServiceCategories: async (): Promise<ServiceCategory[]> => {
+  getServiceCategories: async (language: string = 'en'): Promise<ServiceCategoryLocalized[]> => {
     const accessToken = tokenStorage.getAccessToken();
     if (!accessToken) {
       throw new ApiErrorClass('No access token available', 401);
     }
 
-    const response = await fetch(`${API_BASE_URL}/business/service-categories`, {
+    const url = new URL(`${API_BASE_URL}/business/service-categories`);
+    url.searchParams.set('include_translations', 'true');
+
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
+        'Accept-Language': language,
       },
     });
     
-    return handleResponse<ServiceCategory[]>(response);
+    return handleResponse<ServiceCategoryLocalized[]>(response);
   },
 
   getServices: async (bizId: string, activeOnly: boolean = true): Promise<ServiceWithTables[]> => {

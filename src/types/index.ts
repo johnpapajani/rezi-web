@@ -146,6 +146,13 @@ export interface ServiceCategory {
   id: string;
   name: string;
   slug: string;
+  translations?: { [key: string]: string }; // {"en": "Food & Beverage", "sq": "Ushqim dhe Pije"}
+}
+
+export interface ServiceCategoryLocalized {
+  id: string;
+  name: string; // This will be the localized name based on requested language
+  slug: string;
 }
 
 export interface Service {
