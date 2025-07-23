@@ -123,6 +123,37 @@ const PublicBookingConfirmation: React.FC = () => {
     return formatDateTimeInTimezone(timeString, businessTimezone, locale);
   };
 
+  const formatDate = (date: Date) => {
+    if (currentLanguage === 'sq') {
+      // Use Albanian translations for month and day names
+      const monthNames = [
+        'january', 'february', 'march', 'april', 'may', 'june',
+        'july', 'august', 'september', 'october', 'november', 'december'
+      ];
+      const dayNames = [
+        'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
+      ];
+      
+      const monthKey = `public.calendar.months.${monthNames[date.getMonth()]}`;
+      const weekdayKey = `public.calendar.weekdays.full.${dayNames[date.getDay()]}`;
+      
+      return {
+        month: t(monthKey),
+        weekday: t(weekdayKey),
+        day: date.getDate(),
+        year: date.getFullYear()
+      };
+    } else {
+      // Use English formatting
+      return {
+        month: date.toLocaleDateString('en-US', { month: 'long' }),
+        weekday: date.toLocaleDateString('en-US', { weekday: 'long' }),
+        day: date.getDate(),
+        year: date.getFullYear()
+      };
+    }
+  };
+
   const copyBookingId = () => {
     if (booking?.id) {
       navigator.clipboard.writeText(booking.id);
@@ -291,12 +322,10 @@ const PublicBookingConfirmation: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-600">{t('public.confirmation.dateTime')}</p>
                     <p className="font-medium text-gray-900">
-                      {new Date(booking.starts_at).toLocaleDateString(currentLanguage === 'sq' ? 'sq-AL' : 'en-US', { 
-                        weekday: 'long',
-                        month: 'long', 
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
+                      {(() => {
+                        const formattedDate = formatDate(new Date(booking.starts_at));
+                        return `${formattedDate.weekday}, ${formattedDate.day} ${formattedDate.month} ${formattedDate.year}`;
+                      })()}
                     </p>
                     <p className="text-sm text-gray-600">
                       {formatTime(booking.starts_at)} - {formatTime(booking.ends_at)}

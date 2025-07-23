@@ -102,6 +102,37 @@ const PublicBookingForm: React.FC = () => {
     return formatTimeInTimezone(timeString, businessTimezone, locale);
   };
 
+  const formatDate = (date: Date) => {
+    if (currentLanguage === 'sq') {
+      // Use Albanian translations for month and day names
+      const monthNames = [
+        'january', 'february', 'march', 'april', 'may', 'june',
+        'july', 'august', 'september', 'october', 'november', 'december'
+      ];
+      const dayNames = [
+        'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
+      ];
+      
+      const monthKey = `public.calendar.months.${monthNames[date.getMonth()]}`;
+      const weekdayKey = `public.calendar.weekdays.full.${dayNames[date.getDay()]}`;
+      
+      return {
+        month: t(monthKey),
+        weekday: t(weekdayKey),
+        day: date.getDate(),
+        year: date.getFullYear()
+      };
+    } else {
+      // Use English formatting
+      return {
+        month: date.toLocaleDateString('en-US', { month: 'long' }),
+        weekday: date.toLocaleDateString('en-US', { weekday: 'long' }),
+        day: date.getDate(),
+        year: date.getFullYear()
+      };
+    }
+  };
+
   const validateForm = () => {
     const errors: {[key: string]: string} = {};
 
@@ -247,7 +278,7 @@ const PublicBookingForm: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
-          {/* Booking Summary */}
+          {/* {t('public.booking.bookingSummary')} */}
           <div className="lg:col-span-1 mb-8 lg:mb-0">
             <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('public.booking.bookingSummary')}</h2>
@@ -257,12 +288,10 @@ const PublicBookingForm: React.FC = () => {
                   <CalendarDaysIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">
-                      {parseLocalDate(bookingData.date).toLocaleDateString(currentLanguage === 'sq' ? 'sq-AL' : 'en-US', { 
-                        weekday: 'long',
-                        month: 'long', 
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
+                      {(() => {
+                        const formattedDate = formatDate(parseLocalDate(bookingData.date));
+                        return `${formattedDate.weekday}, ${formattedDate.day} ${formattedDate.month} ${formattedDate.year}`;
+                      })()}
                     </p>
                   </div>
                 </div>
