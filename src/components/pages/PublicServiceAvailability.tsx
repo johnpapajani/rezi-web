@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { publicApi } from '../../utils/api';
 import { Business, ServiceWithOpenIntervals, Table, AvailabilityMatrix, AvailabilitySlot } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
+import { formatTimeInTimezone } from '../../utils/timezone';
 import { 
   CalendarDaysIcon, 
   ClockIcon, 
@@ -105,7 +106,7 @@ const PublicServiceAvailability: React.FC = () => {
         setAvailability(availabilityData);
       } catch (err: any) {
         console.error(t('public.error.loadingAvailabilityFailed'), err);
-        setAvailability({ slots: [] });
+        setAvailability({ slots: [], business_timezone: 'UTC' });
       } finally {
         setAvailabilityLoading(false);
       }
@@ -113,6 +114,18 @@ const PublicServiceAvailability: React.FC = () => {
 
     fetchAvailability();
   }, [slug, serviceId, selectedDate, partySize]);
+
+  // Clear selected slot if it's no longer available
+  useEffect(() => {
+    if (selectedSlot && availability) {
+      const isSelectedSlotStillAvailable = availability.slots.some(
+        slot => slot.starts_at === selectedSlot.starts_at
+      );
+      if (!isSelectedSlotStillAvailable) {
+        setSelectedSlot(null);
+      }
+    }
+  }, [selectedSlot, availability]);
 
   const formatPrice = (priceMinor: number, currency: string = 'ALL') => {
     const price = priceMinor / 100;
@@ -124,12 +137,9 @@ const PublicServiceAvailability: React.FC = () => {
   };
 
   const formatTime = (timeString: string) => {
-    const date = new Date(timeString);
-    return date.toLocaleTimeString(currentLanguage === 'sq' ? 'sq-AL' : 'en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
+    const businessTimezone = availability?.business_timezone || 'UTC';
+    const locale = currentLanguage === 'sq' ? 'sq-AL' : 'en-US';
+    return formatTimeInTimezone(timeString, businessTimezone, locale);
   };
 
   const formatDate = (date: Date) => {
@@ -193,8 +203,18 @@ const PublicServiceAvailability: React.FC = () => {
     });
   };
 
+
+
   const proceedToBooking = () => {
     if (!selectedSlot || !service) return;
+    
+    // Debug: Log the selected slot information
+    console.log('🕐 DEBUG - Selected Slot:');
+    console.log('Display startTime:', formatTime(selectedSlot.starts_at));
+    console.log('Display endTime:', formatTime(selectedSlot.ends_at));
+    console.log('Raw starts_at:', selectedSlot.starts_at);
+    console.log('Raw ends_at:', selectedSlot.ends_at);
+    console.log('Selected date:', selectedDate);
     
     const bookingData = {
       serviceId: service.id,
@@ -203,6 +223,8 @@ const PublicServiceAvailability: React.FC = () => {
       endTime: selectedSlot.ends_at,
       partySize
     };
+
+    console.log('📋 DEBUG - Booking Data being passed:', bookingData);
 
     navigate(`/book/${slug}/service/${serviceId}/booking`, { 
       state: { bookingData, service, business } 
@@ -232,6 +254,9 @@ const PublicServiceAvailability: React.FC = () => {
   }
 
   const calendarDays = generateCalendarDays();
+  
+  // Available slots (backend now handles filtering past times)
+  const availableSlots = availability?.slots || [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -380,21 +405,29 @@ const PublicServiceAvailability: React.FC = () => {
 
               {/* Time Slots */}
               <div className="px-6 pb-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
-                  {t('public.availability.availableTimesFor')} {(() => {
-                    const date = parseLocalDate(selectedDate);
-                    const formatted = formatDate(date);
-                    return `${formatted.weekday}, ${formatted.month} ${formatted.day}`;
-                  })()}
-                </h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-gray-700">
+                    {t('public.availability.availableTimesFor')} {(() => {
+                      const date = parseLocalDate(selectedDate);
+                      const formatted = formatDate(date);
+                      return `${formatted.weekday}, ${formatted.month} ${formatted.day}`;
+                    })()}
+                  </h3>
+                  {availability?.business_timezone && (
+                    <span className="text-xs text-gray-500 flex items-center">
+                      <ClockIcon className="h-3 w-3 mr-1" />
+                      {business?.name} {t('public.availability.localTime')}
+                    </span>
+                  )}
+                </div>
 
                 {availabilityLoading ? (
                   <div className="flex justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   </div>
-                ) : availability && availability.slots.length > 0 ? (
+                ) : availableSlots.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                    {availability.slots.map((slot, index) => (
+                    {availableSlots.map((slot: AvailabilitySlot, index: number) => (
                       <button
                         key={index}
                         onClick={() => setSelectedSlot(slot)}
@@ -436,6 +469,11 @@ const PublicServiceAvailability: React.FC = () => {
                         return `${formatted.weekday}, ${formatted.month} ${formatted.day}`;
                       })()} {t('public.availability.at')} {formatTime(selectedSlot.starts_at)}
                     </p>
+                    {availability?.business_timezone && business?.timezone !== 'UTC' && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {business?.name} {t('public.availability.localTime')}
+                      </p>
+                    )}
                   </div>
                   <button
                     onClick={proceedToBooking}

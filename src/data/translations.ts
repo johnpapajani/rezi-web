@@ -875,6 +875,7 @@ export const translations: Translations = {
     'public.availability.selectedTime': 'Ora e Zgjedhur',
     'public.availability.continueToBooking': 'Vazhdo me Rezervimin',
     'public.availability.at': 'në orën',
+    'public.availability.localTime': 'ora lokale',
 
     // Booking Form
     'public.booking.completeBooking': 'Plotëso Rezervimin',
@@ -894,6 +895,7 @@ export const translations: Translations = {
     'public.booking.confirmBooking': 'Konfirmo Rezervimin',
     'public.booking.creatingBooking': 'Po krijohet rezervimi...',
     'public.booking.termsConditions': 'Duke konfirmuar, ju pranoni kushtet dhe kondicionet tona.',
+    'public.booking.localTime': 'ora lokale',
 
     // Booking Form Validation
     'public.booking.validation.nameRequired': 'Emri është i detyrueshëm',
@@ -928,6 +930,7 @@ export const translations: Translations = {
     'public.confirmation.backToHome': 'Kthehu në Fillim',
     'public.confirmation.bookingNotFound': 'Rezervimi Nuk u Gjet',
     'public.confirmation.bookingNotFoundMessage': 'Rezervimi që kërkoni nuk ekziston.',
+    'public.confirmation.localTime': 'ora lokale',
 
     // Cancel Booking Modal
     'public.cancel.title': 'Anulo Rezervimin',
@@ -1962,6 +1965,7 @@ export const translations: Translations = {
     'public.availability.selectedTime': 'Selected Time',
     'public.availability.continueToBooking': 'Continue to Booking',
     'public.availability.at': 'at',
+    'public.availability.localTime': 'local time',
 
     // Booking Form
     'public.booking.completeBooking': 'Complete Your Booking',
@@ -1981,6 +1985,7 @@ export const translations: Translations = {
     'public.booking.confirmBooking': 'Confirm Booking',
     'public.booking.creatingBooking': 'Creating Booking...',
     'public.booking.termsConditions': 'By confirming, you agree to our terms and conditions.',
+    'public.booking.localTime': 'local time',
 
     // Booking Form Validation
     'public.booking.validation.nameRequired': 'Name is required',
@@ -2015,6 +2020,7 @@ export const translations: Translations = {
     'public.confirmation.backToHome': 'Back to Home',
     'public.confirmation.bookingNotFound': 'Booking Not Found',
     'public.confirmation.bookingNotFoundMessage': 'The booking you are looking for does not exist.',
+    'public.confirmation.localTime': 'local time',
 
     // Cancel Booking Modal
     'public.cancel.title': 'Cancel Booking',

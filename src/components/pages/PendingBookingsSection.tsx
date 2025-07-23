@@ -13,9 +13,11 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
 import { BookingWithService, BookingStatus } from '../../types';
+import { formatTimeInTimezone } from '../../utils/timezone';
 
 interface PendingBookingsSectionProps {
   pendingBookings: BookingWithService[];
+  businessTimezone?: string;
   onConfirmBooking: (bookingId: string) => Promise<void>;
   onRejectBooking: (bookingId: string) => Promise<void>;
   onConfirmAll: () => Promise<void>;
@@ -28,6 +30,7 @@ interface LoadingState {
 
 const PendingBookingsSection: React.FC<PendingBookingsSectionProps> = ({
   pendingBookings,
+  businessTimezone = 'UTC',
   onConfirmBooking,
   onRejectBooking,
   onConfirmAll,
@@ -39,9 +42,8 @@ const PendingBookingsSection: React.FC<PendingBookingsSectionProps> = ({
   const [successMessages, setSuccessMessages] = useState<{ [key: string]: string }>({});
 
   const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return formatTimeInTimezone(dateString, businessTimezone, 'en-US', {
+      hour: '2-digit',
       minute: '2-digit',
       hour12: true
     });

@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { publicApi } from '../../utils/api';
 import { Business, ServiceWithOpenIntervals, Table, BookingCreate } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
+import { formatTimeInTimezone } from '../../utils/timezone';
 import { 
   ArrowLeftIcon,
   UserIcon,
@@ -88,13 +89,15 @@ const PublicBookingForm: React.FC = () => {
     }).format(price);
   };
 
+  // Helper function to parse YYYY-MM-DD string as local date (not UTC)
+  const parseLocalDate = (dateString: string): Date => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day); // month is 0-indexed
+  };
+
   const formatTime = (timeString: string) => {
-    const date = new Date(timeString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
+    const businessTimezone = business?.timezone || 'UTC';
+    return formatTimeInTimezone(timeString, businessTimezone, 'en-US');
   };
 
   const validateForm = () => {
@@ -137,6 +140,14 @@ const PublicBookingForm: React.FC = () => {
       setLoading(true);
       setError(null);
 
+      // Debug: Log the booking data to see what's actually being sent
+      console.log('🔍 DEBUG - Booking Data:');
+      console.log('Display startTime:', formatTime(bookingData.startTime));
+      console.log('Display endTime:', formatTime(bookingData.endTime));
+      console.log('Raw startTime:', bookingData.startTime);
+      console.log('Raw endTime:', bookingData.endTime);
+      console.log('Selected date:', bookingData.date);
+
       const bookingRequest: BookingCreate = {
         service_id: bookingData.serviceId,
         table_id: availableTable.id,
@@ -149,6 +160,8 @@ const PublicBookingForm: React.FC = () => {
           email: customerData.email.trim() || undefined
         }
       };
+
+      console.log('🚀 DEBUG - Booking Request:', bookingRequest);
 
       const booking = await publicApi.createBooking(slug!, bookingRequest);
       
@@ -242,7 +255,7 @@ const PublicBookingForm: React.FC = () => {
                   <CalendarDaysIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">
-                      {new Date(bookingData.date).toLocaleDateString('en-US', { 
+                      {parseLocalDate(bookingData.date).toLocaleDateString('en-US', { 
                         weekday: 'long',
                         month: 'long', 
                         day: 'numeric',
@@ -259,6 +272,11 @@ const PublicBookingForm: React.FC = () => {
                       {formatTime(bookingData.startTime)} - {formatTime(bookingData.endTime)}
                     </p>
                     <p className="text-sm text-gray-600">{service.duration_min} minutes</p>
+                    {business?.timezone && business?.timezone !== 'UTC' && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {business.name} {t('public.booking.localTime')}
+                      </p>
+                    )}
                   </div>
                 </div>
 

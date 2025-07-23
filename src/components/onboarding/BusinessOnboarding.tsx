@@ -31,7 +31,7 @@ const BusinessOnboarding: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { creating: creatingBusiness, error: businessError, createBusiness, clearError } = useBusinessCreate();
-  const { categories, loading: categoriesLoading } = useServiceCategories();
+  const { categories, loading: categoriesLoading, refetch: refetchCategories } = useServiceCategories();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
@@ -67,6 +67,13 @@ const BusinessOnboarding: React.FC = () => {
 
   // Business creation status
   const [currentError, setCurrentError] = useState<string | null>(null);
+
+  // Refresh categories when reaching step 2 (services) to ensure current language
+  useEffect(() => {
+    if (currentStep === 2) {
+      refetchCategories();
+    }
+  }, [currentStep, refetchCategories]);
 
   const defaultServiceIntervals: ServiceOpenIntervalCreate[] = [
     { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },

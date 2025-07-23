@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { publicApi } from '../../utils/api';
 import { Business, ServiceWithOpenIntervals, BookingWithService } from '../../types';
+import { formatTimeInTimezone, formatDateTimeInTimezone } from '../../utils/timezone';
+import { useTranslation } from '../../hooks/useTranslation';
 import { 
   CheckCircleIcon,
   CalendarDaysIcon,
@@ -21,6 +23,7 @@ const PublicBookingConfirmation: React.FC = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   // Get data passed from the previous page if available
   const stateData = location.state as {
@@ -37,21 +40,11 @@ const PublicBookingConfirmation: React.FC = () => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   useEffect(() => {
-    // If we don't have data from state, fetch it
+    // If we don't have data from state and it's needed, show error
+    // The confirmation page should only be reached with booking data from the previous page
     if (!stateData && bookingId) {
-      const fetchBooking = async () => {
-        try {
-          setLoading(true);
-          const bookingData = await publicApi.getBookingDetails(bookingId);
-          setBooking(bookingData);
-        } catch (err: any) {
-          setError(err.detail || 'Failed to load booking details');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchBooking();
+      setError('Booking details are not available. Please use the booking search page to find your booking.');
+      setLoading(false);
     }
   }, [bookingId, stateData]);
 
@@ -66,25 +59,13 @@ const PublicBookingConfirmation: React.FC = () => {
   };
 
   const formatTime = (timeString: string) => {
-    const date = new Date(timeString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
+    const businessTimezone = business?.timezone || 'UTC';
+    return formatTimeInTimezone(timeString, businessTimezone, 'en-US');
   };
 
   const formatDateTime = (timeString: string) => {
-    const date = new Date(timeString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long',
-      month: 'long', 
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
+    const businessTimezone = business?.timezone || 'UTC';
+    return formatDateTimeInTimezone(timeString, businessTimezone, 'en-US');
   };
 
   const copyBookingId = () => {
@@ -111,11 +92,11 @@ const PublicBookingConfirmation: React.FC = () => {
   };
 
   const handleCancelBooking = async () => {
-    if (!booking?.id) return;
+    if (!booking?.id || !booking?.customer_phone) return;
 
     try {
       setCanceling(true);
-      const canceledBooking = await publicApi.cancelBooking(booking.id);
+      const canceledBooking = await publicApi.cancelBooking(booking.id, booking.customer_phone);
       setBooking(canceledBooking);
       setShowCancelConfirm(false);
     } catch (err: any) {
@@ -152,9 +133,15 @@ const PublicBookingConfirmation: React.FC = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Booking Not Found</h2>
           <p className="text-gray-600 mb-4">{error || 'The booking you are looking for does not exist.'}</p>
-          <Link to="/" className="text-blue-600 hover:text-blue-800">
-            Go back to home
-          </Link>
+          <div className="space-x-4">
+            <Link to="/booking-search" className="text-blue-600 hover:text-blue-800 font-medium">
+              Search for your booking
+            </Link>
+            <span className="text-gray-400">|</span>
+            <Link to="/" className="text-blue-600 hover:text-blue-800 font-medium">
+              Go back to home
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -234,6 +221,12 @@ const PublicBookingConfirmation: React.FC = () => {
                     <p className="text-sm text-gray-600">
                       {formatTime(booking.starts_at)} - {formatTime(booking.ends_at)}
                     </p>
+                    {business?.timezone && business?.timezone !== 'UTC' && (
+                      <p className="text-xs text-gray-500 mt-1 flex items-center">
+                        <ClockIcon className="h-3 w-3 mr-1" />
+                        {business.name} {t('public.confirmation.localTime')}
+                      </p>
+                    )}
                   </div>
                 </div>
 

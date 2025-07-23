@@ -29,14 +29,19 @@ export const useServiceCategories = (): UseServiceCategoriesReturn => {
     }
   }, [currentLanguage]);
 
+  // Fetch categories on mount and whenever currentLanguage changes
   useEffect(() => {
     fetchCategories();
+  }, [currentLanguage]); // Direct dependency on currentLanguage
+
+  const refetch = useCallback(async () => {
+    await fetchCategories();
   }, [fetchCategories]);
 
   return {
     categories,
     loading,
     error,
-    refetch: fetchCategories,
+    refetch,
   };
 }; 

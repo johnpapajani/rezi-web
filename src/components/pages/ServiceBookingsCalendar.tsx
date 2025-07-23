@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
 import { BookingWithService, BookingStatus } from '../../types';
+import { formatTimeInTimezone } from '../../utils/timezone';
 
 type ViewMode = 'month' | 'week' | 'day' | 'agenda';
 
@@ -21,6 +22,7 @@ interface ServiceBookingsCalendarProps {
   serviceId: string;
   serviceName: string;
   bookings: BookingWithService[];
+  businessTimezone?: string;
   onBookingClick?: (booking: BookingWithService) => void;
 }
 
@@ -28,6 +30,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
   serviceId, 
   serviceName, 
   bookings,
+  businessTimezone = 'UTC',
   onBookingClick 
 }) => {
   const { t } = useTranslation();
@@ -108,11 +111,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString(undefined, { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
+    return formatTimeInTimezone(dateString, businessTimezone, 'en-US');
   };
 
   const isToday = (date: Date) => {

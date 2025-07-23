@@ -33,7 +33,7 @@ const ServiceManagement: React.FC = () => {
   const { user, signOut } = useAuth();
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const { business, loading: businessLoading } = useBusiness({ bizId: bizId! });
-  const { categories, loading: categoriesLoading } = useServiceCategories();
+  const { categories, loading: categoriesLoading, refetch: refetchCategories } = useServiceCategories();
   const { 
     services, 
     loading: servicesLoading, 
@@ -79,6 +79,13 @@ const ServiceManagement: React.FC = () => {
       setSearchParams(newSearchParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
+
+  // Refresh categories when modal opens to ensure current language
+  useEffect(() => {
+    if (isCreateModalOpen || editingService) {
+      refetchCategories();
+    }
+  }, [isCreateModalOpen, editingService, refetchCategories]);
 
   const weekdayNames = [
     { weekday: Weekday.monday, name: t('days.monday') },

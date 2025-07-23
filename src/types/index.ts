@@ -247,6 +247,7 @@ export interface AvailabilitySlot {
 
 export interface AvailabilityMatrix {
   slots: AvailabilitySlot[];
+  business_timezone: string;
 }
 
 // Booking types

@@ -28,7 +28,7 @@ const ServiceSettingsSection: React.FC<ServiceSettingsSectionProps> = ({
   updating,
 }) => {
   const { t } = useTranslation();
-  const { categories, loading: categoriesLoading } = useServiceCategories();
+  const { categories, loading: categoriesLoading, refetch: refetchCategories } = useServiceCategories();
   const [formData, setFormData] = useState<ServiceUpdate>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -49,6 +49,11 @@ const ServiceSettingsSection: React.FC<ServiceSettingsSectionProps> = ({
       });
     }
   }, [service]);
+
+  // Refresh categories when component mounts to ensure current language
+  useEffect(() => {
+    refetchCategories();
+  }, [refetchCategories]);
 
   // Check for changes
   useEffect(() => {

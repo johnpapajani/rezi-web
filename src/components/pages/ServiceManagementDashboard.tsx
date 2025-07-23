@@ -708,6 +708,7 @@ const ServiceManagementDashboard: React.FC = () => {
             {/* Pending Bookings Section */}
             <PendingBookingsSection
               pendingBookings={sortedPendingBookings}
+              businessTimezone={business?.timezone}
               onConfirmBooking={handleConfirmBooking}
               onRejectBooking={handleRejectBooking}
               onConfirmAll={handleConfirmAllPending}
@@ -924,6 +925,7 @@ const ServiceManagementDashboard: React.FC = () => {
                     serviceId={serviceId || ''}
                     serviceName={service?.name || ''}
                     bookings={filteredBookings}
+                    businessTimezone={business?.timezone}
                     onBookingClick={(booking) => {
                       setSelectedBooking(booking);
                       setShowBookingDetails(true);

@@ -85,6 +85,14 @@ const Header: React.FC = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Find Booking Link */}
+            <Link 
+              to="/booking-search" 
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
+            >
+              Find Booking
+            </Link>
+            
             {/* Language Selector */}
             <div className="relative">
               <button
@@ -187,6 +195,15 @@ const Header: React.FC = () => {
                   {t(item.key)}
                 </button>
               ))}
+              
+              {/* Find Booking Link - show on all pages */}
+              <Link 
+                to="/booking-search" 
+                onClick={() => setIsMenuOpen(false)}
+                className="block w-full text-left text-gray-700 hover:text-blue-600 font-medium py-2"
+              >
+                Find Booking
+              </Link>
               
               <div className="border-t border-gray-100 pt-4">
                 <div className="flex items-center justify-between mb-4">
