@@ -1300,6 +1300,8 @@ export const translations: Translations = {
     'serviceManagement.dashboard.thisWeek': 'This Week',
     'serviceManagement.dashboard.thisMonth': 'This Month',
     'serviceManagement.dashboard.totalBookings': 'Total Bookings',
+    'serviceManagement.viewPublicPage': 'View Public Page',
+    'serviceManagement.viewPublicPageDescription': 'See how customers book this service',
 
     // Pending Bookings Section
     'serviceManagement.pendingBookings.title': 'Pending Bookings',
