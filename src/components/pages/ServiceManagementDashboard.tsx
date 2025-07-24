@@ -8,6 +8,7 @@ import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, Boo
 import CreateBookingModal from '../modals/CreateBookingModal';
 import PendingBookingsSection from './PendingBookingsSection';
 import ServiceSettingsSection from './ServiceSettingsSection';
+import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
   ArrowLeftIcon,
   CalendarDaysIcon,
@@ -51,7 +52,7 @@ const ServiceManagementDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<TabType>('dashboard');
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+
   const [updatingService, setUpdatingService] = useState(false);
 
   // Service bookings hook
@@ -523,178 +524,45 @@ const ServiceManagementDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:py-0 sm:h-16 space-y-3 sm:space-y-0">
-            <div className="flex items-center min-w-0">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="mr-3 sm:mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 flex-shrink-0"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-              </button>
-              <div className="flex items-center min-w-0">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
-                  <span className="text-white font-bold text-sm">{service.name.charAt(0)}</span>
-                </div>
-                <div className="min-w-0">
-                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                    {service.name}
-                  </h1>
-                  <p className="text-sm text-gray-500 hidden sm:block">
-                    {t('serviceManagement.serviceDetails')}
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {/* Language Selector */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  <GlobeAltIcon className="w-5 h-5" />
-                  <span className="text-sm">
-                    {languages.find(lang => lang.code === currentLanguage)?.flag}
-                  </span>
-                  <ChevronDownIcon className="w-4 h-4" />
-                </button>
-
-                <AnimatePresence>
-                  {isLanguageOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
-                    >
-                      {languages.map((language) => (
-                        <button
-                          key={language.code}
-                          onClick={() => {
-                            setLanguage(language.code);
-                            setIsLanguageOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
-                            currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
-                          }`}
-                        >
-                          <span>{language.flag}</span>
-                          <span>{language.name}</span>
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                service.is_active 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-gray-100 text-gray-800'
-              }`}>
-                {service.is_active ? (
-                  <>
-                    <EyeIcon className="w-3 h-3 mr-1" />
-                    {t('common.active')}
-                  </>
-                ) : (
-                  <>
-                    <EyeIcon className="w-3 h-3 mr-1" />
-                    {t('common.inactive')}
-                  </>
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Tab Navigation */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Mobile Dropdown */}
-          <div className="sm:hidden mb-4">
-            <select
-              value={currentTab}
-              onChange={(e) => handleTabChange(e.target.value as any)}
-              className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="dashboard">
-                {t('common.dashboard')}
-                {pendingBookings.length > 0 ? ` (${pendingBookings.length})` : ''}
-              </option>
-              <option value="bookings">{t('serviceManagement.tabs.bookings')}</option>
-              <option value="tables">{t('serviceManagement.tabs.tables')}</option>
-              <option value="availability">{t('serviceManagement.tabs.availability')}</option>
-              <option value="settings">{t('common.settings')}</option>
-            </select>
-          </div>
-          
-          {/* Desktop Tabs */}
-          <nav className="-mb-px hidden sm:flex space-x-8">
-            <button
-              onClick={() => handleTabChange('dashboard')}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-                currentTab === 'dashboard'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <span>{t('common.dashboard')}</span>
-                {pendingBookings.length > 0 && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                    {pendingBookings.length}
-                  </span>
-                )}
-              </div>
-            </button>
-            <button
-              onClick={() => handleTabChange('bookings')}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-                currentTab === 'bookings'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              {t('serviceManagement.tabs.bookings')}
-            </button>
-            <button
-              onClick={() => handleTabChange('tables')}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-                currentTab === 'tables'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              {t('serviceManagement.tabs.tables')}
-            </button>
-            <button
-              onClick={() => handleTabChange('availability')}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-                currentTab === 'availability'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              {t('serviceManagement.tabs.availability')}
-            </button>
-            <button
-              onClick={() => handleTabChange('settings')}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-                currentTab === 'settings'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              {t('common.settings')}
-            </button>
-          </nav>
-        </div>
-      </div>
+      <MobileOptimizedHeader
+        title={service.name}
+        subtitle={`${business?.name} • ${service.is_active ? t('common.active') : t('common.inactive')}`}
+        backUrl="/dashboard"
+        logoUrl="/favicon.svg"
+        variant="business"
+        tabs={[
+          {
+            id: 'dashboard',
+            label: pendingBookings.length > 0 ? `${t('common.dashboard')} (${pendingBookings.length})` : t('common.dashboard'),
+            isActive: currentTab === 'dashboard',
+            onClick: () => handleTabChange('dashboard')
+          },
+          {
+            id: 'bookings',
+            label: t('serviceManagement.tabs.bookings'),
+            isActive: currentTab === 'bookings',
+            onClick: () => handleTabChange('bookings')
+          },
+          {
+            id: 'tables',
+            label: t('serviceManagement.tabs.tables'),
+            isActive: currentTab === 'tables',
+            onClick: () => handleTabChange('tables')
+          },
+          {
+            id: 'availability',
+            label: t('serviceManagement.tabs.availability'),
+            isActive: currentTab === 'availability',
+            onClick: () => handleTabChange('availability')
+          },
+          {
+            id: 'settings',
+            label: t('common.settings'),
+            isActive: currentTab === 'settings',
+            onClick: () => handleTabChange('settings')
+          }
+        ]}
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
