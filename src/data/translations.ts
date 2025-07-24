@@ -308,6 +308,7 @@ export const translations: Translations = {
     'business.fields.addressLine2.placeholder': 'Apartamenti, suitë, njësi, etj.',
     'business.fields.city': 'Qyteti',
     'business.fields.city.placeholder': 'Tiranë',
+    'business.fields.city.select': 'Zgjidh qytetin tënd',
     'business.fields.postalCode': 'Kodi Postar',
     'business.fields.postalCode.placeholder': '1001',
 
@@ -358,6 +359,7 @@ export const translations: Translations = {
     'business.create.validation.nameRequired': 'Emri i biznesit është i detyrueshëm',
     'business.create.validation.slugRequired': 'Slug-u është i detyrueshëm',
     'business.create.validation.slugInvalid': 'Slug-u mund të përmbajë vetëm shkronja, numra dhe viza',
+    'business.create.validation.cityRequired': 'Qyteti është i detyrueshëm',
 
     // Business Dashboard
     'business.dashboard.title': 'Paneli i Biznesit',
@@ -2769,6 +2771,7 @@ export const translations: Translations = {
     'business.fields.addressLine2.placeholder': 'Apartment, suite, unit, etc.',
     'business.fields.city': 'City',
     'business.fields.city.placeholder': 'New York',
+    'business.fields.city.select': 'Select your city',
     'business.fields.postalCode': 'Postal Code',
     'business.fields.postalCode.placeholder': '10001',
 
@@ -2819,6 +2822,7 @@ export const translations: Translations = {
     'business.create.validation.nameRequired': 'Business name is required',
     'business.create.validation.slugRequired': 'Slug is required',
     'business.create.validation.slugInvalid': 'Slug can only contain letters, numbers, and hyphens',
+    'business.create.validation.cityRequired': 'City is required',
 
     // Business Dashboard
     'business.dashboard.title': 'Business Dashboard',

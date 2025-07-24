@@ -28,6 +28,51 @@ import {
 } from '@heroicons/react/24/outline';
 import { Weekday } from '../../types';
 
+// Albanian cities list
+const ALBANIAN_CITIES = [
+  'Tirana',
+  'Durrës',
+  'Vlorë',
+  'Elbasan',
+  'Shkodër',
+  'Fier',
+  'Korçë',
+  'Berat',
+  'Lushnjë',
+  'Kavajë',
+  'Gjirokastër',
+  'Sarandë',
+  'Laç',
+  'Kukës',
+  'Lezhë',
+  'Pogradec',
+  'Krujë',
+  'Peshkopi',
+  'Burrel',
+  'Çorovodë',
+  'Ersekë',
+  'Gramsh',
+  'Librazhd',
+  'Lushnjë',
+  'Maliq',
+  'Memaliaj',
+  'Orikum',
+  'Patos',
+  'Peqin',
+  'Përmet',
+  'Përrenjas',
+  'Pukë',
+  'Roskovec',
+  'Rrogozhinë',
+  'Rubik',
+  'Selenicë',
+  'Shijak',
+  'Tepelenë',
+  'Ura Vajgurore',
+  'Vau i Dejës',
+  'Vorë',
+];
+
 const BusinessOnboarding: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -898,18 +943,23 @@ const BusinessOnboarding: React.FC = () => {
                     <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
                         {t('business.fields.city')} *
                       </label>
-                      <input
-                        type="text"
-                        id="city"
-                        name="city"
-                        required={true}
-                        value={businessData.city}
-                        onChange={handleBusinessInputChange}
-                        placeholder={t('business.fields.city.placeholder')}
-                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          validationErrors.city ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                      />
+                                             <select
+                         id="city"
+                         name="city"
+                         required={true}
+                         value={businessData.city}
+                         onChange={handleBusinessInputChange}
+                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                           validationErrors.city ? 'border-red-500' : 'border-gray-300'
+                         }`}
+                       >
+                         <option value="">{t('business.fields.city.select')}</option>
+                        {ALBANIAN_CITIES.map((city) => (
+                          <option key={city} value={city}>
+                            {city}
+                          </option>
+                        ))}
+                      </select>
                       {validationErrors.city && (
                         <p className="mt-1 text-sm text-red-600">{validationErrors.city}</p>
                       )}
