@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { CheckIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
 import { pricingPlans } from '../../data/content';
 
 const Pricing: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isYearly, setIsYearly] = useState(false);
+
+  const handlePlanSelect = (planId: number) => {
+    // For now, all plans redirect to signup
+    navigate('/signup');
+  };
+
+  const handleFreeTrial = () => {
+    navigate('/signup');
+  };
 
   return (
     <section id="pricing" className="py-20 bg-gray-50">
@@ -48,7 +59,7 @@ const Pricing: React.FC = () => {
             </span>
             {isYearly && (
               <span className="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
-                Kurseni 20%
+                {t('pricing.yearly.discount')}
               </span>
             )}
           </div>
@@ -89,18 +100,21 @@ const Pricing: React.FC = () => {
                   
                   {/* Price */}
                   <div className="mb-4">
-                    {plan.price === 'Kontaktoni' ? (
-                      <div className="text-3xl font-bold text-gray-900">
-                        {plan.price}
+                    {plan.price === '0' ? (
+                      <div className="text-4xl font-bold text-gray-900">
+                        {t('pricing.free.price')}
                       </div>
                     ) : (
                       <>
                         <div className="text-4xl font-bold text-gray-900">
-                          {plan.price === '0' ? 'Falas' : `${isYearly ? Math.round(parseInt(plan.price) * 0.8) : plan.price} Lekë`}
+                          €{isYearly && plan.yearlyPrice ? plan.yearlyPrice : plan.price}
                         </div>
-                        {plan.price !== '0' && (
-                          <div className="text-gray-600">
-                            / {isYearly ? 'vit' : 'muaj'}
+                        <div className="text-gray-600">
+                          / {isYearly ? t('pricing.monthly.short') : t('pricing.monthly.short')}
+                        </div>
+                        {isYearly && plan.yearlyPrice && (
+                          <div className="text-sm text-gray-500 mt-1">
+                            €{(parseFloat(plan.yearlyPrice) * 12).toFixed(2)} {t('pricing.yearly.total')}
                           </div>
                         )}
                       </>
@@ -113,13 +127,14 @@ const Pricing: React.FC = () => {
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start space-x-3">
                       <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
+                      <span className="text-gray-700">{t(feature)}</span>
                     </li>
                   ))}
                 </ul>
 
                 {/* CTA Button */}
                 <button
+                  onClick={() => handlePlanSelect(plan.id)}
                   className={`w-full py-3 px-6 rounded-xl font-semibold text-lg transition-all duration-200 ${
                     plan.popular
                       ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
@@ -143,49 +158,52 @@ const Pricing: React.FC = () => {
         >
           <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg max-w-4xl mx-auto">
             <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-              Të gjitha planet përfshijnë:
+              {t('pricing.included.title')}
             </h3>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <CheckIcon className="w-6 h-6 text-blue-600" />
+                          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <CheckIcon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="font-semibold text-gray-900 mb-1">{t('pricing.included.ssl.title')}</div>
+                  <div className="text-sm text-gray-600">{t('pricing.included.ssl.description')}</div>
                 </div>
-                <div className="font-semibold text-gray-900 mb-1">SSL i sigurt</div>
-                <div className="text-sm text-gray-600">Të dhënat tuaja të sigurta</div>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <CheckIcon className="w-6 h-6 text-green-600" />
+                
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <CheckIcon className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="font-semibold text-gray-900 mb-1">{t('pricing.included.backup.title')}</div>
+                  <div className="text-sm text-gray-600">{t('pricing.included.backup.description')}</div>
                 </div>
-                <div className="font-semibold text-gray-900 mb-1">Backup automatik</div>
-                <div className="text-sm text-gray-600">Të dhënat kurrë nuk humben</div>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <CheckIcon className="w-6 h-6 text-purple-600" />
+                
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <CheckIcon className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div className="font-semibold text-gray-900 mb-1">{t('pricing.included.updates.title')}</div>
+                  <div className="text-sm text-gray-600">{t('pricing.included.updates.description')}</div>
                 </div>
-                <div className="font-semibold text-gray-900 mb-1">Përditësime falas</div>
-                <div className="text-sm text-gray-600">Veçori të reja çdo muaj</div>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <CheckIcon className="w-6 h-6 text-orange-600" />
+                
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <CheckIcon className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div className="font-semibold text-gray-900 mb-1">{t('pricing.included.support.title')}</div>
+                  <div className="text-sm text-gray-600">{t('pricing.included.support.description')}</div>
                 </div>
-                <div className="font-semibold text-gray-900 mb-1">Mbështetje shqip</div>
-                <div className="text-sm text-gray-600">Në gjuhën tuaj</div>
               </div>
-            </div>
 
-            <p className="text-gray-600 mb-6">
-              Mund të ndryshoni ose anuloni planin tuaj në çdo kohë. Pa kontrata afatgjata.
-            </p>
+              <p className="text-gray-600 mb-6">
+                {t('pricing.included.note')}
+              </p>
             
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-              Fillo Provën Falas
+            <button 
+              onClick={handleFreeTrial}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+            >
+              {t('pricing.cta.freeTrial')}
             </button>
           </div>
         </motion.div>

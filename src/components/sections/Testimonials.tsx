@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -7,6 +8,11 @@ import { testimonials } from '../../data/content';
 
 const Testimonials: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate('/signup');
+  };
 
   const renderStars = (rating: number) => {
     return (
@@ -101,23 +107,23 @@ const Testimonials: React.FC = () => {
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 md:p-12">
             <div className="grid md:grid-cols-4 gap-8 text-center">
               <div>
-                <div className="text-4xl font-bold text-blue-600 mb-2">4.9</div>
-                <div className="text-sm text-gray-600">Vlerësim mesatar</div>
+                <div className="text-4xl font-bold text-blue-600 mb-2">{t('testimonials.stats.rating.value')}</div>
+                <div className="text-sm text-gray-600">{t('testimonials.stats.rating.label')}</div>
                 <div className="flex justify-center mt-2">
                   {renderStars(5)}
                 </div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-purple-600 mb-2">100+</div>
-                <div className="text-sm text-gray-600">Biznese aktive</div>
+                <div className="text-4xl font-bold text-purple-600 mb-2">{t('testimonials.stats.businesses.value')}</div>
+                <div className="text-sm text-gray-600">{t('testimonials.stats.businesses.label')}</div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-green-600 mb-2">98%</div>
-                <div className="text-sm text-gray-600">Kënaqësi klientësh</div>
+                <div className="text-4xl font-bold text-green-600 mb-2">{t('testimonials.stats.satisfaction.value')}</div>
+                <div className="text-sm text-gray-600">{t('testimonials.stats.satisfaction.label')}</div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-orange-600 mb-2">24/7</div>
-                <div className="text-sm text-gray-600">Mbështetje</div>
+                <div className="text-4xl font-bold text-orange-600 mb-2">{t('testimonials.stats.support.value')}</div>
+                <div className="text-sm text-gray-600">{t('testimonials.stats.support.label')}</div>
               </div>
             </div>
           </div>
@@ -132,12 +138,15 @@ const Testimonials: React.FC = () => {
           className="text-center mt-16"
         >
           <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-            Bashkohu me bizneset e suksesshme
+            {t('testimonials.cta.title')}
           </h3>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Mos humb kohë me sisteme të komplikuara. Fillo sot dhe shiko ndryshimin.
+            {t('testimonials.cta.description')}
           </p>
-          <button className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+          <button 
+            onClick={handleGetStarted}
+            className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+          >
             {t('hero.cta.primary')}
           </button>
         </motion.div>

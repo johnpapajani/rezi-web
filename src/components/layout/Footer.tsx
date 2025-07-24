@@ -1,9 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   EnvelopeIcon,
-  PhoneIcon,
-  MapPinIcon,
 } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
 
@@ -20,13 +19,13 @@ const Footer: React.FC = () => {
       { key: 'footer.pricing', href: '#pricing' },
     ],
     support: [
-      { key: 'footer.help', href: '#help' },
+      { key: 'footer.help', href: '/help' },
       { key: 'footer.faq', href: '#faq' },
     ],
     legal: [
-      { key: 'footer.privacy', href: '#privacy' },
-      { key: 'footer.terms', href: '#terms' },
-      { key: 'footer.cookies', href: '#cookies' },
+      { key: 'footer.privacy', href: '/privacy' },
+      { key: 'footer.terms', href: '/terms' },
+      { key: 'footer.cookies', href: '/cookies' },
     ],
   };
 
@@ -67,15 +66,7 @@ const Footer: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <EnvelopeIcon className="w-5 h-5 text-blue-400" />
-                    <span className="text-gray-300">info@rezi.al</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <PhoneIcon className="w-5 h-5 text-blue-400" />
-                    <span className="text-gray-300">+355 69 123 4567</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <MapPinIcon className="w-5 h-5 text-blue-400" />
-                    <span className="text-gray-300">Tiranë, Shqipëri</span>
+                    <span className="text-gray-300">hello@restorezi.com</span>
                   </div>
                 </div>
               </motion.div>
@@ -138,12 +129,21 @@ const Footer: React.FC = () => {
                 <ul className="space-y-3">
                   {footerLinks.support.map((link) => (
                     <li key={link.key}>
-                      <a
-                        href={link.href}
-                        className="text-gray-300 hover:text-white transition-colors duration-200"
-                      >
-                        {t(link.key)}
-                      </a>
+                      {link.href.startsWith('/') ? (
+                        <Link
+                          to={link.href}
+                          className="text-gray-300 hover:text-white transition-colors duration-200"
+                        >
+                          {t(link.key)}
+                        </Link>
+                      ) : (
+                        <a
+                          href={link.href}
+                          className="text-gray-300 hover:text-white transition-colors duration-200"
+                        >
+                          {t(link.key)}
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -160,12 +160,12 @@ const Footer: React.FC = () => {
                 <ul className="space-y-3">
                   {footerLinks.legal.map((link) => (
                     <li key={link.key}>
-                      <a
-                        href={link.href}
+                      <Link
+                        to={link.href}
                         className="text-gray-300 hover:text-white transition-colors duration-200"
                       >
                         {t(link.key)}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -174,35 +174,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Newsletter Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          viewport={{ once: true }}
-          className="border-t border-gray-800 py-8"
-        >
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="text-xl font-semibold mb-2">
-                Merrni lajmet e fundit
-              </h3>
-              <p className="text-gray-300">
-                Regjistrohuni për të marrë përditësime mbi veçoritë e reja dhe ofertat speciale.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <input
-                type="email"
-                placeholder="Email adresa juaj"
-                className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-              />
-              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200">
-                Regjistrohu
-              </button>
-            </div>
-          </div>
-        </motion.div>
+
 
         {/* Bottom Footer */}
         <motion.div

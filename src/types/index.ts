@@ -30,6 +30,7 @@ export interface PricingPlan {
   id: number;
   name: string;
   price: string;
+  yearlyPrice?: string;
   period: string;
   description: string;
   features: string[];

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   UserPlusIcon,
   CogIcon,
@@ -9,6 +10,11 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 const HowItWorks: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate('/signup');
+  };
 
   const steps = [
     {
@@ -102,29 +108,31 @@ const HowItWorks: React.FC = () => {
         >
           <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg max-w-4xl mx-auto">
             <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-              Dhe kaq! Është vërtet kaq e thjeshtë.
+              {t('how.conclusion.title')}
             </h3>
             <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Brenda disa minutave, biznezi juaj do të jetë gati për të pranuar rezervime online. 
-              Pa instalime të komplikuara, pa trajnime të gjata.
+              {t('how.conclusion.description')}
             </p>
             
             <div className="grid md:grid-cols-3 gap-6 mb-8">
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">5 min</div>
-                <div className="text-sm text-gray-600">Kohë konfigurimi</div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">{t('how.stats.setup.value')}</div>
+                <div className="text-sm text-gray-600">{t('how.stats.setup.label')}</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 mb-2">0€</div>
-                <div className="text-sm text-gray-600">Kosto fillestare</div>
+                <div className="text-3xl font-bold text-purple-600 mb-2">{t('how.stats.cost.value')}</div>
+                <div className="text-sm text-gray-600">{t('how.stats.cost.label')}</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">24/7</div>
-                <div className="text-sm text-gray-600">Rezervime automatike</div>
+                <div className="text-3xl font-bold text-green-600 mb-2">{t('how.stats.availability.value')}</div>
+                <div className="text-sm text-gray-600">{t('how.stats.availability.label')}</div>
               </div>
             </div>
 
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+            <button 
+              onClick={handleGetStarted}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+            >
               {t('hero.cta.primary')}
             </button>
           </div>

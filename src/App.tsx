@@ -24,6 +24,10 @@ import PublicBookingForm from './components/pages/PublicBookingForm';
 import PublicBookingConfirmation from './components/pages/PublicBookingConfirmation';
 import PublicBookingSearch from './components/pages/PublicBookingSearch';
 import BusinessUserGuide from './components/pages/BusinessUserGuide';
+import PrivacyPolicy from './components/pages/PrivacyPolicy';
+import TermsOfService from './components/pages/TermsOfService';
+import CookiePolicy from './components/pages/CookiePolicy';
+import HelpPage from './components/pages/HelpPage';
 
 function App() {
   return (
@@ -36,6 +40,12 @@ function App() {
               <Route path="/signup" element={<SignUp />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/guide" element={<BusinessUserGuide />} />
+              
+              {/* Legal Pages */}
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/cookies" element={<CookiePolicy />} />
+              <Route path="/help" element={<HelpPage />} />
               
               {/* Public Booking Routes */}
               <Route path="/book/:slug" element={<PublicBusinessPage />} />

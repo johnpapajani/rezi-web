@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   PlayIcon,
   ChartBarSquareIcon,
@@ -10,6 +11,19 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 const Hero: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate('/signup');
+  };
+
+  const handleViewDemo = () => {
+    // For now, scroll to features section to show what the platform can do
+    const featuresSection = document.querySelector('#features');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const stats = [
     {
@@ -81,10 +95,16 @@ const Hero: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
-              <button className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+              <button 
+                onClick={handleGetStarted}
+                className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
                 {t('hero.cta.primary')}
               </button>
-              <button className="flex items-center justify-center bg-white text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 transform hover:scale-105 transition-all duration-200 shadow-lg">
+              <button 
+                onClick={handleViewDemo}
+                className="flex items-center justify-center bg-white text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              >
                 <PlayIcon className="w-5 h-5 mr-2" />
                 {t('hero.cta.secondary')}
               </button>
