@@ -628,6 +628,8 @@ export const translations: Translations = {
     // Tables explanation
     'onboarding.tables.whatAreUnits.title': 'Çfarë janë njësitë/tavolinat?',
     'onboarding.tables.whatAreUnits.description': 'Njësitë përfaqësojnë kapacitetin e biznesit tuaj - vendet ku mund të shërbeni klientët. Këto mund të jenë tavolina për restorante, karrige për salona, dhoma për konsultime, ose çdo lloj njësie shërbimi.',
+    'onboarding.tables.helpButton': 'Çfarë janë njësitë?',
+    'onboarding.tables.briefDescription': 'Njësitë përfaqësojnë vendet ku shërbeni klientët (tavolina, karrige, dhoma, etj.). Klikoni "Çfarë janë njësitë?" për shembuj.',
     'onboarding.tables.examples.restaurants.title': '🍽️ Restorante/Kafene',
     'onboarding.tables.examples.restaurants.table2seats': 'Tavolina T1 - 2 vende',
     'onboarding.tables.examples.restaurants.table4seats': 'Tavolina T2 - 4 vende',
@@ -645,7 +647,7 @@ export const translations: Translations = {
     'onboarding.tables.examples.general.unit2': 'Njësi 2 - 2 persona',
     'onboarding.tables.examples.general.unitA': 'Njësi A - 3 persona',
     'onboarding.tables.note.title': 'Shënim',
-    'onboarding.tables.note.description': 'Njësitë janë opsionale! Nëse biznesi juaj nuk ka nevoj për menaxhim kapaciteti (p.sh. shërbime online), thjesht kaloni këtë hap.',
+    'onboarding.tables.note.description': 'Pa njësitë, klientët nuk mund të rezervojnë shërbimet tuaja. Mund të shtoni ose përditësoni njësitë më vonë.',
 
     // Service Selection
     'serviceSelection.title': 'Zgjedh Shërbimin',
@@ -1981,13 +1983,13 @@ export const translations: Translations = {
     'onboarding.serviceDescriptionPlaceholder': 'Brief description of this service',
     'onboarding.operatingHours': 'Operating Hours',
     'onboarding.open': 'Open',
-    'onboarding.addTable': 'Add Table',
+    'onboarding.addTable': 'Add Unit',
     'onboarding.table': 'Table',
     'onboarding.tableCode': 'Table Code',
     'onboarding.seats': 'Seats',
     'onboarding.tableSeats': 'Seats',
     'onboarding.noTablesYet': 'No tables added yet',
-    'onboarding.clickAddTable': 'Click "Add Table" to get started',
+    'onboarding.clickAddTable': 'Click "Add Unit" to get started',
     'onboarding.success.title': 'Setup Complete!',
     'onboarding.success.description': 'Your business is ready to take bookings.',
     'onboarding.validation.servicesRequired': 'At least one service is required',
@@ -2005,6 +2007,8 @@ export const translations: Translations = {
     // Tables explanation
     'onboarding.tables.whatAreUnits.title': 'What are units/tables?',
     'onboarding.tables.whatAreUnits.description': 'Units represent your business capacity - the spaces where you can serve clients. These could be tables for restaurants, chairs for salons, rooms for consultations, or any type of service unit.',
+    'onboarding.tables.helpButton': 'What are units?',
+    'onboarding.tables.briefDescription': 'Units represent the spaces where you serve clients (tables, chairs, rooms, etc.). Click "What are units?" for examples.',
     'onboarding.tables.examples.restaurants.title': '🍽️ Restaurants/Cafes',
     'onboarding.tables.examples.restaurants.table2seats': 'Table T1 - 2 seats',
     'onboarding.tables.examples.restaurants.table4seats': 'Table T2 - 4 seats',
@@ -2022,7 +2026,7 @@ export const translations: Translations = {
     'onboarding.tables.examples.general.unit2': 'Unit 2 - 2 people',
     'onboarding.tables.examples.general.unitA': 'Unit A - 3 people',
     'onboarding.tables.note.title': 'Note',
-    'onboarding.tables.note.description': 'Units are optional! If your business doesn\'t need capacity management (e.g. online services), simply skip this step.',
+    'onboarding.tables.note.description': 'Without units, your customers will not be able to book your services. You can always add or update units later.',
 
     // Service Selection
     'serviceSelection.title': 'Select Service',
@@ -2359,7 +2363,7 @@ export const translations: Translations = {
     'guide.tables.add.title': 'Adding Tables/Units',
     'guide.tables.add.description': 'Organize spaces and business capacity',
     'guide.tables.add.step1': 'Go to "Units/Tables" section of the service',
-    'guide.tables.add.step2': 'Click "Add Table" to create a new unit',
+    'guide.tables.add.step2': 'Click "Add Unit" to create a new unit',
     'guide.tables.add.step3': 'Set a unique code for the table (e.g. "T1", "A1", "Window")',
     'guide.tables.add.step4': 'Specify the number of seats the table has',
     'guide.tables.add.step5': 'You can set a merge group for tables that can be combined',
@@ -2956,7 +2960,7 @@ export const translations: Translations = {
     // Table Management
     'tables.title': 'Table Management',
     'tables.subtitle': 'Manage your units and seating arrangements',
-    'tables.addTable': 'Add Table',
+    'tables.addTable': 'Add Unit',
     'tables.noTables': 'No units yet',
     'tables.noTablesDescription': 'Get started by adding your first table',
     'tables.createTable': 'Create Table',

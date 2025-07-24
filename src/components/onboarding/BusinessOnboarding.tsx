@@ -114,6 +114,9 @@ const BusinessOnboarding: React.FC = () => {
 
   // Business creation status
   const [currentError, setCurrentError] = useState<string | null>(null);
+  
+  // Modal state for tables help
+  const [showTablesHelpModal, setShowTablesHelpModal] = useState(false);
 
   // Refresh categories when reaching step 2 (services) to ensure current language
   useEffect(() => {
@@ -1253,74 +1256,116 @@ const BusinessOnboarding: React.FC = () => {
                 <div className="flex items-center space-x-3 mb-6">
                   <RectangleGroupIcon className="w-6 h-6 text-blue-600" />
                   <h2 className="text-lg font-semibold text-gray-900">{t('onboarding.steps.tables.title')}</h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowTablesHelpModal(true)}
+                    className="ml-auto flex items-center space-x-2 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <InformationCircleIcon className="w-4 h-4" />
+                    <span>{t('onboarding.tables.helpButton')}</span>
+                  </button>
                 </div>
 
-                {/* Explanation Section */}
-                <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-start space-x-3">
-                    <InformationCircleIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h3 className="text-sm font-semibold text-blue-900 mb-2">
-                        {t('onboarding.tables.whatAreUnits.title')}
-                      </h3>
-                      <p className="text-sm text-blue-800 mb-3">
-                        {t('onboarding.tables.whatAreUnits.description')}
-                      </p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div className="bg-white p-3 rounded border border-blue-200">
-                          <h4 className="font-medium text-blue-900 text-sm mb-2">
-                            {t('onboarding.tables.examples.restaurants.title')}
-                          </h4>
-                          <ul className="text-xs text-blue-700 space-y-1">
-                            <li>• {t('onboarding.tables.examples.restaurants.table2seats')}</li>
-                            <li>• {t('onboarding.tables.examples.restaurants.table4seats')}</li>
-                            <li>• {t('onboarding.tables.examples.restaurants.barCounter')}</li>
-                          </ul>
-                        </div>
-                        
-                        <div className="bg-white p-3 rounded border border-blue-200">
-                          <h4 className="font-medium text-blue-900 text-sm mb-2">
-                            {t('onboarding.tables.examples.salons.title')}
-                          </h4>
-                          <ul className="text-xs text-blue-700 space-y-1">
-                            <li>• {t('onboarding.tables.examples.salons.chair1')}</li>
-                            <li>• {t('onboarding.tables.examples.salons.chair2')}</li>
-                            <li>• {t('onboarding.tables.examples.salons.washStation')}</li>
-                          </ul>
-                        </div>
-                        
-                        <div className="bg-white p-3 rounded border border-blue-200">
-                          <h4 className="font-medium text-blue-900 text-sm mb-2">
-                            {t('onboarding.tables.examples.consultations.title')}
-                          </h4>
-                          <ul className="text-xs text-blue-700 space-y-1">
-                            <li>• {t('onboarding.tables.examples.consultations.room1')}</li>
-                            <li>• {t('onboarding.tables.examples.consultations.room2')}</li>
-                            <li>• {t('onboarding.tables.examples.consultations.onlineSlot')}</li>
-                          </ul>
-                        </div>
-                        
-                        <div className="bg-white p-3 rounded border border-blue-200">
-                          <h4 className="font-medium text-blue-900 text-sm mb-2">
-                            {t('onboarding.tables.examples.general.title')}
-                          </h4>
-                          <ul className="text-xs text-blue-700 space-y-1">
-                            <li>• {t('onboarding.tables.examples.general.unit1')}</li>
-                            <li>• {t('onboarding.tables.examples.general.unit2')}</li>
-                            <li>• {t('onboarding.tables.examples.general.unitA')}</li>
-                          </ul>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                        <p className="text-xs text-yellow-800">
-                          <strong>{t('onboarding.tables.note.title')}:</strong> {t('onboarding.tables.note.description')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                {/* Compact explanation note */}
+                <div className="mb-6 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center">
+                  <InformationCircleIcon className="w-5 h-5 text-blue-500 flex-shrink-0 mr-2" />
+                  <p className="text-sm text-blue-700">
+                    {t('onboarding.tables.briefDescription')}
+                  </p>
                 </div>
+
+                {/* Tables Help Modal */}
+                <AnimatePresence>
+                  {showTablesHelpModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+                      >
+                        <div className="p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {t('onboarding.tables.whatAreUnits.title')}
+                            </h3>
+                            <button
+                              onClick={() => setShowTablesHelpModal(false)}
+                              className="text-gray-400 hover:text-gray-600"
+                            >
+                              <XMarkIcon className="w-6 h-6" />
+                            </button>
+                          </div>
+                          
+                          <p className="text-gray-600 mb-6">
+                            {t('onboarding.tables.whatAreUnits.description')}
+                          </p>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div className="bg-gray-50 p-4 rounded-lg border">
+                              <h4 className="font-medium text-gray-900 text-sm mb-3">
+                                {t('onboarding.tables.examples.restaurants.title')}
+                              </h4>
+                              <ul className="text-sm text-gray-700 space-y-2">
+                                <li>• {t('onboarding.tables.examples.restaurants.table2seats')}</li>
+                                <li>• {t('onboarding.tables.examples.restaurants.table4seats')}</li>
+                                <li>• {t('onboarding.tables.examples.restaurants.barCounter')}</li>
+                              </ul>
+                            </div>
+                            
+                            <div className="bg-gray-50 p-4 rounded-lg border">
+                              <h4 className="font-medium text-gray-900 text-sm mb-3">
+                                {t('onboarding.tables.examples.salons.title')}
+                              </h4>
+                              <ul className="text-sm text-gray-700 space-y-2">
+                                <li>• {t('onboarding.tables.examples.salons.chair1')}</li>
+                                <li>• {t('onboarding.tables.examples.salons.chair2')}</li>
+                                <li>• {t('onboarding.tables.examples.salons.washStation')}</li>
+                              </ul>
+                            </div>
+                            
+                            <div className="bg-gray-50 p-4 rounded-lg border">
+                              <h4 className="font-medium text-gray-900 text-sm mb-3">
+                                {t('onboarding.tables.examples.consultations.title')}
+                              </h4>
+                              <ul className="text-sm text-gray-700 space-y-2">
+                                <li>• {t('onboarding.tables.examples.consultations.room1')}</li>
+                                <li>• {t('onboarding.tables.examples.consultations.room2')}</li>
+                                <li>• {t('onboarding.tables.examples.consultations.onlineSlot')}</li>
+                              </ul>
+                            </div>
+                            
+                            <div className="bg-gray-50 p-4 rounded-lg border">
+                              <h4 className="font-medium text-gray-900 text-sm mb-3">
+                                {t('onboarding.tables.examples.general.title')}
+                              </h4>
+                              <ul className="text-sm text-gray-700 space-y-2">
+                                <li>• {t('onboarding.tables.examples.general.unit1')}</li>
+                                <li>• {t('onboarding.tables.examples.general.unit2')}</li>
+                                <li>• {t('onboarding.tables.examples.general.unitA')}</li>
+                              </ul>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="text-sm text-yellow-800">
+                              <strong>{t('onboarding.tables.note.title')}:</strong> {t('onboarding.tables.note.description')}
+                            </p>
+                          </div>
+                          
+                          <div className="mt-6 flex justify-end">
+                            <button
+                              onClick={() => setShowTablesHelpModal(false)}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                              {t('common.close')}
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+                </AnimatePresence>
 
                 <div className="space-y-6">
                   {services.map((service, serviceIndex) => (
