@@ -23,6 +23,7 @@ import PublicServiceAvailability from './components/pages/PublicServiceAvailabil
 import PublicBookingForm from './components/pages/PublicBookingForm';
 import PublicBookingConfirmation from './components/pages/PublicBookingConfirmation';
 import PublicBookingSearch from './components/pages/PublicBookingSearch';
+import BusinessUserGuide from './components/pages/BusinessUserGuide';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/signin" element={<SignIn />} />
+              <Route path="/guide" element={<BusinessUserGuide />} />
               
               {/* Public Booking Routes */}
               <Route path="/book/:slug" element={<PublicBusinessPage />} />

@@ -7,6 +7,7 @@ export const translations: Translations = {
     'nav.pricing': 'Çmimet',
     'nav.about': 'Rreth Nesh',
     'nav.contact': 'Kontakti',
+    'nav.guide': 'Udhëzuesi',
     'nav.login': 'Hyr',
     'nav.signup': 'Regjistrohu',
 
@@ -15,6 +16,7 @@ export const translations: Translations = {
     'hero.subtitle': 'Menaxho rezervimet e biznesit tënd me lehtësi. Lejo klientët të rezervojnë online, menaxho oraret dhe shërbimet tuaja, dhe rris kënaqësinë e klientëve.',
     'hero.cta.primary': 'Fillo Falas',
     'hero.cta.secondary': 'Shiko Demo',
+    'hero.guide.link': 'Lexo Udhëzuesin e Biznesit',
     'hero.stats.businesses': 'Biznese',
     'hero.stats.reservations': 'Rezervime',
     'hero.stats.satisfaction': 'Kënaqësi',
@@ -127,6 +129,7 @@ export const translations: Translations = {
     'dashboard.welcome': 'Mirë se erdhe',
     'dashboard.subtitle': 'Këtu është një pamje e përgjithshme e biznesit tuaj',
     'dashboard.signOut': 'Dil',
+    'dashboard.needHelp': 'Kam nevojë për ndihmë',
     'dashboard.stats.businesses': 'Biznese',
     'dashboard.stats.bookings': 'Rezervime',
     'dashboard.stats.revenue': 'Të Ardhura',
@@ -462,6 +465,7 @@ export const translations: Translations = {
     // Business Onboarding
     'onboarding.title': 'Konfigurimi i Biznesit',
     'onboarding.subtitle': 'Le ta bëjmë biznesin tuaj gati për punë',
+    'onboarding.needHelp': 'Kam nevojë për ndihmë',
     'onboarding.steps.business.title': 'Informacionet e Biznesit',
     'onboarding.steps.business.description': 'Detajet bazë të biznesit',
     'onboarding.steps.services.title': 'Konfigurimi i Shërbimeve',
@@ -728,6 +732,186 @@ export const translations: Translations = {
     'common.refresh': 'Rifresko',
     'common.remove': 'Hiq',
     'common.duration.minutes': 'minuta',
+
+    // Business User Guide
+    'guide.title': 'Udhëzuesi i Biznesit',
+    'guide.subtitle': 'Mëso si të krijosh dhe menaxhosh biznezin tënd me Rezi - hap pas hapi, në mënyrë të thjeshtë dhe efikase.',
+    'guide.tableOfContents': 'Përmbajtja',
+    'guide.steps': 'hapa',
+    'guide.detailedSteps': 'Hapat e detajuar',
+    'guide.tip': 'Këshillë',
+    
+    // Quick Actions
+    'guide.quickActions.getStarted': 'Fillo Tani',
+    'guide.quickActions.readGuide': 'Lexo Udhëzuesin',
+    
+    // Key Benefits
+    'guide.benefits.easy.title': 'E Thjeshtë për t\'u Përdorur',
+    'guide.benefits.easy.description': 'Konfiguro biznezin tënd në vetëm disa minuta',
+    'guide.benefits.online.title': 'Rezervime Online',
+    'guide.benefits.online.description': 'Klientët rezervojnë 24/7 përmes linkut ose kodit QR',
+    'guide.benefits.insights.title': 'Analiza të Detajuara',
+    'guide.benefits.insights.description': 'Monitoroni performancën dhe rritni efikasitetin',
+
+    // Section Headers
+    'guide.sections.account.title': '1. Krijimi i Llogarisë',
+    'guide.sections.account.description': 'Hapi i parë - krijimi i llogarisë së re në Rezi',
+    'guide.sections.business.title': '2. Konfigurimi i Biznesit',
+    'guide.sections.business.description': 'Vendos informacionet bazë të biznesit tënd',
+    'guide.sections.services.title': '3. Menaxhimi i Shërbimeve',
+    'guide.sections.services.description': 'Krijo dhe konfiguro shërbimet që ofron biznezi yt',
+    'guide.sections.tables.title': '4. Shtimi i Njësive/Tavolinave',
+    'guide.sections.tables.description': 'Organizo hapësirat dhe kapacitetin e biznesit',
+    'guide.sections.bookings.title': '5. Menaxhimi i Rezervimeve',
+    'guide.sections.bookings.description': 'Si të pranosh dhe menaxhosh rezervimet e klientëve',
+    'guide.sections.sharing.title': '6. Ndarja me Klientët',
+    'guide.sections.sharing.description': 'Promovo sistemin e rezervimeve në biznesin tënd',
+    'guide.sections.analytics.title': '7. Analizat dhe Raportet',
+    'guide.sections.analytics.description': 'Monitoroni performancën dhe rritni efikasitetin',
+
+    // Account Creation Steps
+    'guide.account.signup.title': 'Regjistrimi në Platformë',
+    'guide.account.signup.description': 'Krijo llogarinë tënde të re në platformën Rezi',
+    'guide.account.signup.step1': 'Shko në faqen kryesore të Rezi dhe kliko "Regjistrohu"',
+    'guide.account.signup.step2': 'Shkruaj emrin tënd të plotë në fushën e emrit',
+    'guide.account.signup.step3': 'Vendos një adresë email-i të vlefshme që do përdoresh për hyrje',
+    'guide.account.signup.step4': 'Krijo një fjalëkalim të fortë (të paktën 6 karaktere)',
+    'guide.account.signup.tip': 'Përdor një email që kontrollon rregullisht - do të marrësh njoftime të rëndësishme për biznezin',
+
+    'guide.account.verify.title': 'Verifikimi i Llogarisë',
+    'guide.account.verify.description': 'Konfirmo email-in tënd për të aktivizuar llogarinë',
+    'guide.account.verify.step1': 'Kontrollo email-in tënd për mesazhin e verifikimit',
+    'guide.account.verify.step2': 'Kliko linkun e verifikimit për të aktivizuar llogarinë',
+
+    // Business Setup Steps
+    'guide.business.basic.title': 'Informacionet Bazë të Biznesit',
+    'guide.business.basic.description': 'Vendos të dhënat kryesore të biznesit tënd',
+    'guide.business.basic.step1': 'Shkruaj emrin e biznesit saktësisht siç duhet të shfaqet për klientët',
+    'guide.business.basic.step2': 'Sistemi do krijojë automatikisht një "slug" (adresë unike) nga emri',
+    'guide.business.basic.step3': 'Mund të ndryshosh slug-un nëse dëshiron një adresë specifike',
+    'guide.business.basic.step4': 'Shto logon e biznesit (opsionale) - duhet të jetë një URL i vlefshëm',
+    'guide.business.basic.step5': 'Vendos një përshkrim të shkurtër të biznesit (opsionale)',
+    'guide.business.basic.tip': 'Emri i biznesit dhe slug-u janë shumë të rëndësishëm - klientët do t\'i shohin këto',
+
+    'guide.business.address.title': 'Adresa dhe Vendndodhja',
+    'guide.business.address.description': 'Vendos informacionet e vendndodhjes së biznesit',
+    'guide.business.address.step1': 'Shkruaj adresën e plotë të biznesit (rruga, numri)',
+    'guide.business.address.step2': 'Vendos qytetin dhe kodin postar',
+    'guide.business.address.step3': 'Zgjidh vendin (parazgjedhur: Shqipëri)',
+
+    'guide.business.settings.title': 'Cilësimet e Biznesit',
+    'guide.business.settings.description': 'Konfiguro cilësimet teknike të biznesit',
+    'guide.business.settings.step1': 'Zgjidh monedhën që përdor biznezi yt (EUR, USD, ALL)',
+    'guide.business.settings.step2': 'Vendos zonën kohore (parazgjedhur: Europe/Tirane)',
+    'guide.business.settings.step3': 'Ruaj ndryshimet dhe vazhdo në hapin tjetër',
+
+    // Services Management Steps
+    'guide.services.create.title': 'Krijimi i Shërbimeve',
+    'guide.services.create.description': 'Krijo shërbimet që ofron biznezi yt',
+    'guide.services.create.step1': 'Kliko "Shto Shërbim" për të krijuar një shërbim të ri',
+    'guide.services.create.step2': 'Vendos emrin e shërbimit (p.sh. "Darka", "Drekë", "Kafene")',
+    'guide.services.create.step3': 'Shkruaj një përshkrim të shkurtër të shërbimit',
+    'guide.services.create.step4': 'Vendos kohëzgjatjen mesatare në minuta (p.sh. 90 minuta për drekë)',
+    'guide.services.create.step5': 'Vendos çmimin nëse ka (ose lëre 0 për falas)',
+    'guide.services.create.step6': 'Zgjidh kategorinë e shërbimit ose lëre "Tjetër"',
+    'guide.services.create.tip': 'Mendoje mirë kohëzgjatjen - kjo përcakton sa kohë do rezervohet për çdo klient',
+
+    'guide.services.hours.title': 'Oraret e Punës',
+    'guide.services.hours.description': 'Vendos kur është i disponueshëm shërbimi yt',
+    'guide.services.hours.step1': 'Kliko në seksionin e orareve të shërbimit',
+    'guide.services.hours.step2': 'Vendos orët e hapjes dhe mbylljes për çdo ditë',
+    'guide.services.hours.step3': 'Mund të vendosësh orare të ndryshme për ditë të ndryshme',
+    'guide.services.hours.step4': 'Ruaj ndryshimet - rezervimet do jenë të mundshme vetëm në këto orare',
+    'guide.services.hours.tip': 'Oraret e shërbimit duhet të jenë brenda orareve të përgjithshme të biznesit',
+
+    'guide.services.pricing.title': 'Çmimet dhe Tarifat',
+    'guide.services.pricing.description': 'Konfiguro çmimet për shërbimet tuaja',
+    'guide.services.pricing.step1': 'Vendos çmimin bazë për shërbimin (nëse ka)',
+    'guide.services.pricing.step2': 'Mund të lësh çmimin 0 për shërbime falas',
+    'guide.services.pricing.step3': 'Çmimet shfaqen në monedhën që ke zgjedhur për biznesin',
+
+    // Tables/Units Management Steps
+    'guide.tables.add.title': 'Shtimi i Tavolinave/Njësive',
+    'guide.tables.add.description': 'Organizo hapësirat dhe kapacitetin e biznesit tënd',
+    'guide.tables.add.step1': 'Shko në seksionin "Njësi/Tavolina" të shërbimit',
+    'guide.tables.add.step2': 'Kliko "Shto Tavolinë" për të krijuar një njësi të re',
+    'guide.tables.add.step3': 'Vendos një kod unik për tavolinën (p.sh. "T1", "A1", "Dritare")',
+    'guide.tables.add.step4': 'Specifikо numrin e vendeve që ka tavolina',
+    'guide.tables.add.step5': 'Mund të vendosësh një grup bashkimi për tavolina që mund të bashkohen',
+    'guide.tables.add.tip': 'Përdor kode të thjeshta dhe të lehta për t\'u mbajtur mend - do t\'i përdorësh shpesh',
+
+    'guide.tables.organize.title': 'Organizimi i Njësive',
+    'guide.tables.organize.description': 'Organizo tavolinat në grupe për efikasitet më të madh',
+    'guide.tables.organize.step1': 'Përdor "Grupet e Bashkimit" për tavolina që mund të bashkohen',
+    'guide.tables.organize.step2': 'P.sh. tavolinat "Dritare1" dhe "Dritare2" në grupin "Dritare"',
+    'guide.tables.organize.step3': 'Kjo lejon rezervime për grupe të mëdha klientësh',
+
+    'guide.tables.manage.title': 'Menaxhimi i Njësive',
+    'guide.tables.manage.description': 'Si të menaxhosh dhe ndryshosh informacionet e tavolinave',
+    'guide.tables.manage.step1': 'Kliko mbi një tavolinë për të ndryshuar detajet',
+    'guide.tables.manage.step2': 'Mund të ndryshosh numrin e vendeve, kodin ose grupin',
+    'guide.tables.manage.step3': 'Mund të çaktivizosh tavolina që nuk janë në përdorim',
+
+    // Bookings Management Steps
+    'guide.bookings.receive.title': 'Pranimin e Rezervimeve',
+    'guide.bookings.receive.description': 'Si funksiojnë rezervimet automatike në sistemin tuaj',
+    'guide.bookings.receive.step1': 'Klientët rezervojnë online përmes linkut ose kodit QR të biznesit',
+    'guide.bookings.receive.step2': 'Rezervimet shfaqen automatikisht në panelin tuaj',
+    'guide.bookings.receive.step3': 'Do të marrësh njoftim për rezervime të reja',
+
+    'guide.bookings.manage.title': 'Menaxhimi i Rezervimeve',
+    'guide.bookings.manage.description': 'Si të menaxhosh rezervimet e ardhura',
+    'guide.bookings.manage.step1': 'Shko në seksionin "Rezervime" për të parë të gjitha rezervimet',
+    'guide.bookings.manage.step2': 'Mund të filtrosh rezervimet sipas datës, statusit ose klientit',
+    'guide.bookings.manage.step3': 'Kliko mbi një rezervim për të parë detajet e plota',
+    'guide.bookings.manage.step4': 'Mund të konfirmosh, anulosh ose ndryshosh statusin e rezervimeve',
+
+    'guide.bookings.calendar.title': 'Kalendari i Rezervimeve',
+    'guide.bookings.calendar.description': 'Përdor kalendarin për një pamje të përgjithshme',
+    'guide.bookings.calendar.step1': 'Kalo në pamjen "Kalendar" për të parë rezervimet vizualisht',
+    'guide.bookings.calendar.step2': 'Mund të navigosh ndërmjet ditëve, javëve dhe muajve',
+    'guide.bookings.calendar.step3': 'Kliko mbi një rezervim në kalendar për detaje',
+
+    // Sharing and Promotion Steps
+    'guide.sharing.qr.title': 'Kodi QR i Biznesit',
+    'guide.sharing.qr.description': 'Përdor kodin QR për të promovuar rezervimet',
+    'guide.sharing.qr.step1': 'Shko në seksionin "Kod QR" të biznesit tënd',
+    'guide.sharing.qr.step2': 'Shkarko kodin QR në formatin që preferоn',
+    'guide.sharing.qr.step3': 'Printoje dhe vendose në vende të dukshme në biznes',
+    'guide.sharing.qr.step4': 'Klientët skanojnë kodin dhe rezervojnë menjëherë',
+    'guide.sharing.qr.tip': 'Vendos kodin QR në tavolina, në hyrje dhe në materialet promocionale',
+
+    'guide.sharing.link.title': 'Linku i Rezervimeve',
+    'guide.sharing.link.description': 'Nda linkun e biznesit në platformat sociale',
+    'guide.sharing.link.step1': 'Kopjo linkun e biznesit nga paneli (rezi.al/book/emri-i-biznesit)',
+    'guide.sharing.link.step2': 'Ndaje këtë link në Facebook, Instagram, Google Business',
+    'guide.sharing.link.step3': 'Vendose linkun në faqen tuaj të internetit nëse ke',
+
+    'guide.sharing.promote.title': 'Promovimi i Sistemit',
+    'guide.sharing.promote.description': 'Strategji për të rritur rezervimet online',
+    'guide.sharing.promote.step1': 'Informo stafin për sistemin e ri - ata mund të ndihmojnë klientët',
+    'guide.sharing.promote.step2': 'Vendos shenja që tregojnë "Rezervo Online" në biznes',
+    'guide.sharing.promote.step3': 'Posto në rrjetet sociale për sistemin e ri',
+    'guide.sharing.promote.step4': 'Ofrо një zbritje të vogël për rezervimet e para online',
+
+    // Analytics and Reports Steps
+    'guide.analytics.dashboard.title': 'Paneli i Analizave',
+    'guide.analytics.dashboard.description': 'Monitoroni performancën e biznesit tuaj',
+    'guide.analytics.dashboard.step1': 'Shko në seksionin "Përmbledhje" për statistika të përgjithshme',
+    'guide.analytics.dashboard.step2': 'Shiko numrin e rezervimeve, klientëve dhe të ardhurave',
+    'guide.analytics.dashboard.step3': 'Monitoroni tendencat dhe identifikoni mundësitë për përmirësim',
+
+    'guide.analytics.reports.title': 'Raportet e Detajuara',
+    'guide.analytics.reports.description': 'Analizoni të dhënat për vendime më të mira biznesi',
+    'guide.analytics.reports.step1': 'Eksporto të dhënat e rezervimeve për analiza të thella',
+    'guide.analytics.reports.step2': 'Shiko cilat janë oraret dhe ditët më të frekuentuara',
+    'guide.analytics.reports.step3': 'Përdor këto të dhëna për të optimizuar oraret dhe oferta',
+
+    // Footer CTA
+    'guide.footer.title': 'Gati për të Filluar?',
+    'guide.footer.description': 'Fillo udhëtimin tënd me Rezi dhe zbuloni se sa e thjeshtë është menaxhimi modern i rezervimeve.',
+    'guide.footer.getStarted': 'Krijo Llogarinë',
+    'guide.footer.backToHome': 'Kthehu në Shtëpi',
 
     // Day names for operating hours
     'days.monday': 'E Hënë',
@@ -1079,6 +1263,7 @@ export const translations: Translations = {
     'nav.pricing': 'Pricing',
     'nav.about': 'About',
     'nav.contact': 'Contact',
+    'nav.guide': 'User Guide',
     'nav.login': 'Login',
     'nav.signup': 'Sign Up',
 
@@ -1087,6 +1272,7 @@ export const translations: Translations = {
     'hero.subtitle': 'Manage your business reservations with ease. Let customers book online, manage your schedules and services, and increase customer satisfaction.',
     'hero.cta.primary': 'Start Free',
     'hero.cta.secondary': 'View Demo',
+    'hero.guide.link': 'Read Business User Guide',
     'hero.stats.businesses': 'Businesses',
     'hero.stats.reservations': 'Reservations',
     'hero.stats.satisfaction': 'Satisfaction',
@@ -1199,6 +1385,7 @@ export const translations: Translations = {
     'dashboard.welcome': 'Welcome',
     'dashboard.subtitle': 'Here is an overview of your business',
     'dashboard.signOut': 'Sign Out',
+    'dashboard.needHelp': 'Need Help',
     'dashboard.stats.businesses': 'Businesses',
     'dashboard.stats.bookings': 'Bookings',
     'dashboard.stats.revenue': 'Revenue',
@@ -1215,6 +1402,7 @@ export const translations: Translations = {
     // Business Onboarding
     'onboarding.title': 'Business Setup',
     'onboarding.subtitle': 'Let\'s get your business up and running',
+    'onboarding.needHelp': 'Need Help',
     'onboarding.steps.business.title': 'Business Information',
     'onboarding.steps.business.description': 'Basic business details',
     'onboarding.steps.services.title': 'Services Setup',
@@ -1491,6 +1679,186 @@ export const translations: Translations = {
     'common.refresh': 'Refresh',
     'common.remove': 'Remove',
     'common.duration.minutes': 'minutes',
+
+    // Business User Guide
+    'guide.title': 'Business User Guide',
+    'guide.subtitle': 'Learn how to create and manage your business with Rezi - step by step, simple and efficient.',
+    'guide.tableOfContents': 'Table of Contents',
+    'guide.steps': 'steps',
+    'guide.detailedSteps': 'Detailed steps',
+    'guide.tip': 'Tip',
+    
+    // Quick Actions
+    'guide.quickActions.getStarted': 'Get Started',
+    'guide.quickActions.readGuide': 'Read Guide',
+    
+    // Key Benefits
+    'guide.benefits.easy.title': 'Easy to Use',
+    'guide.benefits.easy.description': 'Set up your business in just a few minutes',
+    'guide.benefits.online.title': 'Online Reservations',
+    'guide.benefits.online.description': 'Customers book 24/7 through link or QR code',
+    'guide.benefits.insights.title': 'Detailed Analytics',
+    'guide.benefits.insights.description': 'Monitor performance and increase efficiency',
+
+    // Section Headers
+    'guide.sections.account.title': '1. Account Creation',
+    'guide.sections.account.description': 'First step - creating your new account on Rezi',
+    'guide.sections.business.title': '2. Business Setup',
+    'guide.sections.business.description': 'Set up your business basic information',
+    'guide.sections.services.title': '3. Services Management',
+    'guide.sections.services.description': 'Create and configure the services your business offers',
+    'guide.sections.tables.title': '4. Adding Units/Tables',
+    'guide.sections.tables.description': 'Organize spaces and business capacity',
+    'guide.sections.bookings.title': '5. Bookings Management',
+    'guide.sections.bookings.description': 'How to receive and manage customer reservations',
+    'guide.sections.sharing.title': '6. Sharing with Customers',
+    'guide.sections.sharing.description': 'Promote the reservation system in your business',
+    'guide.sections.analytics.title': '7. Analytics and Reports',
+    'guide.sections.analytics.description': 'Monitor performance and increase efficiency',
+
+    // Account Creation Steps
+    'guide.account.signup.title': 'Platform Registration',
+    'guide.account.signup.description': 'Create your new account on the Rezi platform',
+    'guide.account.signup.step1': 'Go to Rezi homepage and click "Sign Up"',
+    'guide.account.signup.step2': 'Enter your full name in the name field',
+    'guide.account.signup.step3': 'Provide a valid email address that you will use for login',
+    'guide.account.signup.step4': 'Create a strong password (at least 6 characters)',
+    'guide.account.signup.tip': 'Use an email you check regularly - you will receive important business notifications',
+
+    'guide.account.verify.title': 'Account Verification',
+    'guide.account.verify.description': 'Confirm your email to activate your account',
+    'guide.account.verify.step1': 'Check your email for the verification message',
+    'guide.account.verify.step2': 'Click the verification link to activate your account',
+
+    // Business Setup Steps
+    'guide.business.basic.title': 'Basic Business Information',
+    'guide.business.basic.description': 'Set up your business core data',
+    'guide.business.basic.step1': 'Enter the business name exactly as it should appear to customers',
+    'guide.business.basic.step2': 'The system will automatically create a "slug" (unique address) from the name',
+    'guide.business.basic.step3': 'You can change the slug if you want a specific address',
+    'guide.business.basic.step4': 'Add business logo (optional) - must be a valid URL',
+    'guide.business.basic.step5': 'Set a brief business description (optional)',
+    'guide.business.basic.tip': 'Business name and slug are very important - customers will see these',
+
+    'guide.business.address.title': 'Address and Location',
+    'guide.business.address.description': 'Set up business location information',
+    'guide.business.address.step1': 'Enter the complete business address (street, number)',
+    'guide.business.address.step2': 'Set city and postal code',
+    'guide.business.address.step3': 'Choose country (default: Albania)',
+
+    'guide.business.settings.title': 'Business Settings',
+    'guide.business.settings.description': 'Configure technical business settings',
+    'guide.business.settings.step1': 'Choose the currency your business uses (EUR, USD, ALL)',
+    'guide.business.settings.step2': 'Set timezone (default: Europe/Tirane)',
+    'guide.business.settings.step3': 'Save changes and continue to next step',
+
+    // Services Management Steps
+    'guide.services.create.title': 'Creating Services',
+    'guide.services.create.description': 'Create the services your business offers',
+    'guide.services.create.step1': 'Click "Add Service" to create a new service',
+    'guide.services.create.step2': 'Set service name (e.g. "Dinner", "Lunch", "Coffee")',
+    'guide.services.create.step3': 'Write a brief service description',
+    'guide.services.create.step4': 'Set average duration in minutes (e.g. 90 minutes for lunch)',
+    'guide.services.create.step5': 'Set price if applicable (or leave 0 for free)',
+    'guide.services.create.step6': 'Choose service category or leave as "Other"',
+    'guide.services.create.tip': 'Think carefully about duration - this determines how much time will be reserved for each customer',
+
+    'guide.services.hours.title': 'Operating Hours',
+    'guide.services.hours.description': 'Set when your service is available',
+    'guide.services.hours.step1': 'Click on the service hours section',
+    'guide.services.hours.step2': 'Set opening and closing hours for each day',
+    'guide.services.hours.step3': 'You can set different hours for different days',
+    'guide.services.hours.step4': 'Save changes - reservations will only be possible during these hours',
+    'guide.services.hours.tip': 'Service hours must be within the business general operating hours',
+
+    'guide.services.pricing.title': 'Prices and Rates',
+    'guide.services.pricing.description': 'Configure prices for your services',
+    'guide.services.pricing.step1': 'Set base price for the service (if applicable)',
+    'guide.services.pricing.step2': 'You can leave price at 0 for free services',
+    'guide.services.pricing.step3': 'Prices display in the currency you chose for business',
+
+    // Tables/Units Management Steps
+    'guide.tables.add.title': 'Adding Tables/Units',
+    'guide.tables.add.description': 'Organize spaces and business capacity',
+    'guide.tables.add.step1': 'Go to "Units/Tables" section of the service',
+    'guide.tables.add.step2': 'Click "Add Table" to create a new unit',
+    'guide.tables.add.step3': 'Set a unique code for the table (e.g. "T1", "A1", "Window")',
+    'guide.tables.add.step4': 'Specify the number of seats the table has',
+    'guide.tables.add.step5': 'You can set a merge group for tables that can be combined',
+    'guide.tables.add.tip': 'Use simple and easy to remember codes - you will use them often',
+
+    'guide.tables.organize.title': 'Organizing Units',
+    'guide.tables.organize.description': 'Organize tables in groups for greater efficiency',
+    'guide.tables.organize.step1': 'Use "Merge Groups" for tables that can be combined',
+    'guide.tables.organize.step2': 'E.g. tables "Window1" and "Window2" in group "Window"',
+    'guide.tables.organize.step3': 'This allows reservations for large customer groups',
+
+    'guide.tables.manage.title': 'Managing Units',
+    'guide.tables.manage.description': 'How to manage and change table information',
+    'guide.tables.manage.step1': 'Click on a table to change details',
+    'guide.tables.manage.step2': 'You can change seat number, code or group',
+    'guide.tables.manage.step3': 'You can deactivate tables not in use',
+
+    // Bookings Management Steps
+    'guide.bookings.receive.title': 'Receiving Reservations',
+    'guide.bookings.receive.description': 'How automatic reservations work in your system',
+    'guide.bookings.receive.step1': 'Customers book online through business link or QR code',
+    'guide.bookings.receive.step2': 'Reservations appear automatically in your panel',
+    'guide.bookings.receive.step3': 'You will receive notifications for new reservations',
+
+    'guide.bookings.manage.title': 'Managing Reservations',
+    'guide.bookings.manage.description': 'How to manage incoming reservations',
+    'guide.bookings.manage.step1': 'Go to "Reservations" section to see all bookings',
+    'guide.bookings.manage.step2': 'You can filter reservations by date, status or customer',
+    'guide.bookings.manage.step3': 'Click on a reservation to see full details',
+    'guide.bookings.manage.step4': 'You can confirm, cancel or change reservation status',
+
+    'guide.bookings.calendar.title': 'Reservations Calendar',
+    'guide.bookings.calendar.description': 'Use calendar for an overview',
+    'guide.bookings.calendar.step1': 'Switch to "Calendar" view to see reservations visually',
+    'guide.bookings.calendar.step2': 'You can navigate between days, weeks and months',
+    'guide.bookings.calendar.step3': 'Click on a reservation in calendar for details',
+
+    // Sharing and Promotion Steps
+    'guide.sharing.qr.title': 'Business QR Code',
+    'guide.sharing.qr.description': 'Use QR code to promote reservations',
+    'guide.sharing.qr.step1': 'Go to "QR Code" section of your business',
+    'guide.sharing.qr.step2': 'Download QR code in your preferred format',
+    'guide.sharing.qr.step3': 'Print and place in visible locations in business',
+    'guide.sharing.qr.step4': 'Customers scan code and book immediately',
+    'guide.sharing.qr.tip': 'Place QR code on tables, at entrance and on promotional materials',
+
+    'guide.sharing.link.title': 'Reservation Link',
+    'guide.sharing.link.description': 'Share business link on social platforms',
+    'guide.sharing.link.step1': 'Copy business link from panel (rezi.al/book/business-name)',
+    'guide.sharing.link.step2': 'Share this link on Facebook, Instagram, Google Business',
+    'guide.sharing.link.step3': 'Place link on your website if you have one',
+
+    'guide.sharing.promote.title': 'System Promotion',
+    'guide.sharing.promote.description': 'Strategies to increase online reservations',
+    'guide.sharing.promote.step1': 'Inform staff about new system - they can help customers',
+    'guide.sharing.promote.step2': 'Place signs showing "Book Online" in business',
+    'guide.sharing.promote.step3': 'Post on social media about new system',
+    'guide.sharing.promote.step4': 'Offer small discount for first online reservations',
+
+    // Analytics and Reports Steps
+    'guide.analytics.dashboard.title': 'Analytics Dashboard',
+    'guide.analytics.dashboard.description': 'Monitor your business performance',
+    'guide.analytics.dashboard.step1': 'Go to "Overview" section for general statistics',
+    'guide.analytics.dashboard.step2': 'View number of reservations, customers and revenue',
+    'guide.analytics.dashboard.step3': 'Monitor trends and identify improvement opportunities',
+
+    'guide.analytics.reports.title': 'Detailed Reports',
+    'guide.analytics.reports.description': 'Analyze data for better business decisions',
+    'guide.analytics.reports.step1': 'Export reservation data for deep analysis',
+    'guide.analytics.reports.step2': 'See which hours and days are most frequented',
+    'guide.analytics.reports.step3': 'Use this data to optimize schedules and offers',
+
+    // Footer CTA
+    'guide.footer.title': 'Ready to Get Started?',
+    'guide.footer.description': 'Start your journey with Rezi and discover how simple modern reservation management can be.',
+    'guide.footer.getStarted': 'Create Account',
+    'guide.footer.backToHome': 'Back to Home',
 
     // Day names for operating hours
     'days.monday': 'Monday',

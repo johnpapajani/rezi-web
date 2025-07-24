@@ -85,6 +85,14 @@ const Header: React.FC = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* User Guide Link */}
+            <Link 
+              to="/guide" 
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
+            >
+              {t('nav.guide')}
+            </Link>
+            
             {/* Find Booking Link */}
             <Link 
               to="/booking-search" 
@@ -195,6 +203,15 @@ const Header: React.FC = () => {
                   {t(item.key)}
                 </button>
               ))}
+              
+              {/* User Guide Link - show on all pages */}
+              <Link 
+                to="/guide" 
+                onClick={() => setIsMenuOpen(false)}
+                className="block w-full text-left text-gray-700 hover:text-blue-600 font-medium py-2"
+              >
+                {t('nav.guide')}
+              </Link>
               
               {/* Find Booking Link - show on all pages */}
               <Link 
