@@ -820,7 +820,7 @@ const BusinessOnboarding: React.FC = () => {
               className="space-y-6"
             >
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-3">
                     <CogIcon className="w-6 h-6 text-blue-600" />
                     <h2 className="text-lg font-semibold text-gray-900">{t('onboarding.steps.services.title')}</h2>
@@ -832,6 +832,12 @@ const BusinessOnboarding: React.FC = () => {
                     <PlusIcon className="w-4 h-4 mr-1" />
                     {t('onboarding.addService')}
                   </button>
+                </div>
+                <div className="mb-6 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center">
+                  <InformationCircleIcon className="w-5 h-5 text-blue-500 flex-shrink-0 mr-2" />
+                  <p className="text-sm text-blue-700">
+                    {t('onboarding.serviceConfigurationNote')}
+                  </p>
                 </div>
 
                 {validationErrors.services && (

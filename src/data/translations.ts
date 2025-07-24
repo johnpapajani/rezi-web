@@ -500,6 +500,7 @@ export const translations: Translations = {
     'onboarding.errors.businessNotCreatedStartOver': 'Biznesi nuk u krijua. Ju lutem filloni përsëri.',
     'onboarding.errors.genericError': 'Ndodhi një gabim. Ju lutem provoni përsëri.',
     'onboarding.defaultService.description': 'Shërbimi kryesor i restorantit',
+    'onboarding.serviceConfigurationNote': 'Ju mund të ndryshoni këto konfigurime më vonë në rregullimet e shërbimit.',
 
     // Service Selection
     'serviceSelection.title': 'Zgjedh Shërbimin',
@@ -1241,6 +1242,7 @@ export const translations: Translations = {
     'onboarding.errors.businessNotCreatedStartOver': 'Business not created. Please start over.',
     'onboarding.errors.genericError': 'An error occurred. Please try again.',
     'onboarding.defaultService.description': 'The main service of the restaurant',
+    'onboarding.serviceConfigurationNote': 'You can update any of these configurations later in the service settings.',
 
     // Service Selection
     'serviceSelection.title': 'Select Service',
