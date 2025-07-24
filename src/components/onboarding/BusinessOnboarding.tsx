@@ -47,7 +47,7 @@ const BusinessOnboarding: React.FC = () => {
   const [businessData, setBusinessData] = useState<BusinessCreate>({
     name: '',
     slug: '',
-    currency: 'ALL',
+    currency: 'EUR',
     timezone: 'Europe/Tirane',
     logo_url: '',
     address_line1: '',
@@ -87,22 +87,6 @@ const BusinessOnboarding: React.FC = () => {
     { weekday: Weekday.sunday, start_time: '10:00', end_time: '21:00' },
   ];
 
-  // Initialize default service when component mounts
-  useEffect(() => {
-    setServices([{
-      name: 'Dining',
-      slug: 'dining',
-      description: t('onboarding.defaultService.description'),
-      duration_min: 120,
-      price_minor: 0, // Free base service, pricing handled per item
-      category_id: '',
-      is_active: true,
-      open_intervals: defaultServiceIntervals,
-    }]);
-  }, [t]);
-
-  // Debug logging for state changes
-
 
   // Generate slug from business name
   const generateSlug = (name: string): string => {
@@ -134,6 +118,10 @@ const BusinessOnboarding: React.FC = () => {
       errors.slug = t('business.create.validation.slugInvalid');
     }
 
+    if (!businessData.city?.trim()) {
+      errors.city = t('business.create.validation.cityRequired');
+    }
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -149,7 +137,7 @@ const BusinessOnboarding: React.FC = () => {
       if (!service.name.trim()) {
         errors[`service_${index}_name`] = t('onboarding.validation.serviceNameRequired');
       }
-      if (service.duration_min <= 0) {
+      if (!service.duration_min || service.duration_min <= 0) {
         errors[`service_${index}_duration`] = t('onboarding.validation.serviceDurationRequired');
       }
     });
@@ -243,7 +231,7 @@ const BusinessOnboarding: React.FC = () => {
       name: '',
       slug: '',
       description: '',
-      duration_min: 120,
+      duration_min: 15,
       price_minor: 0,
       category_id: '',
       is_active: true,
@@ -638,6 +626,7 @@ const BusinessOnboarding: React.FC = () => {
                       name="name"
                       value={businessData.name}
                       onChange={handleBusinessInputChange}
+                      placeholder={t('business.fields.name.placeholder')}
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-manipulation ${
                         validationErrors.name ? 'border-red-500' : 'border-gray-300'
                       }`}
@@ -702,7 +691,7 @@ const BusinessOnboarding: React.FC = () => {
                 <div>
                   <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
                       <CurrencyDollarIcon className="w-4 h-4 inline mr-1" />
-                      {t('business.fields.currency')}
+                      {t('business.fields.currency')} ({t('auth.optional')})
                     </label>
                     <select
                       id="currency"
@@ -711,8 +700,8 @@ const BusinessOnboarding: React.FC = () => {
                       onChange={handleBusinessInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="ALL">Albanian Lek (ALL)</option>
                       <option value="EUR">Euro (EUR)</option>
+                      <option value="ALL">Albanian Lek (ALL)</option>
                       <option value="USD">US Dollar (USD)</option>
                       <option value="GBP">British Pound (GBP)</option>
                     </select>
@@ -751,7 +740,7 @@ const BusinessOnboarding: React.FC = () => {
                 <div className="space-y-4">
                   <div>
                     <label htmlFor="address_line1" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('business.fields.addressLine1')}
+                      {t('business.fields.addressLine1')} ({t('auth.optional')})
                     </label>
                     <input
                       type="text"
@@ -766,7 +755,7 @@ const BusinessOnboarding: React.FC = () => {
 
                   <div>
                     <label htmlFor="address_line2" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('business.fields.addressLine2')}
+                      {t('business.fields.addressLine2')} ({t('auth.optional')})
                     </label>
                     <input
                       type="text"
@@ -782,21 +771,28 @@ const BusinessOnboarding: React.FC = () => {
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('business.fields.city')}
+                        {t('business.fields.city')} *
                       </label>
                       <input
                         type="text"
                         id="city"
                         name="city"
+                        required={true}
                         value={businessData.city}
                         onChange={handleBusinessInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={t('business.fields.city.placeholder')}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          validationErrors.city ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       />
+                      {validationErrors.city && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.city}</p>
+                      )}
                     </div>
 
                     <div>
                       <label htmlFor="postal_code" className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('business.fields.postalCode')}
+                        {t('business.fields.postalCode')} ({t('auth.optional')})
                       </label>
                       <input
                         type="text"
@@ -910,11 +906,20 @@ const BusinessOnboarding: React.FC = () => {
                             <input
                               type="number"
                               value={service.duration_min}
-                              onChange={(e) => handleServiceChange(index, 'duration_min', parseInt(e.target.value) || 0)}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value);
+                                if (!isNaN(value) && value > 0) {
+                                  handleServiceChange(index, 'duration_min', value);
+                                } else if (e.target.value === '') {
+                                  handleServiceChange(index, 'duration_min', '');
+                                }
+                              }}
                               className={`w-full px-3 py-2 border rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                                 validationErrors[`service_${index}_duration`] ? 'border-red-500' : 'border-gray-300'
                               }`}
                               min="1"
+                              required
+                              placeholder="15"
                             />
                             <span className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-r-lg">
                               {t('onboarding.minutes')}
