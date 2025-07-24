@@ -357,6 +357,7 @@ export const translations: Translations = {
     'tables.deleting': 'Duke fshirë...',
     'tables.manageTables': 'Menaxho Njësitë',
     'tables.configureTables': 'Konfiguro njësitë dhe vendet e biznesit tuaj',
+    'tables.serviceHelp': 'Përzgjidh shërbimin për të cilin dëshiron të krijosh njësinë',
     'tables.tableCodeHelp': 'Një identifikues unik për këtë njësi (p.sh., T1, A01, VIP1)',
     'tables.seatsHelp': 'Numri i personave që mund të përshtatet në këtë njësi',
     'tables.groupLabel': 'Grupi:',
@@ -566,6 +567,8 @@ export const translations: Translations = {
 
     // Service Management Dashboard
     'serviceManagement.title': 'Menaxhimi i Shërbimit',
+    'serviceManagement.selectService': 'Shërbimi',
+    'serviceManagement.selectService.placeholder': 'Përzgjidh shërbimin',
     'serviceManagement.loadingService': 'Duke ngarkuar shërbimin...',
     'serviceManagement.errorLoadingService': 'Gabim në Ngarkimin e Shërbimit',
     'serviceManagement.serviceNotFound': 'Shërbimi Nuk u Gjet',
@@ -1305,6 +1308,8 @@ export const translations: Translations = {
 
     // Service Management Dashboard
     'serviceManagement.title': 'Service Management',
+    'serviceManagement.selectService': 'Service',
+    'serviceManagement.selectService.placeholder': 'Select a service',
     'serviceManagement.loadingService': 'Loading service...',
     'serviceManagement.errorLoadingService': 'Error Loading Service',
     'serviceManagement.serviceNotFound': 'Service Not Found',
@@ -1699,6 +1704,7 @@ export const translations: Translations = {
     'tables.delete': 'Delete',
     'tables.saving': 'Saving...',
     'tables.deleting': 'Deleting...',
+    'tables.serviceHelp': 'Select the service for which you want to create this table',
     'tables.manageTables': 'Manage Tables',
     'tables.configureTables': 'Configure your units and seating',
     'tables.tableCodeHelp': 'A unique identifier for this table (e.g., T1, A01, VIP1)',

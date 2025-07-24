@@ -1216,6 +1216,31 @@ const BusinessDashboard: React.FC = () => {
               <form onSubmit={editingTable ? handleUpdateTable : handleCreateTable} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('serviceManagement.selectService')}
+                  </label>
+                  <select
+                    value={formData.service_id}
+                    onChange={(e) => setFormData({ ...formData, service_id: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                    disabled={!!editingTable} // Disable when editing (can't change service)
+                  >
+                    <option value="">{t('serviceManagement.selectService.placeholder')}</option>
+                    {services.map((service) => (
+                      <option key={service.id} value={service.id}>
+                        {service.name}
+                      </option>
+                    ))}
+                  </select>
+                  {!editingTable && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      {t('tables.serviceHelp')}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     {t('tables.tableCode')}
                   </label>
                   <input

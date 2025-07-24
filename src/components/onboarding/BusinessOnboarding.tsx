@@ -7,6 +7,7 @@ import { useTables } from '../../hooks/useTables';
 import { useServiceCategories } from '../../hooks/useServiceCategories';
 import { useTranslation } from '../../hooks/useTranslation';
 import { BusinessCreate, ServiceCreate, TableCreate, ServiceOpenIntervalCreate } from '../../types';
+import { serviceApi } from '../../utils/api';
 import {
   BuildingStorefrontIcon,
   PhotoIcon,
@@ -59,9 +60,10 @@ const BusinessOnboarding: React.FC = () => {
   // Step 2: Services
   const [services, setServices] = useState<ServiceCreate[]>([]);
 
-  // Step 3: Tables
+  // Step 3: Tables - Change from service index mapping to service ID mapping
   const [tables, setTables] = useState<{ [serviceIndex: number]: TableCreate[] }>({});
   const [createdServices, setCreatedServices] = useState<any[]>([]);
+  const [serviceToTablesMap, setServiceToTablesMap] = useState<{ [serviceId: string]: TableCreate[] }>({});
 
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
@@ -98,6 +100,9 @@ const BusinessOnboarding: React.FC = () => {
       open_intervals: defaultServiceIntervals,
     }]);
   }, [t]);
+
+  // Debug logging for state changes
+
 
   // Generate slug from business name
   const generateSlug = (name: string): string => {
@@ -151,6 +156,26 @@ const BusinessOnboarding: React.FC = () => {
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
+  };
+
+  const validateTablesConfiguration = (): boolean => {
+    // Check if any services have tables configured
+    const totalTables = Object.values(tables).reduce((sum, serviceTables) => sum + (serviceTables?.length || 0), 0);
+    console.log('Validating tables configuration:', {
+      totalTables,
+      tablesState: tables,
+      servicesCount: services.length
+    });
+    
+    // Tables are optional - if no tables are configured, that's fine
+    // Just log for debugging purposes
+    if (totalTables === 0) {
+      console.log('No tables configured for any service - this is optional');
+    } else {
+      console.log(`Found ${totalTables} tables configured across ${services.length} services`);
+    }
+    
+    return true; // Tables are optional, so always return true
   };
 
   const handleBusinessInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -231,18 +256,26 @@ const BusinessOnboarding: React.FC = () => {
   };
 
   const addTable = (serviceIndex: number) => {
-    setTables(prev => ({
-      ...prev,
-      [serviceIndex]: [
-        ...(prev[serviceIndex] || []),
-        {
-          service_id: '', // Will be set after service creation
-          code: `T${(prev[serviceIndex]?.length || 0) + 1}`,
-          seats: 4,
-          is_active: true,
-        }
-      ]
-    }));
+    if (serviceIndex < 0 || serviceIndex >= services.length) {
+      return;
+    }
+    
+    setTables(prev => {
+      const currentTablesForService = prev[serviceIndex] || [];
+      const newTableCode = `T${currentTablesForService.length + 1}`;
+      
+      const newTable: TableCreate = {
+        service_id: '', // Will be set after service creation
+        code: newTableCode,
+        seats: 4,
+        is_active: true,
+      };
+      
+      return {
+        ...prev,
+        [serviceIndex]: [...currentTablesForService, newTable]
+      };
+    });
   };
 
   const removeTable = (serviceIndex: number, tableIndex: number) => {
@@ -290,6 +323,9 @@ const BusinessOnboarding: React.FC = () => {
 
       } else if (currentStep === 2) {
         if (!validateServicesStep()) return;
+        
+        // Validate tables configuration
+        validateTablesConfiguration();
 
         if (!createdBusinessId) {
           setGlobalError(t('onboarding.errors.businessNotCreated'));
@@ -298,27 +334,60 @@ const BusinessOnboarding: React.FC = () => {
 
         // Create services
         const createdServicesList = [];
-        for (const serviceData of services) {
+        const serviceCreationErrors: string[] = [];
+        
+        for (let index = 0; index < services.length; index++) {
+          const serviceData = services[index];
           try {
-            const service = await servicesHook.createService(serviceData);
+            // Validate service data before creation
+            if (!serviceData.name?.trim()) {
+              const error = `Service ${index + 1} has empty name`;
+              serviceCreationErrors.push(error);
+              continue;
+            }
+            
+            if (!serviceData.duration_min || serviceData.duration_min <= 0) {
+              const error = `Service ${serviceData.name} has invalid duration: ${serviceData.duration_min}`;
+              serviceCreationErrors.push(error);
+              continue;
+            }
+            
+            const service = await serviceApi.createService(createdBusinessId, serviceData);
             createdServicesList.push(service);
-          } catch (error) {
-            console.error('Error creating service:', error);
+          } catch (error: any) {
+            const errorMessage = error?.detail || error?.message || JSON.stringify(error);
+            const fullError = `Failed to create service ${serviceData.name || `#${index + 1}`}: ${errorMessage}`;
+            serviceCreationErrors.push(fullError);
+            
             // Continue with other services even if one fails
           }
         }
-        setCreatedServices(createdServicesList); // This state is no longer needed
+        
 
-        // Initialize tables for each service
-        // const initialTables: { [serviceId: string]: TableCreate[] } = {};
-        // createdServicesList.forEach(service => {
-        //   initialTables[service.id] = [
-        //     { service_id: service.id, code: 'T1', seats: 2, is_active: true },
-        //     { service_id: service.id, code: 'T2', seats: 4, is_active: true },
-        //     { service_id: service.id, code: 'T3', seats: 6, is_active: true },
-        //   ];
-        // });
-        // setTables(initialTables); // This state is no longer needed
+        
+        // Check if any services were created
+        if (createdServicesList.length === 0) {
+          const errorSummary = serviceCreationErrors.length > 0 
+            ? serviceCreationErrors.slice(0, 2).join('; ')
+            : 'Unknown error occurred';
+          setGlobalError(`Failed to create any services. ${errorSummary}`);
+          return;
+        }
+        
+        setCreatedServices(createdServicesList);
+        
+        // Map tables from service indices to actual service IDs
+        const newServiceToTablesMap: { [serviceId: string]: TableCreate[] } = {};
+        
+        createdServicesList.forEach((createdService, index) => {
+          if (tables[index] && tables[index].length > 0) {
+            newServiceToTablesMap[createdService.id] = tables[index];
+          }
+        });
+        
+        setServiceToTablesMap(newServiceToTablesMap);
+
+        
         setCurrentStep(3);
 
       } else if (currentStep === 3) {
@@ -327,26 +396,102 @@ const BusinessOnboarding: React.FC = () => {
           return;
         }
 
-        // Create tables for each service
-        for (const serviceIndex in tables) {
-          const serviceTables = tables[serviceIndex];
-          const serviceId = createdServices[parseInt(serviceIndex)]?.id;
+        // Check if there are any tables to create
+        let totalTables = Object.values(serviceToTablesMap).reduce((sum, serviceTables) => sum + (serviceTables?.length || 0), 0);
+
+        // Backup fix: If serviceToTablesMap is empty but we have tables in state, rebuild the mapping
+        if (totalTables === 0 && Object.values(tables).some(serviceTables => serviceTables && serviceTables.length > 0)) {
+          const backupServiceToTablesMap: { [serviceId: string]: TableCreate[] } = {};
+          let backupTotalTablesFound = 0;
           
-          if (serviceId) {
-            for (const tableData of serviceTables) {
-              try {
-                // Set the correct service_id before creating the table
-                const tableWithServiceId = { ...tableData, service_id: serviceId };
-                await tablesHook.createTable(tableWithServiceId);
-              } catch (error) {
-                console.error('Failed to create table:', error);
-                // Continue with other tables even if one fails
+          createdServices.forEach((createdService, index) => {
+            if (tables[index] && tables[index].length > 0) {
+              backupServiceToTablesMap[createdService.id] = tables[index];
+              backupTotalTablesFound += tables[index].length;
+            }
+          });
+          
+          setServiceToTablesMap(backupServiceToTablesMap);
+          
+          // Update working variables for the rest of the function
+          totalTables = backupTotalTablesFound;
+          
+          // Use the backup mapping directly since state updates are async
+          Object.assign(serviceToTablesMap, backupServiceToTablesMap);
+        }
+
+        if (totalTables === 0) {
+          setShowSuccess(true);
+          setTimeout(() => {
+            navigate(`/business/${createdBusinessId}`);
+          }, 2000);
+          return;
+        }
+
+        // Create tables for each service using the reliable mapping
+        let tablesCreated = 0;
+        let tablesFailures = 0;
+        const failureDetails: string[] = [];
+        
+        for (const [serviceId, serviceTables] of Object.entries(serviceToTablesMap)) {
+          if (serviceTables && serviceTables.length > 0) {
+            for (let i = 0; i < serviceTables.length; i++) {
+              const tableData = serviceTables[i];
+              
+                              try {
+                  // Validate table data
+                  if (!tableData.code?.trim()) {
+                    const error = `Table code is empty for service ${serviceId}`;
+                    failureDetails.push(error);
+                    tablesFailures++;
+                    continue;
+                  }
+                  
+                  if (!tableData.seats || tableData.seats < 1) {
+                    const error = `Invalid seats (${tableData.seats}) for table ${tableData.code}`;
+                    failureDetails.push(error);
+                    tablesFailures++;
+                    continue;
+                  }
+                  
+                  if (!serviceId) {
+                    const error = `Service ID is missing for table ${tableData.code}`;
+                    failureDetails.push(error);
+                    tablesFailures++;
+                    continue;
+                  }
+                  
+                  // Set the correct service_id before creating the table
+                  const tableWithServiceId: TableCreate = { 
+                    service_id: serviceId,
+                    code: tableData.code.trim(),
+                    seats: tableData.seats,
+                    merge_group: tableData.merge_group?.trim() || undefined,
+                    is_active: tableData.is_active !== false
+                  };
+                  
+                  const createdTable = await serviceApi.addServiceTable(serviceId, tableWithServiceId);
+                  tablesCreated++;
+                } catch (error: any) {
+                  tablesFailures++;
+                
+                                  const errorMessage = error?.detail || error?.message || JSON.stringify(error);
+                  const fullError = `Failed to create table ${tableData.code} for service ${serviceId}: ${errorMessage}`;
+                  failureDetails.push(fullError);
+                }
               }
             }
           }
+
+        if (tablesFailures > 0 && tablesCreated === 0) {
+          setGlobalError(`Failed to create any tables. Errors: ${failureDetails.slice(0, 3).join('; ')}${failureDetails.length > 3 ? '...' : ''}`);
+          return;
+        }
+        
+        if (tablesFailures > 0) {
+          setGlobalError(`Warning: ${tablesFailures} table(s) failed to create. ${tablesCreated} created successfully.`);
         }
 
-        // Complete onboarding
         setShowSuccess(true);
         setTimeout(() => {
           navigate(`/business/${createdBusinessId}`);

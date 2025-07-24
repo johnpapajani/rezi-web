@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { tableApi } from '../utils/api';
 import { Table, TableCreate, TableUpdate } from '../types';
+import { serviceApi } from '../utils/api';
 
 interface UseTablesProps {
   bizId: string;
@@ -31,7 +32,14 @@ export const useTables = ({ bizId }: UseTablesProps) => {
     try {
       setCreating(true);
       setError(null);
-      const newTable = await tableApi.createTable(bizId, tableData);
+      
+      // Validate that service_id is provided
+      if (!tableData.service_id) {
+        throw new Error('Service ID is required to create a table');
+      }
+      
+      // Use the service router endpoint instead of business router
+      const newTable = await serviceApi.addServiceTable(tableData.service_id, tableData);
       setTables(prev => [...prev, newTable]);
       return newTable;
     } catch (err: any) {

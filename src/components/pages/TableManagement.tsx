@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useTables } from '../../hooks/useTables';
 import { useBusiness } from '../../hooks/useBusiness';
+import { useServices } from '../../hooks/useServices';
 import { Table, TableCreate, TableUpdate } from '../../types';
 import { 
   ArrowLeftIcon,
@@ -21,6 +22,7 @@ const TableManagement: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { business, loading: businessLoading } = useBusiness({ bizId: bizId! });
+  const { services, loading: servicesLoading } = useServices({ bizId: bizId! });
   const { 
     tables, 
     loading: tablesLoading, 
@@ -90,7 +92,7 @@ const TableManagement: React.FC = () => {
     });
   };
 
-  if (businessLoading || tablesLoading) {
+  if (businessLoading || tablesLoading || servicesLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -272,6 +274,31 @@ const TableManagement: React.FC = () => {
               </div>
 
               <form onSubmit={editingTable ? handleUpdateTable : handleCreateTable} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('serviceManagement.selectService')}
+                  </label>
+                  <select
+                    value={formData.service_id}
+                    onChange={(e) => setFormData({ ...formData, service_id: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                    disabled={!!editingTable} // Disable when editing (can't change service)
+                  >
+                    <option value="">{t('serviceManagement.selectService.placeholder')}</option>
+                    {services.map((service) => (
+                      <option key={service.id} value={service.id}>
+                        {service.name}
+                      </option>
+                    ))}
+                  </select>
+                  {!editingTable && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      {t('tables.serviceHelp')}
+                    </p>
+                  )}
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {t('tables.tableCode')}
