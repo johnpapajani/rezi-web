@@ -98,7 +98,7 @@ const Header: React.FC = () => {
               to="/booking-search" 
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
             >
-              Find Booking
+              {t('nav.findBooking')}
             </Link>
             
             {/* Language Selector */}
@@ -219,7 +219,7 @@ const Header: React.FC = () => {
                 onClick={() => setIsMenuOpen(false)}
                 className="block w-full text-left text-gray-700 hover:text-blue-600 font-medium py-2"
               >
-                Find Booking
+                {t('nav.findBooking')}
               </Link>
               
               <div className="border-t border-gray-100 pt-4">

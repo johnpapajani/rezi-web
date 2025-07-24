@@ -8,6 +8,7 @@ export const translations: Translations = {
     'nav.about': 'Rreth Nesh',
     'nav.contact': 'Kontakti',
     'nav.guide': 'Udhëzuesi',
+    'nav.findBooking': 'Gjej Rezervimin',
     'nav.login': 'Hyr',
     'nav.signup': 'Regjistrohu',
 
@@ -1264,6 +1265,7 @@ export const translations: Translations = {
     'nav.about': 'About',
     'nav.contact': 'Contact',
     'nav.guide': 'User Guide',
+    'nav.findBooking': 'Find Booking',
     'nav.login': 'Login',
     'nav.signup': 'Sign Up',
 
