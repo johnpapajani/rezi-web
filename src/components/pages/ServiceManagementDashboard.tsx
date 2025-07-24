@@ -821,11 +821,11 @@ const ServiceManagementDashboard: React.FC = () => {
                       </div>
 
                       {/* Status Filter */}
-                      <div className="min-w-[140px]">
+                      <div className="sm:min-w-[140px]">
                         <select
                           value={statusFilter}
                           onChange={(e) => setStatusFilter(e.target.value as BookingStatus | '')}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm touch-manipulation"
                         >
                           <option value="">{t('calendar.filter.allStatuses')}</option>
                           <option value="pending">{t('calendar.status.pending')}</option>
@@ -837,11 +837,11 @@ const ServiceManagementDashboard: React.FC = () => {
                       </div>
 
                       {/* Date Filter */}
-                      <div className="min-w-[120px]">
+                      <div className="sm:min-w-[120px]">
                         <select
                           value={dateFilter}
                           onChange={(e) => setDateFilter(e.target.value as any)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm touch-manipulation"
                         >
                           <option value="">{t('calendar.filter.allDates')}</option>
                           <option value="today">{t('calendar.filter.today')}</option>
@@ -872,10 +872,10 @@ const ServiceManagementDashboard: React.FC = () => {
                         </div>
                       </div>
                     ) : filteredBookings.length === 0 ? (
-                      <div className="text-center py-12">
+                      <div className="text-center py-12 px-4">
                         <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
                         <h3 className="mt-2 text-sm font-medium text-gray-900">No bookings found</h3>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm text-gray-500 max-w-md mx-auto">
                           {searchTerm || statusFilter || dateFilter 
                             ? 'Try adjusting your filters to see more bookings.'
                             : 'Get started by creating your first booking.'
@@ -894,50 +894,55 @@ const ServiceManagementDashboard: React.FC = () => {
                             setShowBookingDetails(true);
                           }}
                         >
-                          {/* Existing booking list item content */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              <div className="flex-shrink-0">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
-                                  booking.status === 'confirmed' ? 'bg-green-500' :
-                                  booking.status === 'pending' ? 'bg-yellow-500' :
-                                  booking.status === 'cancelled' ? 'bg-red-500' :
-                                  booking.status === 'completed' ? 'bg-blue-500' :
-                                  'bg-gray-500'
-                                }`}>
-                                  {booking.customer_name.charAt(0).toUpperCase()}
+                          {/* Mobile-optimized booking list item */}
+                          <div className="space-y-3">
+                            {/* Header row with customer name and status */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div className="flex-shrink-0">
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
+                                    booking.status === 'confirmed' ? 'bg-green-500' :
+                                    booking.status === 'pending' ? 'bg-yellow-500' :
+                                    booking.status === 'cancelled' ? 'bg-red-500' :
+                                    booking.status === 'completed' ? 'bg-blue-500' :
+                                    'bg-gray-500'
+                                  }`}>
+                                    {booking.customer_name.charAt(0).toUpperCase()}
+                                  </div>
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {booking.customer_name}
+                                  </p>
                                 </div>
                               </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                  {booking.customer_name}
-                                </p>
-                                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                                  <div className="flex items-center">
-                                    <CalendarDaysIcon className="mr-1.5 h-4 w-4" />
-                                    {new Date(booking.starts_at).toLocaleDateString()}
-                                  </div>
-                                  <div className="flex items-center">
-                                    <ClockIcon className="mr-1.5 h-4 w-4" />
-                                    {new Date(booking.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  </div>
-                                  <div className="flex items-center">
-                                    <UserIcon className="mr-1.5 h-4 w-4" />
-                                    {booking.party_size} {booking.party_size === 1 ? t('calendar.person') : t('calendar.people')}
-                                  </div>
-                                </div>
+                              <div className="flex-shrink-0">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                                  booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                  booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                  booking.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                  booking.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {booking.status}
+                                </span>
                               </div>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-                                booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                                booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                booking.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                booking.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                                'bg-gray-100 text-gray-800'
-                              }`}>
-                                {booking.status}
-                              </span>
+                            
+                            {/* Mobile-optimized metadata row */}
+                            <div className="ml-13 grid grid-cols-2 sm:flex sm:items-center sm:space-x-4 gap-2 sm:gap-0 text-sm text-gray-500">
+                              <div className="flex items-center">
+                                <CalendarDaysIcon className="mr-1.5 h-4 w-4 flex-shrink-0" />
+                                <span className="truncate">{new Date(booking.starts_at).toLocaleDateString()}</span>
+                              </div>
+                              <div className="flex items-center">
+                                <ClockIcon className="mr-1.5 h-4 w-4 flex-shrink-0" />
+                                <span className="truncate">{new Date(booking.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              </div>
+                              <div className="flex items-center col-span-2 sm:col-span-1">
+                                <UserIcon className="mr-1.5 h-4 w-4 flex-shrink-0" />
+                                <span className="truncate">{booking.party_size} {booking.party_size === 1 ? t('calendar.person') : t('calendar.people')}</span>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
