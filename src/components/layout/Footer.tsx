@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   EnvelopeIcon,
@@ -8,6 +8,22 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isLandingPage = location.pathname === '/';
+
+  const scrollToSection = (href: string) => {
+    if (isLandingPage) {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // If not on landing page, navigate to landing page first
+      navigate('/' + href);
+    }
+  };
 
   const footerLinks = {
     company: [
@@ -85,12 +101,12 @@ const Footer: React.FC = () => {
                 <ul className="space-y-3">
                   {footerLinks.company.map((link) => (
                     <li key={link.key}>
-                      <a
-                        href={link.href}
-                        className="text-gray-300 hover:text-white transition-colors duration-200"
+                      <button
+                        onClick={() => scrollToSection(link.href)}
+                        className="text-gray-300 hover:text-white transition-colors duration-200 text-left"
                       >
                         {t(link.key)}
-                      </a>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -107,12 +123,12 @@ const Footer: React.FC = () => {
                 <ul className="space-y-3">
                   {footerLinks.product.map((link) => (
                     <li key={link.key}>
-                      <a
-                        href={link.href}
-                        className="text-gray-300 hover:text-white transition-colors duration-200"
+                      <button
+                        onClick={() => scrollToSection(link.href)}
+                        className="text-gray-300 hover:text-white transition-colors duration-200 text-left"
                       >
                         {t(link.key)}
-                      </a>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -137,12 +153,12 @@ const Footer: React.FC = () => {
                           {t(link.key)}
                         </Link>
                       ) : (
-                        <a
-                          href={link.href}
-                          className="text-gray-300 hover:text-white transition-colors duration-200"
+                        <button
+                          onClick={() => scrollToSection(link.href)}
+                          className="text-gray-300 hover:text-white transition-colors duration-200 text-left"
                         >
                           {t(link.key)}
-                        </a>
+                        </button>
                       )}
                     </li>
                   ))}

@@ -221,24 +221,6 @@ const SignIn: React.FC = () => {
             </motion.button>
           </div>
         </motion.form>
-
-        {/* Demo Account */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-center"
-        >
-          <div className="bg-white rounded-lg px-6 py-4 shadow-sm border border-gray-100">
-            <p className="text-sm text-gray-600 mb-2">
-              {t('auth.signIn.demoAccount')}
-            </p>
-            <div className="text-xs text-gray-500 space-y-1">
-              <div>Email: demo@rezi.com</div>
-              <div>Password: demo123</div>
-            </div>
-          </div>
-        </motion.div>
       </motion.div>
     </div>
   );
