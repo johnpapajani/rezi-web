@@ -1048,22 +1048,27 @@ const ServiceManagementDashboard: React.FC = () => {
 
             {/* Tables Management */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-medium text-gray-900">
-                    {t('serviceManagement.tablesManagement.title')} ({tables.length})
-                  </h2>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {t('tables.subtitle')}
-                  </p>
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                  <div>
+                    <h2 className="text-lg font-medium text-gray-900">
+                      {t('serviceManagement.tablesManagement.title')} ({tables.length})
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      {t('tables.subtitle')}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => setIsCreateTableModalOpen(true)}
+                      className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation"
+                      style={{ minHeight: '44px' }}
+                    >
+                      <PlusIcon className="w-4 h-4 mr-2" />
+                      {t('tables.addTable')}
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => setIsCreateTableModalOpen(true)}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <PlusIcon className="w-4 h-4 mr-2" />
-                  {t('tables.addTable')}
-                </button>
               </div>
 
               {tables.length === 0 ? (
