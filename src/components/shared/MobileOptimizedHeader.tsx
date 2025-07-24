@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -58,6 +58,31 @@ const MobileOptimizedHeader: React.FC<MobileOptimizedHeaderProps> = ({
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const tabScrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll active tab into view
+  useEffect(() => {
+    if (tabScrollRef.current && tabs.length > 0) {
+      const activeTabIndex = tabs.findIndex(tab => tab.isActive);
+      if (activeTabIndex !== -1) {
+        const activeButton = tabScrollRef.current.querySelector(`[data-tab-index="${activeTabIndex}"]`) as HTMLElement;
+        if (activeButton) {
+          const container = tabScrollRef.current;
+          const containerWidth = container.offsetWidth;
+          const buttonLeft = activeButton.offsetLeft;
+          const buttonWidth = activeButton.offsetWidth;
+          
+          // Calculate scroll position to center the active tab
+          const scrollLeft = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
+          
+          container.scrollTo({
+            left: scrollLeft,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+  }, [tabs]);
 
   const handleBack = () => {
     if (onBack) {
@@ -124,11 +149,11 @@ const MobileOptimizedHeader: React.FC<MobileOptimizedHeaderProps> = ({
                       </span>
                     )}
                   </div>
-                                     {subtitle && (
-                     <p className="text-sm text-gray-600 truncate mt-0.5">
-                       {subtitle}
-                     </p>
-                   )}
+                  {subtitle && (
+                    <p className="text-sm text-gray-600 truncate mt-0.5">
+                      {subtitle}
+                    </p>
+                  )}
                   {businessName && (
                     <p className="text-xs text-gray-500 truncate mt-0.5 sm:hidden">
                       {businessName}
@@ -274,24 +299,46 @@ const MobileOptimizedHeader: React.FC<MobileOptimizedHeaderProps> = ({
         {/* Tabs Section */}
         {tabs.length > 0 && (
           <div className="border-t border-gray-200">
-            {/* Mobile Tab Dropdown */}
-            <div className="sm:hidden px-4 py-3">
-              <select
-                value={tabs.find(tab => tab.isActive)?.id || ''}
-                onChange={(e) => {
-                  const selectedTab = tabs.find(tab => tab.id === e.target.value);
-                  if (selectedTab) {
-                    selectedTab.onClick();
-                  }
-                }}
-                className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            {/* Mobile Tab Slider */}
+            <div className="sm:hidden relative">
+              {/* Scrollable tab container */}
+              <div 
+                ref={tabScrollRef}
+                className="overflow-x-auto scrollbar-hide tab-scroll-smooth"
               >
-                {tabs.map((tab) => (
-                  <option key={tab.id} value={tab.id}>
-                    {tab.label}
-                  </option>
-                ))}
-              </select>
+                <nav className="flex min-w-full px-4 py-3">
+                  <div className="flex space-x-2 min-w-max">
+                    {tabs.map((tab, index) => (
+                      <button
+                        key={tab.id}
+                        data-tab-index={index}
+                        onClick={tab.onClick}
+                        className={`
+                          flex-shrink-0 px-4 py-2.5 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200 touch-manipulation
+                          ${tab.isActive
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg border-0'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100'
+                          }
+                        `}
+                        style={{ 
+                          minHeight: '44px',
+                          minWidth: '80px'
+                        }}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                </nav>
+              </div>
+              
+              {/* Progress indicator */}
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-200">
+                <div className="h-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300" style={{
+                  width: `${tabs.length > 0 ? (100 / tabs.length) : 0}%`,
+                  transform: `translateX(${tabs.findIndex(tab => tab.isActive) * 100}%)`
+                }} />
+              </div>
             </div>
 
             {/* Desktop Tabs */}
@@ -313,8 +360,6 @@ const MobileOptimizedHeader: React.FC<MobileOptimizedHeaderProps> = ({
           </div>
         )}
       </div>
-
-
     </header>
   );
 };

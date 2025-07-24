@@ -31,6 +31,23 @@ body {
   background-clip: text;
 }
 
+/* Hide scrollbars but maintain scrolling functionality */
+.scrollbar-hide {
+  /* Firefox */
+  scrollbar-width: none;
+  /* Safari and Chrome */
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth scroll behavior for tab navigation */
+.tab-scroll-smooth {
+  scroll-behavior: smooth;
+}
+
 /* Line clamp utilities for text truncation */
 .line-clamp-3 {
   overflow: hidden;
