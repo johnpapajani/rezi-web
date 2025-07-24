@@ -525,8 +525,10 @@ const BusinessOnboarding: React.FC = () => {
                     continue;
                   }
                   
-                  if (!tableData.seats || tableData.seats < 1) {
-                    const error = `Invalid seats (${tableData.seats}) for table ${tableData.code}`;
+                  // Handle empty seats by defaulting to 1
+                  const seats = tableData.seats || 1;
+                  if (seats < 1) {
+                    const error = `Invalid seats (${seats}) for table ${tableData.code} - must be at least 1`;
                     failureDetails.push(error);
                     tablesFailures++;
                     continue;
@@ -543,7 +545,7 @@ const BusinessOnboarding: React.FC = () => {
                   const tableWithServiceId: TableCreate = { 
                     service_id: serviceId,
                     code: tableData.code.trim(),
-                    seats: tableData.seats,
+                    seats: seats, // Use the validated seats value
                     merge_group: tableData.merge_group?.trim() || undefined,
                     is_active: tableData.is_active !== false
                   };
@@ -1241,9 +1243,10 @@ const BusinessOnboarding: React.FC = () => {
                                 <input
                                   type="number"
                                   value={table.seats}
-                                  onChange={(e) => handleTableChange(serviceIndex, tableIndex, 'seats', parseInt(e.target.value) || 1)}
+                                  onChange={(e) => handleTableChange(serviceIndex, tableIndex, 'seats', parseInt(e.target.value) || '')}
                                   className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                                   min="1"
+                                  placeholder="1"
                                 />
                               </div>
                             </div>
