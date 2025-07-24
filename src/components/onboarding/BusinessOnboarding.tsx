@@ -226,6 +226,83 @@ const BusinessOnboarding: React.FC = () => {
     ));
   };
 
+  const handleServiceIntervalChange = (serviceIndex: number, intervalIndex: number, field: string, value: any) => {
+    setServices(prev => prev.map((service, i) => 
+      i === serviceIndex 
+        ? {
+            ...service,
+            open_intervals: service.open_intervals?.map((interval, j) =>
+              j === intervalIndex ? { ...interval, [field]: value } : interval
+            ) || []
+          }
+        : service
+    ));
+  };
+
+  const handleAddServiceInterval = (serviceIndex: number) => {
+    const newInterval: ServiceOpenIntervalCreate = {
+      weekday: Weekday.monday,
+      start_time: '09:00',
+      end_time: '17:00',
+    };
+    
+    setServices(prev => prev.map((service, i) => 
+      i === serviceIndex 
+        ? {
+            ...service,
+            open_intervals: [...(service.open_intervals || []), newInterval]
+          }
+        : service
+    ));
+  };
+
+  const handleRemoveServiceInterval = (serviceIndex: number, intervalIndex: number) => {
+    setServices(prev => prev.map((service, i) => 
+      i === serviceIndex 
+        ? {
+            ...service,
+            open_intervals: service.open_intervals?.filter((_, j) => j !== intervalIndex) || []
+          }
+        : service
+    ));
+  };
+
+  const handleQuickSetup = (serviceIndex: number, preset: 'weekdays' | 'weekends' | 'daily') => {
+    const baseHours = { start_time: '09:00', end_time: '17:00' };
+    
+    let intervals: ServiceOpenIntervalCreate[] = [];
+    
+    switch (preset) {
+      case 'weekdays':
+        intervals = [
+          { weekday: Weekday.monday, ...baseHours },
+          { weekday: Weekday.tuesday, ...baseHours },
+          { weekday: Weekday.wednesday, ...baseHours },
+          { weekday: Weekday.thursday, ...baseHours },
+          { weekday: Weekday.friday, ...baseHours },
+        ];
+        break;
+      case 'weekends':
+        intervals = [
+          { weekday: Weekday.saturday, ...baseHours },
+          { weekday: Weekday.sunday, ...baseHours },
+        ];
+        break;
+      case 'daily':
+        intervals = weekdayOptions.map(day => ({ weekday: day.weekday, ...baseHours }));
+        break;
+    }
+    
+    setServices(prev => prev.map((service, i) => 
+      i === serviceIndex 
+        ? {
+            ...service,
+            open_intervals: intervals
+          }
+        : service
+    ));
+  };
+
   const addService = () => {
     setServices(prev => [...prev, {
       name: '',
@@ -505,6 +582,16 @@ const BusinessOnboarding: React.FC = () => {
     t('days.thursday'), 
     t('days.friday'), 
     t('days.saturday')
+  ];
+
+  const weekdayOptions = [
+    { weekday: Weekday.monday, name: t('days.monday'), short: t('days.short.monday') },
+    { weekday: Weekday.tuesday, name: t('days.tuesday'), short: t('days.short.tuesday') },
+    { weekday: Weekday.wednesday, name: t('days.wednesday'), short: t('days.short.wednesday') },
+    { weekday: Weekday.thursday, name: t('days.thursday'), short: t('days.short.thursday') },
+    { weekday: Weekday.friday, name: t('days.friday'), short: t('days.short.friday') },
+    { weekday: Weekday.saturday, name: t('days.saturday'), short: t('days.short.saturday') },
+    { weekday: Weekday.sunday, name: t('days.sunday'), short: t('days.short.sunday') },
   ];
 
   if (showSuccess) {
@@ -952,40 +1039,110 @@ const BusinessOnboarding: React.FC = () => {
 
                       {/* Operating Hours */}
                       <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">{t('onboarding.operatingHours')}</h4>
-                        <div className="space-y-2">
-                          {(service.open_intervals || []).map((hours, dayIndex) => (
-                            <div key={dayIndex} className="flex items-center space-x-4">
-                              <div className="w-20 text-sm text-gray-600">
-                                {dayNames[hours.weekday]}
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-medium text-gray-700">{t('onboarding.operatingHours')}</h4>
+                          <div className="flex space-x-2">
+                            <button
+                              type="button"
+                              onClick={() => handleQuickSetup(index, 'weekdays')}
+                              className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
+                            >
+                              {t('serviceOpenIntervals.weekdaysOnly')}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleQuickSetup(index, 'daily')}
+                              className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
+                            >
+                              {t('serviceOpenIntervals.allDays')}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          {(service.open_intervals || []).map((interval, intervalIndex) => (
+                            <div key={intervalIndex} className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 border border-gray-200 rounded-lg">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  {t('serviceOpenIntervals.weekday')}
+                                </label>
+                                <select
+                                  value={interval.weekday}
+                                  onChange={(e) => handleServiceIntervalChange(index, intervalIndex, 'weekday', e.target.value as unknown as Weekday)}
+                                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                  {weekdayOptions.map((option) => (
+                                    <option key={option.weekday} value={option.weekday}>
+                                      {option.name}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
-                              <label className="flex items-center">
-                                <input
-                                  type="checkbox"
-                                  checked={true} // Always show as enabled for new interval structure
-                                  onChange={() => {}} // Simplified for onboarding
-                                  className="mr-2"
-                                />
-                                <span className="text-sm text-gray-600">{t('services.open')}</span>
-                              </label>
-                              <>
+
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  {t('serviceOpenIntervals.startTime')}
+                                </label>
                                 <input
                                   type="time"
-                                  value={hours.start_time}
-                                  onChange={(e) => handleServiceHoursChange(index, dayIndex, 'start_time', e.target.value)}
-                                  className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                  value={interval.start_time}
+                                  onChange={(e) => handleServiceIntervalChange(index, intervalIndex, 'start_time', e.target.value)}
+                                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  lang="fr-FR"
                                 />
-                                <span className="text-sm text-gray-600">to</span>
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  {t('serviceOpenIntervals.endTime')}
+                                </label>
                                 <input
                                   type="time"
-                                  value={hours.end_time}
-                                  onChange={(e) => handleServiceHoursChange(index, dayIndex, 'end_time', e.target.value)}
-                                  className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                  value={interval.end_time}
+                                  onChange={(e) => handleServiceIntervalChange(index, intervalIndex, 'end_time', e.target.value)}
+                                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  lang="fr-FR"
                                 />
-                              </>
+                              </div>
+
+                              <div className="flex items-end space-x-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleAddServiceInterval(index)}
+                                  className="px-2 py-1 text-xs bg-green-50 text-green-600 rounded hover:bg-green-100"
+                                  title={t('serviceOpenIntervals.addInterval')}
+                                >
+                                  <PlusIcon className="w-4 h-4" />
+                                </button>
+                                {service.open_intervals && service.open_intervals.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveServiceInterval(index, intervalIndex)}
+                                    className="px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100"
+                                    title={t('common.remove')}
+                                  >
+                                    <XMarkIcon className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
+
+                        {(!service.open_intervals || service.open_intervals.length === 0) && (
+                          <div className="text-center py-4 border border-gray-200 rounded-lg">
+                            <ClockIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm text-gray-500 mb-2">{t('serviceOpenIntervals.noIntervals')}</p>
+                            <button
+                              type="button"
+                              onClick={() => handleAddServiceInterval(index)}
+                              className="inline-flex items-center px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
+                            >
+                              <PlusIcon className="w-4 h-4 mr-1" />
+                              {t('serviceOpenIntervals.addInterval')}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
