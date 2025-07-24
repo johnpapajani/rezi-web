@@ -242,24 +242,31 @@ const ServiceDashboard: React.FC = () => {
                       <p className="text-sm text-gray-600 mb-4 line-clamp-2">{service.description}</p>
                     )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm mb-4">
-                      <div className="flex items-center space-x-2">
-                        <ClockIcon className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600">{formatDuration(service.duration_min)}</span>
+                    {/* Mobile-optimized statistics layout */}
+                    <div className="mb-4">
+                      {/* Primary stats row - Duration and Price */}
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div className="flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-2">
+                          <ClockIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <span className="text-gray-600 text-sm font-medium">{formatDuration(service.duration_min)}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-2">
+                          <CurrencyDollarIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <span className="text-gray-600 text-sm font-medium">
+                            {service.price_minor > 0 ? formatPrice(service.price_minor, business?.currency) : t('common.free')}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <CurrencyDollarIcon className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600">
-                          {service.price_minor > 0 ? formatPrice(service.price_minor, business?.currency) : t('common.free')}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RectangleGroupIcon className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600">{service.table_count || 0} {t('services.tables')}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CalendarDaysIcon className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600">{t('serviceDashboard.recentBookings')}</span>
+                      {/* Secondary stats row - Tables and Bookings */}
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center space-x-1">
+                          <RectangleGroupIcon className="w-3 h-3" />
+                          <span>{service.table_count || 0} {service.table_count === 1 ? t('services.table') : t('services.tables')}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CalendarDaysIcon className="w-3 h-3" />
+                          <span>{t('serviceDashboard.recentBookings')}</span>
+                        </div>
                       </div>
                     </div>
 

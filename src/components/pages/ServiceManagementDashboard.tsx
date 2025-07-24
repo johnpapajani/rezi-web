@@ -598,34 +598,35 @@ const ServiceManagementDashboard: React.FC = () => {
                 )}
               </div>
               <p className="text-sm text-gray-500 mb-6">{t('serviceManagement.dashboard.subtitle')}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                <div className="text-center">
-                  <div className="mx-auto w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
-                    <CalendarDaysIcon className="w-6 h-6 text-blue-600" />
+              {/* Mobile-optimized 2x2 grid, desktop 1x4 grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+                <div className="text-center bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3">
+                    <CalendarDaysIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                   </div>
-                  <p className="text-3xl font-bold text-blue-600">{reservationStats.today}</p>
-                  <p className="text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.today')}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-600">{reservationStats.today}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.today')}</p>
                 </div>
-                <div className="text-center">
-                  <div className="mx-auto w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-3">
-                    <ClockIcon className="w-6 h-6 text-green-600" />
+                <div className="text-center bg-green-50 rounded-lg p-4 border border-green-100">
+                  <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3">
+                    <ClockIcon className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                   </div>
-                  <p className="text-3xl font-bold text-green-600">{reservationStats.thisWeek}</p>
-                  <p className="text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.thisWeek')}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-green-600">{reservationStats.thisWeek}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.thisWeek')}</p>
                 </div>
-                <div className="text-center">
-                  <div className="mx-auto w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
-                    <ChartBarIcon className="w-6 h-6 text-purple-600" />
+                <div className="text-center bg-purple-50 rounded-lg p-4 border border-purple-100">
+                  <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3">
+                    <ChartBarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
                   </div>
-                  <p className="text-3xl font-bold text-purple-600">{reservationStats.thisMonth}</p>
-                  <p className="text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.thisMonth')}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-purple-600">{reservationStats.thisMonth}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.thisMonth')}</p>
                 </div>
-                <div className="text-center">
-                  <div className="mx-auto w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-3">
-                    <RectangleGroupIcon className="w-6 h-6 text-orange-600" />
+                <div className="text-center bg-orange-50 rounded-lg p-4 border border-orange-100">
+                  <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3">
+                    <RectangleGroupIcon className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
                   </div>
-                  <p className="text-3xl font-bold text-orange-600">{reservationStats.totalBookings}</p>
-                  <p className="text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.totalBookings')}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-orange-600">{reservationStats.totalBookings}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 font-medium">{t('serviceManagement.dashboard.totalBookings')}</p>
                 </div>
               </div>
             </div>
