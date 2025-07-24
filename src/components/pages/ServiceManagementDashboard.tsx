@@ -526,7 +526,7 @@ const ServiceManagementDashboard: React.FC = () => {
       {/* Header */}
       <MobileOptimizedHeader
         title={service.name}
-        subtitle={`${business?.name} • ${service.is_active ? t('common.active') : t('common.inactive')}`}
+        subtitle={business?.name ? `${business.name} • ${service.is_active ? t('common.active') : t('common.inactive')}` : (service.is_active ? t('common.active') : t('common.inactive'))}
         backUrl="/dashboard"
         logoUrl="/favicon.svg"
         variant="business"

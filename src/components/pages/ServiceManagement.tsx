@@ -434,7 +434,7 @@ const ServiceManagement: React.FC = () => {
       {/* Header */}
       <MobileOptimizedHeader
         title={t('services.title')}
-        subtitle={business?.name}
+        subtitle={business?.name || ''}
         backUrl={`/business/${bizId}`}
         icon={CogIcon}
         variant="business"
