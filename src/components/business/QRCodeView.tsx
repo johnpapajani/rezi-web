@@ -37,25 +37,20 @@ const QRCodeView: React.FC = () => {
 
   const handleDownload = async () => {
     if (qrCodeData?.qr_code_base64) {
-      // Use base64 data directly
+      // Use base64 data directly - this is the preferred method
       const link = document.createElement('a');
       link.href = `data:image/png;base64,${qrCodeData.qr_code_base64}`;
       link.download = `${business?.slug || 'business'}-qr-code.png`;
       link.click();
     } else if (qrCodeData?.qr_code_url) {
-      // Fetch the image from URL and convert to blob for download
-      try {
-        const response = await fetch(qrCodeData.qr_code_url);
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${business?.slug || 'business'}-qr-code.png`;
-        link.click();
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error('Failed to download QR code from URL:', error);
-      }
+      // Fallback: Open URL in new tab (browsers will handle download)
+      // This avoids CORS issues but user needs to manually save
+      const link = document.createElement('a');
+      link.href = qrCodeData.qr_code_url;
+      link.download = `${business?.slug || 'business'}-qr-code.png`;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.click();
     }
   };
 
