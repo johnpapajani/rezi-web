@@ -24,6 +24,8 @@ import {
   ArrowRightOnRectangleIcon,
   GlobeAltIcon,
   ChevronDownIcon,
+  InformationCircleIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 
 const ServiceManagement: React.FC = () => {
@@ -54,7 +56,7 @@ const ServiceManagement: React.FC = () => {
     name: '',
     slug: '',
     description: '',
-    duration_min: 120,
+    duration_min: 15,
     price_minor: 0,
     category_id: '',
     is_active: true,
@@ -68,6 +70,9 @@ const ServiceManagement: React.FC = () => {
       { weekday: Weekday.sunday, start_time: '10:00', end_time: '21:00' },
     ],
   });
+
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Auto-open create modal if 'create' parameter is present
   useEffect(() => {
@@ -114,18 +119,78 @@ const ServiceManagement: React.FC = () => {
 
   const handleCreateService = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+    setValidationErrors({});
+
+    // Validate required fields
+    const errors: { [key: string]: string } = {};
+    
+    if (!formData.name?.trim()) {
+      errors.name = t('services.validation.nameRequired');
+    }
+
+    if (!formData.duration_min || formData.duration_min <= 0) {
+      errors.duration_min = t('services.validation.durationRequired');
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
     try {
-      await createService(formData);
+      // Clean the service data - set default category if none selected
+      const cleanServiceData = { ...formData };
+      if (!cleanServiceData.category_id || cleanServiceData.category_id.trim() === '') {
+        // Find the "Other" category by slug
+        const otherCategory = categories.find(cat => 
+          cat.slug === 'other' || 
+          cat.slug === 'others' || 
+          cat.name.toLowerCase().includes('other')
+        );
+        if (otherCategory) {
+          cleanServiceData.category_id = otherCategory.id;
+        } else {
+          // If no "Other" category found, omit the field (fallback to previous behavior)
+          delete cleanServiceData.category_id;
+        }
+      }
+
+      await createService(cleanServiceData);
       setIsCreateModalOpen(false);
       resetForm();
-    } catch (error) {
-      // Error is handled by the hook
+    } catch (error: any) {
+      // Handle different types of errors
+      if (error.message && error.message.includes('Validation errors:')) {
+        setFormError(error.message);
+      } else {
+        setFormError(error.detail || error.message || t('services.error.createFailed'));
+      }
     }
   };
 
   const handleUpdateService = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingService) return;
+    
+    setFormError(null);
+    setValidationErrors({});
+
+    // Validate required fields
+    const errors: { [key: string]: string } = {};
+    
+    if (!formData.name?.trim()) {
+      errors.name = t('services.validation.nameRequired');
+    }
+
+    if (!formData.duration_min || formData.duration_min <= 0) {
+      errors.duration_min = t('services.validation.durationRequired');
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
     
     try {
       // Only update basic service fields, not open intervals
@@ -141,8 +206,13 @@ const ServiceManagement: React.FC = () => {
       await updateService(editingService.id, updateData);
       setEditingService(null);
       resetForm();
-    } catch (error) {
-      // Error is handled by the hook
+    } catch (error: any) {
+      // Handle different types of errors
+      if (error.message && error.message.includes('Validation errors:')) {
+        setFormError(error.message);
+      } else {
+        setFormError(error.detail || error.message || t('services.error.updateFailed'));
+      }
     }
   };
 
@@ -184,7 +254,7 @@ const ServiceManagement: React.FC = () => {
       name: '',
       slug: '',
       description: '',
-      duration_min: 120,
+      duration_min: 15,
       price_minor: 0,
       category_id: '',
       is_active: true,
@@ -198,6 +268,8 @@ const ServiceManagement: React.FC = () => {
         { weekday: Weekday.sunday, start_time: '10:00', end_time: '21:00' },
       ],
     });
+    setValidationErrors({});
+    setFormError(null);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -215,6 +287,32 @@ const ServiceManagement: React.FC = () => {
         slug: generateSlug(value)
       }));
     }
+
+    // Clear validation error for this field
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+
+    // Clear form error when user starts typing
+    if (formError) {
+      setFormError(null);
+    }
+  };
+
+  const formatPriceDisplay = (priceMinor: number): string => {
+    const price = priceMinor / 100;
+    return price.toFixed(2);
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData(prev => ({
+      ...prev,
+      price_minor: value === '' ? 0 : Math.round(Number(value) * 100)
+    }));
   };
 
   const handleToggleActive = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,6 +337,67 @@ const ServiceManagement: React.FC = () => {
       open_intervals: isEnabled 
         ? [...(prev.open_intervals || []), { weekday, start_time: '09:00', end_time: '22:00' }]
         : (prev.open_intervals || []).filter(interval => interval.weekday !== weekday)
+    }));
+  };
+
+  const handleAddInterval = () => {
+    const newInterval: ServiceOpenIntervalCreate = {
+      weekday: Weekday.monday,
+      start_time: '09:00',
+      end_time: '17:00',
+      notes: '',
+    };
+    setFormData(prev => ({
+      ...prev,
+      open_intervals: [...(prev.open_intervals || []), newInterval]
+    }));
+  };
+
+  const handleRemoveInterval = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      open_intervals: prev.open_intervals?.filter((_, i) => i !== index) || []
+    }));
+  };
+
+  const handleIntervalChange = (index: number, field: keyof ServiceOpenIntervalCreate, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      open_intervals: prev.open_intervals?.map((interval, i) => 
+        i === index ? { ...interval, [field]: value } : interval
+      ) || []
+    }));
+  };
+
+  const handleQuickSetup = (preset: 'weekdays' | 'weekends' | 'daily') => {
+    const baseHours = { start_time: '09:00', end_time: '17:00', notes: '' };
+    
+    let intervals: ServiceOpenIntervalCreate[] = [];
+    
+    switch (preset) {
+      case 'weekdays':
+        intervals = [
+          { weekday: Weekday.monday, ...baseHours },
+          { weekday: Weekday.tuesday, ...baseHours },
+          { weekday: Weekday.wednesday, ...baseHours },
+          { weekday: Weekday.thursday, ...baseHours },
+          { weekday: Weekday.friday, ...baseHours },
+        ];
+        break;
+      case 'weekends':
+        intervals = [
+          { weekday: Weekday.saturday, ...baseHours },
+          { weekday: Weekday.sunday, ...baseHours },
+        ];
+        break;
+      case 'daily':
+        intervals = weekdayNames.map(day => ({ weekday: day.weekday, ...baseHours }));
+        break;
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      open_intervals: intervals
     }));
   };
 
@@ -511,7 +670,7 @@ const ServiceManagement: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
             >
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">
@@ -519,150 +678,329 @@ const ServiceManagement: React.FC = () => {
                 </h3>
               </div>
 
-              <form onSubmit={editingService ? handleUpdateService : handleCreateService} className="p-4 sm:p-6 space-y-6">
-                {/* Basic Information */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('services.serviceName')}
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 touch-manipulation"
-                      placeholder={t('services.serviceNamePlaceholder')}
-                      required
-                    />
+              <form onSubmit={editingService ? handleUpdateService : handleCreateService} className="p-4 sm:p-6 space-y-8">
+                {/* Form Error Message */}
+                {formError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3"
+                  >
+                    <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
+                    <span className="text-red-800 font-medium">{formError}</span>
+                  </motion.div>
+                )}
+
+                {/* Basic Information Section */}
+                <div className="bg-gray-50 rounded-lg border border-gray-200 p-6">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <CogIcon className="w-6 h-6 text-blue-600" />
+                    <h4 className="text-lg font-semibold text-gray-900">{t('serviceManagement.settings.basicInfo.title')}</h4>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('services.serviceSlug')}
-                    </label>
-                    <input
-                      type="text"
-                      name="slug"
-                      value={formData.slug}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder={t('services.serviceSlugPlaceholder')}
-                      required
-                    />
-                    <p className="mt-1 text-sm text-gray-500">
-                      {t('services.serviceSlugHelp')}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('services.category')}
-                    </label>
-                    <select
-                      name="category_id"
-                      value={formData.category_id}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      disabled={categoriesLoading}
-                    >
-                      <option value="">{t('services.selectCategory')}</option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                    {categoriesLoading && (
-                      <p className="mt-1 text-sm text-gray-500">{t('services.loadingCategories')}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('services.duration')}
-                    </label>
-                    <div className="flex">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('services.serviceName')} *
+                      </label>
                       <input
-                        type="number"
-                        name="duration_min"
-                        value={formData.duration_min}
+                        type="text"
+                        name="name"
+                        value={formData.name}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        min="1"
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent touch-manipulation ${
+                          validationErrors.name ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder={t('services.serviceNamePlaceholder')}
                         required
                       />
-                      <span className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-r-md">
-                        {t('services.minutes')}
-                      </span>
+                      {validationErrors.name && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
+                      )}
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('services.serviceSlug')}
+                      </label>
+                      <input
+                        type="text"
+                        name="slug"
+                        value={formData.slug}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                        placeholder={t('services.serviceSlugPlaceholder')}
+                        required
+                        readOnly
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        {t('services.serviceSlugHelp')}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('services.category')}
+                      </label>
+                      <select
+                        name="category_id"
+                        value={formData.category_id}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={categoriesLoading}
+                      >
+                        <option value="">{t('services.selectCategory')}</option>
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                      {categoriesLoading && (
+                        <p className="mt-1 text-sm text-gray-500">{t('services.loadingCategories')}</p>
+                      )}
+                      <p className="mt-1 text-xs text-gray-500">
+                        {t('services.categoryHelp')}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <ClockIcon className="w-4 h-4 inline mr-1" />
+                        {t('services.duration')} *
+                      </label>
+                      <div className="flex">
+                        <input
+                          type="number"
+                          name="duration_min"
+                          value={formData.duration_min}
+                          onChange={handleInputChange}
+                          className={`w-full px-3 py-2 border rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            validationErrors.duration_min ? 'border-red-500' : 'border-gray-300'
+                          }`}
+                          min="1"
+                          required
+                        />
+                        <span className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-r-lg">
+                          {t('services.minutes')}
+                        </span>
+                      </div>
+                      {validationErrors.duration_min && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.duration_min}</p>
+                      )}
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('services.description')}
+                      </label>
+                      <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={t('services.descriptionPlaceholder')}
+                      />
                     </div>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('services.description')}
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder={t('services.descriptionPlaceholder')}
-                  />
-                </div>
+                {/* Pricing Section */}
+                <div className="bg-gray-50 rounded-lg border border-gray-200 p-6">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
+                    <h4 className="text-lg font-semibold text-gray-900">{t('serviceManagement.settings.pricing.title')}</h4>
+                  </div>
 
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    checked={formData.is_active}
-                    onChange={handleToggleActive}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
-                    {t('services.active')}
-                  </label>
-                </div>
-
-                {/* Operating Hours */}
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">{t('services.operatingHours')}</h4>
-                  <div className="space-y-3">
-                    {weekdayNames.map((day) => (
-                      <div key={day.weekday} className="flex items-center space-x-4">
-                        <div className="w-20 text-sm text-gray-600">
-                          {day.name}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <CurrencyDollarIcon className="w-4 h-4 inline mr-1" />
+                        {t('serviceManagement.settings.pricing.price')}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={formData.price_minor ? formatPriceDisplay(formData.price_minor) : ''}
+                          onChange={handlePriceChange}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                        />
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <span className="text-gray-500 text-sm">{business?.currency || 'ALL'}</span>
                         </div>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={formData.open_intervals?.some(interval => interval.weekday === day.weekday)}
-                            onChange={(e) => handleToggleWeekday(day.weekday, e.target.checked)}
-                            className="mr-2"
-                          />
-                          <span className="text-sm text-gray-600">{t('services.open')}</span>
-                        </label>
-                        {formData.open_intervals?.some(interval => interval.weekday === day.weekday) && (
-                          <>
-                            <input
-                              type="time"
-                              value={formData.open_intervals?.find(interval => interval.weekday === day.weekday)?.start_time}
-                              onChange={(e) => handleOpenIntervalsChange(day.weekday, 'start_time', e.target.value)}
-                              className="px-2 py-1 border border-gray-300 rounded text-sm"
-                            />
-                            <span className="text-sm text-gray-600">{t('services.to')}</span>
-                            <input
-                              type="time"
-                              value={formData.open_intervals?.find(interval => interval.weekday === day.weekday)?.end_time}
-                              onChange={(e) => handleOpenIntervalsChange(day.weekday, 'end_time', e.target.value)}
-                              className="px-2 py-1 border border-gray-300 rounded text-sm"
-                            />
-                          </>
-                        )}
                       </div>
-                    ))}
+                      <p className="mt-1 text-xs text-gray-500">
+                        {t('serviceManagement.settings.pricing.price.help')}
+                        {formData.price_minor === 0 && (
+                          <span className="ml-2 font-medium text-green-600">
+                            ({t('serviceManagement.settings.pricing.free')})
+                          </span>
+                        )}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="is_active"
+                        checked={formData.is_active}
+                        onChange={handleToggleActive}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
+                        {t('services.active')}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Operating Hours Section */}
+                <div className="bg-gray-50 rounded-lg border border-gray-200 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                      <ClockIcon className="w-6 h-6 text-purple-600" />
+                      <h4 className="text-lg font-semibold text-gray-900">{t('serviceOpenIntervals.operatingHours')}</h4>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleQuickSetup('weekdays')}
+                        className="px-3 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                      >
+                        {t('serviceOpenIntervals.weekdaysOnly')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickSetup('weekends')}
+                        className="px-3 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                      >
+                        {t('serviceOpenIntervals.weekendsOnly')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickSetup('daily')}
+                        className="px-3 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                      >
+                        {t('serviceOpenIntervals.allDays')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAddInterval}
+                        className="px-3 py-1 text-xs bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors"
+                      >
+                        <PlusIcon className="w-4 h-4 inline mr-1" />
+                        {t('serviceOpenIntervals.addInterval')}
+                      </button>
+                    </div>
+                  </div>
+
+                  {(!formData.open_intervals || formData.open_intervals.length === 0) ? (
+                    <div className="text-center py-8 border border-gray-200 rounded-lg bg-white">
+                      <ClockIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">{t('serviceOpenIntervals.noIntervals')}</h3>
+                      <p className="text-sm text-gray-600 mb-4">{t('serviceOpenIntervals.noIntervalsDescription')}</p>
+                      <button
+                        type="button"
+                        onClick={handleAddInterval}
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-50 hover:bg-blue-100"
+                      >
+                        <PlusIcon className="w-4 h-4 mr-2" />
+                        {t('serviceOpenIntervals.addInterval')}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {formData.open_intervals.map((interval, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4 border border-gray-200 rounded-lg bg-white"
+                        >
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              {t('serviceOpenIntervals.weekday')}
+                            </label>
+                            <select
+                              value={interval.weekday}
+                              onChange={(e) => handleIntervalChange(index, 'weekday', e.target.value as unknown as Weekday)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              {weekdayNames.map((option) => (
+                                <option key={option.weekday} value={option.weekday}>
+                                  {option.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              {t('serviceOpenIntervals.startTime')}
+                            </label>
+                            <input
+                              type="time"
+                              value={interval.start_time}
+                              onChange={(e) => handleIntervalChange(index, 'start_time', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              {t('serviceOpenIntervals.endTime')}
+                            </label>
+                            <input
+                              type="time"
+                              value={interval.end_time}
+                              onChange={(e) => handleIntervalChange(index, 'end_time', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              {t('serviceOpenIntervals.notes')}
+                            </label>
+                            <input
+                              type="text"
+                              value={interval.notes || ''}
+                              onChange={(e) => handleIntervalChange(index, 'notes', e.target.value)}
+                              placeholder={t('serviceOpenIntervals.notesPlaceholder')}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div className="flex items-end">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveInterval(index)}
+                              className="w-full px-3 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            >
+                              <TrashIcon className="w-4 h-4 mx-auto" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <InformationCircleIcon className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                      <div className="text-sm text-blue-700">
+                        <p className="font-medium">{t('serviceOpenIntervals.infoTitle')}</p>
+                        <ul className="mt-1 list-disc list-inside space-y-1">
+                          <li>{t('serviceOpenIntervals.info1')}</li>
+                          <li>{t('serviceOpenIntervals.info2')}</li>
+                          <li>{t('serviceOpenIntervals.info3')}</li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -675,18 +1013,19 @@ const ServiceManagement: React.FC = () => {
                       setEditingService(null);
                       resetForm();
                     }}
-                    className="px-4 py-3 sm:py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 touch-manipulation"
+                    className="px-6 py-3 sm:py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation"
                   >
                     {t('services.cancel')}
                   </button>
                   <button
                     type="submit"
                     disabled={creating || updating}
-                    className="px-4 py-3 sm:py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center touch-manipulation"
+                    className="px-6 py-3 sm:py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center touch-manipulation"
                   >
                     {(creating || updating) && (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     )}
+                    <CheckCircleIcon className="w-4 h-4 mr-2" />
                     {editingService ? t('services.update') : t('services.create')}
                   </button>
                 </div>
