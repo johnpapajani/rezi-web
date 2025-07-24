@@ -1,4 +1,4 @@
-import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, BookingCreate, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate, ServiceWithOpenIntervals, ServiceOpenInterval, ServiceOpenIntervalCreate, AvailabilityMatrix, ServiceCategory, ServiceCategoryLocalized } from '../types';
+import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, QRCodeResponse, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, BookingCreate, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate, ServiceWithOpenIntervals, ServiceOpenInterval, ServiceOpenIntervalCreate, AvailabilityMatrix, ServiceCategory, ServiceCategoryLocalized } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -157,13 +157,16 @@ export const businessApi = {
     return handleResponse<BusinessWithRole[]>(response);
   },
 
-  createBusiness: async (businessData: BusinessCreate): Promise<Business> => {
+  createBusiness: async (businessData: BusinessCreate, generateQr: boolean = true): Promise<Business> => {
     const accessToken = tokenStorage.getAccessToken();
     if (!accessToken) {
       throw new ApiErrorClass('No access token available', 401);
     }
 
-    const response = await fetch(`${API_BASE_URL}/business/`, {
+    const url = new URL(`${API_BASE_URL}/business/`);
+    url.searchParams.set('generate_qr', generateQr.toString());
+
+    const response = await fetch(url.toString(), {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -190,6 +193,26 @@ export const businessApi = {
     });
     
     return handleResponse<Business>(response);
+  },
+
+  getQRCodeInfo: async (bizId: string, includeBase64: boolean = false): Promise<QRCodeResponse> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const url = new URL(`${API_BASE_URL}/business/${bizId}/qr-code/info`);
+    url.searchParams.set('include_base64', includeBase64.toString());
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<QRCodeResponse>(response);
   },
 
   updateBusiness: async (bizId: string, businessUpdate: BusinessUpdate): Promise<Business> => {

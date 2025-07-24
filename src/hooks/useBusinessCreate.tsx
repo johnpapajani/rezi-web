@@ -6,12 +6,12 @@ export const useBusinessCreate = () => {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const createBusiness = async (businessData: BusinessCreate): Promise<Business> => {
+  const createBusiness = async (businessData: BusinessCreate, generateQr: boolean = true): Promise<Business> => {
     try {
       setCreating(true);
       setError(null);
       
-      const newBusiness = await businessApi.createBusiness(businessData);
+      const newBusiness = await businessApi.createBusiness(businessData, generateQr);
       return newBusiness;
     } catch (err: any) {
       const errorMessage = err.detail || 'Failed to create business';

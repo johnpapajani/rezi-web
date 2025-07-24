@@ -25,6 +25,7 @@ import {
   CurrencyDollarIcon,
   MapPinIcon,
   CheckCircleIcon,
+  QrCodeIcon,
 } from '@heroicons/react/24/outline';
 import { useBusiness } from '../../hooks/useBusiness';
 import { useBookings, useUpcomingBookings } from '../../hooks/useBookings';
@@ -588,7 +589,7 @@ const SettingsWrapper: React.FC = () => {
   );
 };
 
-type TabType = 'dashboard' | 'settings' | 'tables' | 'bookings';
+type TabType = 'dashboard' | 'settings' | 'tables' | 'bookings' | 'qrcode';
 
 const BusinessDashboard: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
@@ -634,6 +635,7 @@ const BusinessDashboard: React.FC = () => {
     if (path.includes('/settings')) setCurrentTab('settings');
     else if (path.includes('/bookings')) setCurrentTab('bookings');
     else if (path.includes('/tables')) setCurrentTab('tables');
+    else if (path.includes('/qr')) setCurrentTab('qrcode');
     else setCurrentTab('dashboard');
   }, [location.pathname]);
 
@@ -697,6 +699,12 @@ const BusinessDashboard: React.FC = () => {
   };
 
   const handleTabChange = (tab: TabType) => {
+    if (tab === 'qrcode') {
+      // Navigate to the QR code page
+      navigate(`/business/${bizId}/qr`);
+      return;
+    }
+    
     setCurrentTab(tab);
     // Update URL without full navigation
     const newPath = tab === 'dashboard' 
@@ -857,6 +865,7 @@ const BusinessDashboard: React.FC = () => {
                 <option value="settings">{t('business.dashboard.tabs.settings')}</option>
                 <option value="tables">{t('business.dashboard.tabs.tables')}</option>
                 <option value="bookings">{t('business.dashboard.tabs.bookings')}</option>
+                <option value="qrcode">{t('business.qr.title')}</option>
               </select>
             </div>
             
@@ -901,6 +910,16 @@ const BusinessDashboard: React.FC = () => {
                 }`}
               >
                 {t('business.dashboard.tabs.bookings')}
+              </button>
+              <button
+                onClick={() => handleTabChange('qrcode')}
+                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                  currentTab === 'qrcode'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {t('business.qr.title')}
               </button>
             </nav>
           </div>

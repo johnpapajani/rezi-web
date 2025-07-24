@@ -95,6 +95,8 @@ export interface Business {
   currency: string;
   timezone: string;
   logo_url?: string;
+  qr_code_url?: string;
+  qr_code_data?: string;
   address_line1?: string;
   address_line2?: string;
   city?: string;
@@ -134,11 +136,20 @@ export interface BusinessCreate {
   currency?: string;
   timezone?: string;
   logo_url?: string;
+  qr_code_url?: string;
+  qr_code_data?: string;
   address_line1?: string;
   address_line2?: string;
   city?: string;
   postal_code?: string;
   country_code?: string;
+}
+
+// QR Code response type for the QR info endpoint
+export interface QRCodeResponse {
+  qr_code_url?: string;        // S3 URL to the QR code image
+  qr_code_data?: string;       // The URL that the QR code points to (booking URL)
+  qr_code_base64?: string;     // Base64 encoded image data for display/download
 }
 
 // Service types

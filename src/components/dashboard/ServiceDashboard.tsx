@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useServices } from '../../hooks/useServices';
@@ -26,10 +26,11 @@ import {
   ArrowLeftIcon,
   PhotoIcon,
   MapPinIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  QrCodeIcon
 } from '@heroicons/react/24/outline';
 
-type TabType = 'services' | 'settings';
+type TabType = 'services' | 'settings' | 'qrcode';
 
 const ServiceDashboard: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
@@ -38,6 +39,14 @@ const ServiceDashboard: React.FC = () => {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState<TabType>('services');
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if we're on QR page for highlighting tab
+  useEffect(() => {
+    if (location.pathname.includes('/qr')) {
+      setCurrentTab('qrcode');
+    }
+  }, [location.pathname]);
   const { business, loading: businessLoading, error: businessError, updating, updateBusiness } = useBusiness({ bizId: bizId || '' });
   const { services, loading: servicesLoading, error: servicesError } = useServices({ bizId: bizId || '', activeOnly: false });
 
@@ -619,11 +628,19 @@ const ServiceDashboard: React.FC = () => {
             <div className="sm:hidden mb-4">
               <select
                 value={currentTab}
-                onChange={(e) => setCurrentTab(e.target.value as any)}
+                onChange={(e) => {
+                  const newTab = e.target.value as TabType;
+                  if (newTab === 'qrcode') {
+                    navigate(`/business/${bizId}/qr`);
+                  } else {
+                    setCurrentTab(newTab);
+                  }
+                }}
                 className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
               >
                 <option value="services">{t('business.dashboard.tabs.services')}</option>
                 <option value="settings">{t('business.dashboard.tabs.settings')}</option>
+                <option value="qrcode">{t('business.qr.title')}</option>
               </select>
             </div>
             
@@ -653,6 +670,19 @@ const ServiceDashboard: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <CogIcon className="w-4 h-4" />
                   <span>{t('business.dashboard.tabs.settings')}</span>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate(`/business/${bizId}/qr`)}
+                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                  currentTab === 'qrcode'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <QrCodeIcon className="w-4 h-4" />
+                  <span>{t('business.qr.title')}</span>
                 </div>
               </button>
             </nav>

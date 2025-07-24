@@ -17,6 +17,7 @@ import BusinessList from './components/pages/BusinessList';
 import BookingList from './components/pages/BookingList';
 import ServiceSelection from './components/pages/ServiceSelection';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import QRCodeView from './components/business/QRCodeView';
 import PublicBusinessPage from './components/pages/PublicBusinessPage';
 import PublicServiceAvailability from './components/pages/PublicServiceAvailability';
 import PublicBookingForm from './components/pages/PublicBookingForm';
@@ -93,6 +94,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <BusinessOnboarding />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/business/:bizId/qr" 
+                element={
+                  <ProtectedRoute>
+                    <QRCodeView />
                   </ProtectedRoute>
                 } 
               />
