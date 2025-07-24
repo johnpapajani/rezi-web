@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useBusinessCreate } from '../../hooks/useBusinessCreate';
 import { useTranslation } from '../../hooks/useTranslation';
 import { BusinessCreate } from '../../types';
+import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import {
   BuildingStorefrontIcon,
   PhotoIcon,
@@ -11,7 +12,6 @@ import {
   ClockIcon,
   CurrencyDollarIcon,
   MapPinIcon,
-  ArrowLeftIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
@@ -148,27 +148,13 @@ const BusinessCreatePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-            <div className="flex items-center space-x-4 min-w-0">
-              <button
-                onClick={() => navigate('/businesses')}
-                className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-              </button>
-              <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('business.create.title')}</h1>
-                <p className="text-sm text-gray-600">{t('business.create.subtitle')}</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center sm:justify-start">
-              <BuildingStorefrontIcon className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <MobileOptimizedHeader
+        title={t('business.create.title')}
+        subtitle={t('business.create.subtitle')}
+        backUrl="/businesses"
+        icon={BuildingStorefrontIcon}
+        variant="business"
+      />
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

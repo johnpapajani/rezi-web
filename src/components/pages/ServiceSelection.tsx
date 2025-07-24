@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useServices } from '../../hooks/useServices';
 import { useBusiness } from '../../hooks/useBusiness';
+import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
-  ArrowLeftIcon,
   CogIcon,
   ClockIcon,
   CurrencyDollarIcon,
@@ -90,47 +90,22 @@ const ServiceSelection: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-0 sm:h-16 space-y-3 sm:space-y-0">
-            <div className="flex items-center space-x-4 min-w-0">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-              </button>
-              <div className="flex items-center space-x-3 min-w-0">
-                {business?.logo_url ? (
-                  <img
-                    src={business.logo_url}
-                    alt={business.name}
-                    className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
-                  />
-                ) : (
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <BuildingStorefrontIcon className="w-5 h-5 text-white" />
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
-                    {t('serviceSelection.title')}
-                  </h1>
-                  <p className="text-sm text-gray-600 truncate">{business?.name}</p>
-                </div>
-              </div>
-            </div>
-            
-            <button
-              onClick={handleManageAllServices}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <CogIcon className="w-4 h-4 mr-2" />
-              {t('serviceSelection.manageAll')}
-            </button>
-          </div>
-        </div>
-      </header>
+      <MobileOptimizedHeader
+        title={t('serviceSelection.title')}
+        businessName={business?.name}
+        backUrl="/dashboard"
+        logoUrl={business?.logo_url}
+        icon={!business?.logo_url ? BuildingStorefrontIcon : undefined}
+        variant="business"
+        actions={[
+          {
+            label: t('serviceSelection.manageAll'),
+            onClick: handleManageAllServices,
+            variant: 'secondary',
+            icon: CogIcon
+          }
+        ]}
+      />
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">

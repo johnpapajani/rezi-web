@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useUserBusinesses } from '../../hooks/useUserBusinesses';
 import { BusinessRole } from '../../types';
+import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import {
   BuildingStorefrontIcon,
   PlusIcon,
   CogIcon,
-  ArrowLeftIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
@@ -77,31 +77,21 @@ const BusinessList: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-              </button>
-                             <div>
-                 <h1 className="text-2xl font-bold text-gray-900">{t('business.list.title')}</h1>
-                 <p className="text-sm text-gray-600">{t('business.list.subtitle')} ({businesses.length})</p>
-               </div>
-            </div>
-                         <button
-               onClick={() => navigate('/business/create')}
-               className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-             >
-               <PlusIcon className="w-4 h-4" />
-               <span>{t('business.list.addBusiness')}</span>
-             </button>
-          </div>
-        </div>
-      </div>
+      <MobileOptimizedHeader
+        title={t('business.list.title')}
+        subtitle={`${t('business.list.subtitle')} (${businesses.length})`}
+        backUrl="/dashboard"
+        icon={BuildingStorefrontIcon}
+        variant="business"
+        actions={[
+          {
+            label: t('business.list.addBusiness'),
+            onClick: () => navigate('/business/create'),
+            variant: 'primary',
+            icon: PlusIcon
+          }
+        ]}
+      />
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

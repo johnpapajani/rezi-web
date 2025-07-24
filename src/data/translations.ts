@@ -241,7 +241,7 @@ export const translations: Translations = {
 
     // Dashboard
     'dashboard.welcome': 'Mirë se erdhe',
-    'dashboard.subtitle': 'Këtu është një pamje e përgjithshme e biznesit tuaj',
+    'dashboard.subtitle': 'Këtu është një pamje e përgjithshme e bizneseve tuaja',
     'dashboard.signOut': 'Dil',
     'dashboard.needHelp': 'Kam nevojë për ndihmë',
     'dashboard.stats.businesses': 'Biznese',
@@ -455,7 +455,7 @@ export const translations: Translations = {
     'tables.deleteTable': 'Fshi Njësin',
     'tables.tableCode': 'Kodi i Njësis',
     'tables.tableCodePlaceholder': 'p.sh., T1, A1, Dritare',
-    'tables.seats': 'Numri i Vendeve',
+    'tables.seats': 'Numri i Personave',
     'tables.mergeGroup': 'Grupi i Bashkimit (Opsional)',
     'tables.mergeGroupPlaceholder': 'p.sh., Dritare, Jashtë',
     'tables.mergeGroupHelp': 'Njësitë me të njëjtin grup bashkimi mund të kombinohen për grupe më të mëdha',
@@ -950,7 +950,7 @@ export const translations: Translations = {
     'guide.tables.add.step1': 'Shko në seksionin "Njësi/Tavolina" të shërbimit',
     'guide.tables.add.step2': 'Kliko "Shto Tavolinë" për të krijuar një njësi të re',
     'guide.tables.add.step3': 'Vendos një kod unik për tavolinën (p.sh. "T1", "A1", "Dritare")',
-    'guide.tables.add.step4': 'Specifikо numrin e vendeve që ka tavolina',
+    'guide.tables.add.step4': 'Specifikо numrin e perso që ka tavolina',
     'guide.tables.add.step5': 'Mund të vendosësh një grup bashkimi për tavolina që mund të bashkohen',
     'guide.tables.add.tip': 'Përdor kode të thjeshta dhe të lehta për t\'u mbajtur mend - do t\'i përdorësh shpesh',
 
@@ -1915,7 +1915,7 @@ export const translations: Translations = {
 
     // Dashboard
     'dashboard.welcome': 'Welcome',
-    'dashboard.subtitle': 'Here is an overview of your business',
+    'dashboard.subtitle': 'Here is an overview of all your businesses',
     'dashboard.signOut': 'Sign Out',
     'dashboard.needHelp': 'Need Help',
     'dashboard.stats.businesses': 'Businesses',
@@ -2916,7 +2916,7 @@ export const translations: Translations = {
     'tables.deleteTable': 'Delete Table',
     'tables.tableCode': 'Table Code',
     'tables.tableCodePlaceholder': 'e.g., T1, A1, Window',
-    'tables.seats': 'Number of Seats',
+    'tables.seats': 'Number of People',
     'tables.mergeGroup': 'Merge Group (Optional)',
     'tables.mergeGroupPlaceholder': 'e.g., Window, Outdoor',
     'tables.mergeGroupHelp': 'Tables with the same merge group can be combined for larger parties',

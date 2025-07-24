@@ -6,8 +6,8 @@ import { useTables } from '../../hooks/useTables';
 import { useBusiness } from '../../hooks/useBusiness';
 import { useServices } from '../../hooks/useServices';
 import { Table, TableCreate, TableUpdate } from '../../types';
+import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
-  ArrowLeftIcon,
   PlusIcon,
   PencilIcon,
   TrashIcon,
@@ -103,39 +103,21 @@ const TableManagement: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <button
-                onClick={() => navigate(`/business/${bizId}`)}
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-              </button>
-              <div className="flex items-center">
-                <RectangleGroupIcon className="w-8 h-8 text-blue-600 mr-3" />
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
-                    {t('tables.title')}
-                  </h1>
-                  <p className="text-sm text-gray-500">
-                    {business?.name}
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <PlusIcon className="w-4 h-4 mr-2" />
-              {t('tables.addTable')}
-            </button>
-          </div>
-        </div>
-      </header>
+      <MobileOptimizedHeader
+        title={t('tables.title')}
+        subtitle={business?.name}
+        backUrl={`/business/${bizId}`}
+        icon={RectangleGroupIcon}
+        variant="business"
+        actions={[
+          {
+            label: t('tables.addTable'),
+            onClick: () => setIsCreateModalOpen(true),
+            variant: 'primary',
+            icon: PlusIcon
+          }
+        ]}
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">

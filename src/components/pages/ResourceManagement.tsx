@@ -5,8 +5,8 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useResources } from '../../hooks/useResources';
 import { useResourceStats } from '../../hooks/useResourceStats';
 import { useBusiness } from '../../hooks/useBusiness';
+import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
-  ArrowLeftIcon,
   RectangleGroupIcon,
   CalendarDaysIcon,
   ClockIcon,
@@ -46,31 +46,13 @@ const ResourceManagement: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <button
-                onClick={() => navigate(`/business/${bizId}`)}
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-              </button>
-              <div className="flex items-center">
-                <RectangleGroupIcon className="w-8 h-8 text-blue-600 mr-3" />
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
-                    {t('resources.dashboard.title')}
-                  </h1>
-                  <p className="text-sm text-gray-500">
-                    {business?.name}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <MobileOptimizedHeader
+        title={t('resources.dashboard.title')}
+        subtitle={business?.name}
+        backUrl={`/business/${bizId}`}
+        icon={RectangleGroupIcon}
+        variant="business"
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">

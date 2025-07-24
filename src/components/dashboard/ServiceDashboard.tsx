@@ -6,6 +6,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useServices } from '../../hooks/useServices';
 import { useBusiness } from '../../hooks/useBusiness';
 import { BusinessUpdate } from '../../types';
+import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
   UserCircleIcon, 
   BuildingStorefrontIcon,
@@ -35,8 +36,7 @@ type TabType = 'services' | 'settings' | 'qrcode';
 const ServiceDashboard: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
   const { user, signOut } = useAuth();
-  const { t, currentLanguage, setLanguage, languages } = useTranslation();
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState<TabType>('services');
   const navigate = useNavigate();
   const location = useLocation();
@@ -533,162 +533,42 @@ const ServiceDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:py-0 sm:h-16 space-y-3 sm:space-y-0">
-            <div className="flex items-center min-w-0">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="mr-3 sm:mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 flex-shrink-0"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-              </button>
-              <div className="flex items-center min-w-0">
-                {business?.logo_url ? (
-                  <img
-                    src={business.logo_url}
-                    alt={business.name}
-                    className="w-8 h-8 rounded-lg object-cover mr-3 flex-shrink-0"
-                  />
-                ) : (
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
-                    <BuildingStorefrontIcon className="w-5 h-5 text-white" />
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                    {business?.name}
-                  </h1>
-                  <p className="text-sm text-gray-500 hidden sm:block">
-                    {currentTab === 'services' ? t('serviceDashboard.subtitle') : t('business.management.settings')}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              {/* Language Selector */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  <GlobeAltIcon className="w-5 h-5" />
-                  <span className="text-sm">
-                    {languages.find(lang => lang.code === currentLanguage)?.flag}
-                  </span>
-                  <ChevronDownIcon className="w-4 h-4" />
-                </button>
-
-                <AnimatePresence>
-                  {isLanguageOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
-                    >
-                      {languages.map((language) => (
-                        <button
-                          key={language.code}
-                          onClick={() => {
-                            setLanguage(language.code);
-                            setIsLanguageOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
-                            currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
-                          }`}
-                        >
-                          <span>{language.flag}</span>
-                          <span>{language.name}</span>
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <UserCircleIcon className="w-6 h-6 text-gray-400" />
-                <span className="text-sm text-gray-700">{user?.name}</span>
-              </div>
-              <button
-                onClick={handleSignOut}
-                className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors"
-              >
-                <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                <span className="text-sm">{t('dashboard.signOut')}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Tab Navigation */}
-          <div className="border-b border-gray-200">
-            {/* Mobile Dropdown */}
-            <div className="sm:hidden mb-4">
-              <select
-                value={currentTab}
-                onChange={(e) => {
-                  const newTab = e.target.value as TabType;
-                  if (newTab === 'qrcode') {
-                    navigate(`/business/${bizId}/qr`);
-                  } else {
-                    setCurrentTab(newTab);
-                  }
-                }}
-                className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              >
-                <option value="services">{t('business.dashboard.tabs.services')}</option>
-                <option value="settings">{t('business.dashboard.tabs.settings')}</option>
-                <option value="qrcode">{t('business.qr.title')}</option>
-              </select>
-            </div>
-            
-            {/* Desktop Tabs */}
-            <nav className="-mb-px hidden sm:flex space-x-8">
-              <button
-                onClick={() => setCurrentTab('services')}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                  currentTab === 'services'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <RectangleGroupIcon className="w-4 h-4" />
-                  <span>{t('business.dashboard.tabs.services')}</span>
-                </div>
-              </button>
-              <button
-                onClick={() => setCurrentTab('settings')}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                  currentTab === 'settings'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <CogIcon className="w-4 h-4" />
-                  <span>{t('business.dashboard.tabs.settings')}</span>
-                </div>
-              </button>
-              <button
-                onClick={() => navigate(`/business/${bizId}/qr`)}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                  currentTab === 'qrcode'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <QrCodeIcon className="w-4 h-4" />
-                  <span>{t('business.qr.title')}</span>
-                </div>
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <MobileOptimizedHeader
+        title={business?.name || ''}
+        subtitle={currentTab === 'services' ? t('serviceDashboard.subtitle') : t('business.management.settings')}
+        backUrl="/dashboard"
+        logoUrl={business?.logo_url}
+        icon={!business?.logo_url ? BuildingStorefrontIcon : undefined}
+        variant="business"
+        tabs={[
+          {
+            id: 'services',
+            label: t('business.dashboard.tabs.services'),
+            isActive: currentTab === 'services',
+            onClick: () => setCurrentTab('services')
+          },
+          {
+            id: 'settings',
+            label: t('business.dashboard.tabs.settings'),
+            isActive: currentTab === 'settings',
+            onClick: () => setCurrentTab('settings')
+          },
+          {
+            id: 'qrcode',
+            label: t('business.qr.title'),
+            isActive: currentTab === 'qrcode',
+            onClick: () => navigate(`/business/${bizId}/qr`)
+          }
+        ]}
+        actions={[
+          {
+            label: t('dashboard.signOut'),
+            onClick: handleSignOut,
+            variant: 'secondary',
+            icon: ArrowRightOnRectangleIcon
+          }
+        ]}
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">

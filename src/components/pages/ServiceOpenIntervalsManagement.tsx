@@ -5,8 +5,8 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useServiceOpenIntervals } from '../../hooks/useServiceOpenIntervals';
 import { serviceApi } from '../../utils/api';
 import { ServiceWithOpenIntervals, ServiceOpenIntervalCreate, Weekday } from '../../types';
+import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
-  ArrowLeftIcon,
   ClockIcon,
   CheckIcon,
   XMarkIcon,
@@ -149,39 +149,21 @@ const ServiceOpenIntervalsManagement: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <button
-                onClick={() => navigate(`/service/${serviceId}`)}
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-              </button>
-              <div className="flex items-center">
-                <ClockIcon className="w-8 h-8 text-blue-600 mr-3" />
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
-                    {t('serviceOpenIntervals.title')}
-                  </h1>
-                  <p className="text-sm text-gray-500">
-                    {service?.name}
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <button
-              onClick={handleSave}
-              disabled={updating}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {updating ? t('serviceOpenIntervals.saving') : t('serviceOpenIntervals.save')}
-            </button>
-          </div>
-        </div>
-      </header>
+      <MobileOptimizedHeader
+        title={t('serviceOpenIntervals.title')}
+        subtitle={service?.name}
+        backUrl={`/service/${serviceId}`}
+        icon={ClockIcon}
+        variant="business"
+        actions={[
+          {
+            label: updating ? t('serviceOpenIntervals.saving') : t('serviceOpenIntervals.save'),
+            onClick: handleSave,
+            variant: 'primary',
+            disabled: updating
+          }
+        ]}
+      />
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">

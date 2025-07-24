@@ -27,6 +27,7 @@ import {
   CheckCircleIcon,
   QrCodeIcon,
 } from '@heroicons/react/24/outline';
+import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { useBusiness } from '../../hooks/useBusiness';
 import { useBookings, useUpcomingBookings } from '../../hooks/useBookings';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -616,7 +617,6 @@ const BusinessDashboard: React.FC = () => {
     deleteTable 
   } = useTables({ bizId: bizId || '' });
   
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState<TabType>('dashboard');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingTable, setEditingTable] = useState<Table | null>(null);
@@ -785,146 +785,45 @@ const BusinessDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-              </button>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{business?.name}</h1>
-                <p className="text-sm text-gray-600">{t('business.dashboard.title')}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              {/* Language Selector */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  <GlobeAltIcon className="w-5 h-5" />
-                  <span className="text-sm">
-                    {languages.find(lang => lang.code === currentLanguage)?.flag}
-                  </span>
-                  <ChevronDownIcon className="w-4 h-4" />
-                </button>
-
-                <AnimatePresence>
-                  {isLanguageOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
-                    >
-                      {languages.map((language) => (
-                        <button
-                          key={language.code}
-                          onClick={() => {
-                            setLanguage(language.code);
-                            setIsLanguageOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
-                            currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
-                          }`}
-                        >
-                          <span>{language.flag}</span>
-                          <span>{language.name}</span>
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {currentTab === 'dashboard' && (
-                <>
-                  {/* Removed View All Bookings and Calendar buttons */}
-                </>
-              )}
-
-              {/* Removed Manage Tables button */}
-            </div>
-          </div>
-          
-          {/* Navigation Tabs */}
-          <div className="mt-4 border-b border-gray-200">
-            {/* Mobile Dropdown */}
-            <div className="sm:hidden mb-4">
-              <select
-                value={currentTab}
-                onChange={(e) => handleTabChange(e.target.value as any)}
-                className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              >
-                <option value="dashboard">{t('business.dashboard.tabs.dashboard')}</option>
-                <option value="settings">{t('business.dashboard.tabs.settings')}</option>
-                <option value="tables">{t('business.dashboard.tabs.tables')}</option>
-                <option value="bookings">{t('business.dashboard.tabs.bookings')}</option>
-                <option value="qrcode">{t('business.qr.title')}</option>
-              </select>
-            </div>
-            
-            {/* Desktop Tabs */}
-            <nav className="-mb-px hidden sm:flex space-x-8">
-              <button
-                onClick={() => handleTabChange('dashboard')}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                  currentTab === 'dashboard'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {t('business.dashboard.tabs.dashboard')}
-              </button>
-              <button
-                onClick={() => handleTabChange('settings')}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                  currentTab === 'settings'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {t('business.dashboard.tabs.settings')}
-              </button>
-              <button
-                onClick={() => handleTabChange('tables')}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                  currentTab === 'tables'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {t('business.dashboard.tabs.tables')}
-              </button>
-              <button
-                onClick={() => handleTabChange('bookings')}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                  currentTab === 'bookings'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {t('business.dashboard.tabs.bookings')}
-              </button>
-              <button
-                onClick={() => handleTabChange('qrcode')}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                  currentTab === 'qrcode'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {t('business.qr.title')}
-              </button>
-            </nav>
-          </div>
-        </div>
-      </div>
+      <MobileOptimizedHeader
+        title={business?.name || ''}
+        subtitle={t('business.dashboard.title')}
+        backUrl="/dashboard"
+        logoUrl={business?.logo_url}
+        variant="business"
+        tabs={[
+          {
+            id: 'dashboard',
+            label: t('business.dashboard.tabs.dashboard'),
+            isActive: currentTab === 'dashboard',
+            onClick: () => handleTabChange('dashboard')
+          },
+          {
+            id: 'settings',
+            label: t('business.dashboard.tabs.settings'),
+            isActive: currentTab === 'settings',
+            onClick: () => handleTabChange('settings')
+          },
+          {
+            id: 'tables',
+            label: t('business.dashboard.tabs.tables'),
+            isActive: currentTab === 'tables',
+            onClick: () => handleTabChange('tables')
+          },
+          {
+            id: 'bookings',
+            label: t('business.dashboard.tabs.bookings'),
+            isActive: currentTab === 'bookings',
+            onClick: () => handleTabChange('bookings')
+          },
+          {
+            id: 'qrcode',
+            label: t('business.qr.title'),
+            isActive: currentTab === 'qrcode',
+            onClick: () => handleTabChange('qrcode')
+          }
+        ]}
+      />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

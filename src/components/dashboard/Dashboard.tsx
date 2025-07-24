@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useUserBusinesses } from '../../hooks/useUserBusinesses';
+import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
   UserCircleIcon, 
   BuildingStorefrontIcon,
@@ -18,8 +19,7 @@ import {
 
 const Dashboard: React.FC = () => {
   const { user, signOut } = useAuth();
-  const { t, currentLanguage, setLanguage, languages } = useTranslation();
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { businesses, loading: businessesLoading, error: businessesError } = useUserBusinesses();
 
@@ -33,75 +33,20 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:py-0 sm:h-16 space-y-3 sm:space-y-0">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">R</span>
-              </div>
-              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Rezi
-              </span>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-              {/* Language Selector */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  <GlobeAltIcon className="w-5 h-5" />
-                  <span className="text-sm">
-                    {languages.find(lang => lang.code === currentLanguage)?.flag}
-                  </span>
-                  <ChevronDownIcon className="w-4 h-4" />
-                </button>
-
-                <AnimatePresence>
-                  {isLanguageOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
-                    >
-                      {languages.map((language) => (
-                        <button
-                          key={language.code}
-                          onClick={() => {
-                            setLanguage(language.code);
-                            setIsLanguageOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
-                            currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
-                          }`}
-                        >
-                          <span>{language.flag}</span>
-                          <span>{language.name}</span>
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <UserCircleIcon className="w-6 h-6 text-gray-400" />
-                <span className="text-sm text-gray-700 truncate max-w-[200px]">{user?.name}</span>
-              </div>
-              <button
-                onClick={handleSignOut}
-                className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors px-3 py-2 rounded-lg hover:bg-red-50 touch-manipulation"
-              >
-                <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                <span className="text-sm">{t('dashboard.signOut')}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <MobileOptimizedHeader
+        title="Rezi"
+        subtitle={`${t('dashboard.welcome')}, ${user?.name}!`}
+        logoUrl="/favicon.svg"
+        variant="default"
+        actions={[
+          {
+            label: t('dashboard.signOut'),
+            onClick: handleSignOut,
+            variant: 'secondary',
+            icon: ArrowRightOnRectangleIcon
+          }
+        ]}
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
