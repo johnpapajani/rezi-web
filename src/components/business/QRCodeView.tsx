@@ -35,12 +35,27 @@ const QRCodeView: React.FC = () => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (qrCodeData?.qr_code_base64) {
+      // Use base64 data directly
       const link = document.createElement('a');
       link.href = `data:image/png;base64,${qrCodeData.qr_code_base64}`;
       link.download = `${business?.slug || 'business'}-qr-code.png`;
       link.click();
+    } else if (qrCodeData?.qr_code_url) {
+      // Fetch the image from URL and convert to blob for download
+      try {
+        const response = await fetch(qrCodeData.qr_code_url);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${business?.slug || 'business'}-qr-code.png`;
+        link.click();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Failed to download QR code from URL:', error);
+      }
     }
   };
 
@@ -130,7 +145,7 @@ const QRCodeView: React.FC = () => {
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleDownload}
-                disabled={!qrCodeData?.qr_code_base64}
+                disabled={!qrCodeData?.qr_code_base64 && !qrCodeData?.qr_code_url}
                 className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <ArrowDownTrayIcon className="w-4 h-4" />
