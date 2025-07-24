@@ -501,6 +501,9 @@ export const translations: Translations = {
     'onboarding.errors.genericError': 'Ndodhi një gabim. Ju lutem provoni përsëri.',
     'onboarding.defaultService.description': 'Shërbimi kryesor i restorantit',
     'onboarding.serviceConfigurationNote': 'Ju mund të ndryshoni këto konfigurime më vonë në rregullimet e shërbimit.',
+    'onboarding.noTables': 'Ende nuk ka tavolina të konfigururara për këtë shërbim',
+    'onboarding.reassurance.title': 'Mos u shqetësoni për detajet!',
+    'onboarding.reassurance.description': 'Të gjitha këto cilësime mund të ndryshohen më vonë nga menuja e cilësimeve të biznesit tuaj.',
 
     // Service Selection
     'serviceSelection.title': 'Zgjedh Shërbimin',
@@ -1243,6 +1246,9 @@ export const translations: Translations = {
     'onboarding.errors.genericError': 'An error occurred. Please try again.',
     'onboarding.defaultService.description': 'The main service of the restaurant',
     'onboarding.serviceConfigurationNote': 'You can update any of these configurations later in the service settings.',
+    'onboarding.noTables': 'No tables configured for this service yet',
+    'onboarding.reassurance.title': 'Don\'t worry about the details!',
+    'onboarding.reassurance.description': 'All of these settings can be changed later from your business settings menu.',
 
     // Service Selection
     'serviceSelection.title': 'Select Service',

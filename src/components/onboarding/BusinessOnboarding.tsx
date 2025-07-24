@@ -417,7 +417,20 @@ const BusinessOnboarding: React.FC = () => {
               continue;
             }
             
-            const service = await serviceApi.createService(createdBusinessId, serviceData);
+            // Clean the service data - set default category if none selected
+            const cleanServiceData = { ...serviceData };
+            if (!cleanServiceData.category_id || cleanServiceData.category_id.trim() === '') {
+              // Find the "Other" category by slug
+              const otherCategory = categories.find(cat => cat.slug === 'other' || cat.slug === 'others' || cat.name.toLowerCase().includes('other'));
+              if (otherCategory) {
+                cleanServiceData.category_id = otherCategory.id;
+              } else {
+                // If no "Other" category found, omit the field (fallback to previous behavior)
+                delete cleanServiceData.category_id;
+              }
+            }
+            
+            const service = await serviceApi.createService(createdBusinessId, cleanServiceData);
             createdServicesList.push(service);
           } catch (error: any) {
             const errorMessage = error?.detail || error?.message || JSON.stringify(error);
@@ -568,11 +581,7 @@ const BusinessOnboarding: React.FC = () => {
     }
   };
 
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+
 
   const dayNames = [
     t('days.sunday'), 
@@ -672,6 +681,21 @@ const BusinessOnboarding: React.FC = () => {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Reassuring Message */}
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <InformationCircleIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-blue-800">
+                {t('onboarding.reassurance.title')}
+              </p>
+              <p className="text-sm text-blue-700 mt-1">
+                {t('onboarding.reassurance.description')}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <AnimatePresence mode="wait">
           {/* Global Error */}
           {(globalError || businessError) && (
@@ -1242,20 +1266,7 @@ const BusinessOnboarding: React.FC = () => {
         </AnimatePresence>
 
         {/* Navigation */}
-        <div className="flex flex-col sm:flex-row sm:justify-between items-stretch sm:items-center space-y-3 sm:space-y-0 mt-8">
-          <button
-            onClick={handleBack}
-            disabled={currentStep === 1}
-            className={`flex items-center justify-center space-x-2 px-6 py-3 sm:py-2 rounded-lg transition-colors touch-manipulation ${
-              currentStep === 1
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-            <span>{t('onboarding.back')}</span>
-          </button>
-
+        <div className="flex justify-center mt-8">
           <button
             onClick={handleNext}
             disabled={creatingBusiness || servicesHook.creating || tablesHook.creating}
