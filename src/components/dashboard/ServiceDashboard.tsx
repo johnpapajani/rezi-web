@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useServices } from '../../hooks/useServices';
 import { useBusiness } from '../../hooks/useBusiness';
-import { BusinessUpdate } from '../../types';
+import { useServiceCategories } from '../../hooks/useServiceCategories';
+import { BusinessUpdate, Service, ServiceUpdate } from '../../types';
 import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
   BuildingStorefrontIcon,
@@ -23,7 +24,13 @@ import {
   MapPinIcon,
   CheckCircleIcon,
   PhotoIcon,
-  QrCodeIcon
+  QrCodeIcon,
+  PencilIcon,
+  XMarkIcon,
+  CogIcon,
+  TagIcon,
+  UserGroupIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
 type TabType = 'services' | 'settings';
@@ -36,7 +43,15 @@ const ServiceDashboard: React.FC = () => {
   const navigate = useNavigate();
   
   const { business, loading: businessLoading, error: businessError, updating, updateBusiness } = useBusiness({ bizId: bizId || '' });
-  const { services, loading: servicesLoading, error: servicesError } = useServices({ bizId: bizId || '', activeOnly: false });
+  const { services, loading: servicesLoading, error: servicesError, updating: serviceUpdating, updateService } = useServices({ bizId: bizId || '', activeOnly: false });
+  const { categories, loading: categoriesLoading, refetch: refetchCategories } = useServiceCategories();
+
+  // Service editing state
+  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [serviceFormData, setServiceFormData] = useState<ServiceUpdate>({});
+  const [showServiceSuccess, setShowServiceSuccess] = useState(false);
+  const [serviceFormError, setServiceFormError] = useState<string | null>(null);
+  const [hasServiceChanges, setHasServiceChanges] = useState(false);
 
   // Business Settings form state
   const [formData, setFormData] = useState<BusinessUpdate>({});
@@ -58,6 +73,53 @@ const ServiceDashboard: React.FC = () => {
       });
     }
   }, [business]);
+
+  // Populate service form when service data loads
+  useEffect(() => {
+    if (editingService) {
+      setServiceFormData({
+        name: editingService.name,
+        slug: editingService.slug,
+        description: editingService.description || '',
+        duration_min: editingService.duration_min,
+        price_minor: editingService.price_minor,
+        is_active: editingService.is_active,
+        category_id: editingService.category_id || '',
+        capacity: editingService.capacity || undefined,
+      });
+    }
+  }, [editingService]);
+
+  // Refresh categories when edit modal opens
+  useEffect(() => {
+    if (editingService) {
+      refetchCategories();
+    }
+  }, [editingService, refetchCategories]);
+
+  // Check for service form changes
+  useEffect(() => {
+    if (!editingService) return;
+
+    const hasFieldChanges = Object.keys(serviceFormData).some(key => {
+      const formKey = key as keyof ServiceUpdate;
+      const serviceKey = key as keyof Service;
+      
+      const formValue = serviceFormData[formKey];
+      const serviceValue = editingService[serviceKey];
+      
+      if (formKey === 'description') {
+        return (formValue || '') !== (serviceValue || '');
+      }
+      if (formKey === 'category_id') {
+        return (formValue || '') !== (serviceValue || '');
+      }
+      
+      return formValue !== serviceValue;
+    });
+
+    setHasServiceChanges(hasFieldChanges);
+  }, [serviceFormData, editingService]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -90,6 +152,102 @@ const ServiceDashboard: React.FC = () => {
 
   const handleCreateService = () => {
     navigate(`/business/${bizId}/services?create=true`);
+  };
+
+  // Service editing handlers
+  const openEditServiceModal = (service: Service, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click navigation
+    setEditingService(service);
+  };
+
+  const closeEditServiceModal = () => {
+    setEditingService(null);
+    setServiceFormData({});
+    setServiceFormError(null);
+    setShowServiceSuccess(false);
+  };
+
+  const handleServiceInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    
+    setServiceFormData(prev => ({
+      ...prev,
+      [name]: type === 'number' ? (value === '' ? undefined : Number(value)) :
+              type === 'checkbox' ? (e.target as HTMLInputElement).checked :
+              value
+    }));
+  };
+
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  };
+
+  const handleServiceNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setServiceFormData(prev => ({
+      ...prev,
+      name: newName,
+      slug: generateSlug(newName)
+    }));
+  };
+
+  const formatServicePrice = (priceMinor: number): string => {
+    const price = priceMinor / 100;
+    return price.toFixed(2);
+  };
+
+  const handleServiceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServiceFormError(null);
+
+    if (!hasServiceChanges) {
+      setServiceFormError(t('serviceManagement.settings.noChanges'));
+      return;
+    }
+
+    if (!editingService) return;
+
+    try {
+      // Only send changed fields
+      const updates: ServiceUpdate = {};
+      Object.keys(serviceFormData).forEach(key => {
+        const formKey = key as keyof ServiceUpdate;
+        const serviceKey = key as keyof Service;
+        
+        const formValue = serviceFormData[formKey];
+        const serviceValue = editingService[serviceKey];
+        
+        if (formKey === 'description') {
+          const formDesc = formValue as string | undefined;
+          const serviceDesc = serviceValue as string | undefined;
+          if ((formDesc || '') !== (serviceDesc || '')) {
+            updates[formKey] = formDesc || '';
+          }
+        } else if (formKey === 'category_id') {
+          const formCat = formValue as string | undefined;
+          const serviceCat = serviceValue as string | undefined;
+          if ((formCat || '') !== (serviceCat || '')) {
+            updates[formKey] = formCat || undefined;
+          }
+        } else if (formValue !== serviceValue) {
+          (updates as any)[formKey] = formValue;
+        }
+      });
+
+      await updateService(editingService.id, updates);
+      setShowServiceSuccess(true);
+      setTimeout(() => {
+        closeEditServiceModal();
+      }, 2000);
+    } catch (error: any) {
+      setServiceFormError(error.detail || t('serviceManagement.settings.error'));
+    }
   };
 
   // Business Settings handlers
@@ -230,7 +388,16 @@ const ServiceDashboard: React.FC = () => {
                       <h4 className="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                         {service.name}
                       </h4>
-                      <ArrowRightIcon className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={(e) => openEditServiceModal(service, e)}
+                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                          title={t('services.editService')}
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                        <ArrowRightIcon className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                      </div>
                     </div>
 
                     {service.description && (
@@ -295,10 +462,19 @@ const ServiceDashboard: React.FC = () => {
                       <h4 className="text-lg font-medium text-gray-700">
                         {service.name}
                       </h4>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        <EyeSlashIcon className="w-3 h-3 mr-1" />
-                        {t('common.inactive')}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={(e) => openEditServiceModal(service, e)}
+                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                          title={t('services.editService')}
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <EyeSlashIcon className="w-3 h-3 mr-1" />
+                          {t('common.inactive')}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="border-t border-gray-200 pt-4">
@@ -577,6 +753,310 @@ const ServiceDashboard: React.FC = () => {
           {currentTab === 'settings' && renderSettingsTab()}
         </motion.div>
       </main>
+
+      {/* Service Edit Modal */}
+      <AnimatePresence>
+        {editingService && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 sm:p-6 z-50"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {t('services.editService')}
+                  </h3>
+                  <button
+                    onClick={closeEditServiceModal}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <XMarkIcon className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+
+              <form onSubmit={handleServiceSubmit} className="p-6 space-y-6">
+                {/* Success Message */}
+                {showServiceSuccess && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-3"
+                  >
+                    <CheckCircleIcon className="w-5 h-5 text-green-600" />
+                    <span className="text-green-800 font-medium">{t('serviceManagement.settings.success')}</span>
+                  </motion.div>
+                )}
+
+                {/* Error Message */}
+                {serviceFormError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3"
+                  >
+                    <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
+                    <span className="text-red-800 font-medium">{serviceFormError}</span>
+                  </motion.div>
+                )}
+
+                {/* Basic Information */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <TagIcon className="w-5 h-5 text-blue-600" />
+                    <h4 className="text-md font-semibold text-gray-900">{t('serviceManagement.settings.basicInfo.title')}</h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label htmlFor="service_name" className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('serviceManagement.settings.basicInfo.name.required')}
+                      </label>
+                      <input
+                        type="text"
+                        id="service_name"
+                        name="name"
+                        value={serviceFormData.name || ''}
+                        onChange={handleServiceNameChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="service_slug" className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('serviceManagement.settings.basicInfo.slug')}
+                      </label>
+                      <input
+                        type="text"
+                        id="service_slug"
+                        name="slug"
+                        value={serviceFormData.slug || ''}
+                        onChange={handleServiceInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                        readOnly
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        {t('serviceManagement.settings.basicInfo.slug.help')}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label htmlFor="service_description" className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('serviceManagement.settings.basicInfo.description')}
+                      </label>
+                      <textarea
+                        id="service_description"
+                        name="description"
+                        rows={3}
+                        value={serviceFormData.description || ''}
+                        onChange={handleServiceInputChange}
+                        placeholder={t('serviceManagement.settings.basicInfo.description.placeholder')}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pricing & Duration */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <CurrencyDollarIcon className="w-5 h-5 text-green-600" />
+                    <h4 className="text-md font-semibold text-gray-900">{t('serviceManagement.settings.pricing.title')}</h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="service_duration" className="block text-sm font-medium text-gray-700 mb-2">
+                        <ClockIcon className="w-4 h-4 inline mr-1" />
+                        {t('serviceManagement.settings.pricing.duration')}
+                      </label>
+                      <input
+                        type="number"
+                        id="service_duration"
+                        name="duration_min"
+                        min="1"
+                        value={serviceFormData.duration_min || ''}
+                        onChange={handleServiceInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        {t('serviceManagement.settings.pricing.duration.help')}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label htmlFor="service_price" className="block text-sm font-medium text-gray-700 mb-2">
+                        <CurrencyDollarIcon className="w-4 h-4 inline mr-1" />
+                        {t('serviceManagement.settings.pricing.price')}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          id="service_price"
+                          name="price_minor"
+                          min="0"
+                          step="0.01"
+                          value={serviceFormData.price_minor ? formatServicePrice(serviceFormData.price_minor) : ''}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setServiceFormData(prev => ({
+                              ...prev,
+                              price_minor: value === '' ? 0 : Math.round(Number(value) * 100)
+                            }));
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <span className="text-gray-500 text-sm">{business?.currency || 'ALL'}</span>
+                        </div>
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500">
+                        {t('serviceManagement.settings.pricing.price.help')}
+                        {serviceFormData.price_minor === 0 && (
+                          <span className="ml-2 font-medium text-green-600">
+                            ({t('serviceManagement.settings.pricing.free')})
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Advanced Settings */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <UserGroupIcon className="w-5 h-5 text-purple-600" />
+                    <h4 className="text-md font-semibold text-gray-900">{t('serviceManagement.settings.advanced.title')}</h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="service_capacity" className="block text-sm font-medium text-gray-700 mb-2">
+                        <UserGroupIcon className="w-4 h-4 inline mr-1" />
+                        {t('serviceManagement.settings.advanced.capacity')}
+                      </label>
+                      <input
+                        type="number"
+                        id="service_capacity"
+                        name="capacity"
+                        min="1"
+                        value={serviceFormData.capacity || ''}
+                        onChange={handleServiceInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Optional"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        {t('serviceManagement.settings.advanced.capacity.help')}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label htmlFor="service_category" className="block text-sm font-medium text-gray-700 mb-2">
+                        <TagIcon className="w-4 h-4 inline mr-1" />
+                        {t('serviceManagement.settings.advanced.category')}
+                      </label>
+                      <select
+                        id="service_category"
+                        name="category_id"
+                        value={serviceFormData.category_id || ''}
+                        onChange={handleServiceInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={categoriesLoading}
+                      >
+                        <option value="">{t('serviceManagement.settings.advanced.category.placeholder')}</option>
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                      {categoriesLoading && (
+                        <p className="mt-1 text-sm text-gray-500">{t('serviceManagement.loadingCategories')}</p>
+                      )}
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        {t('serviceManagement.settings.advanced.status')}
+                      </label>
+                      <div className="flex items-center space-x-6">
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="is_active"
+                            checked={serviceFormData.is_active === true}
+                            onChange={() => setServiceFormData(prev => ({ ...prev, is_active: true }))}
+                            className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
+                          />
+                          <span className="ml-2 flex items-center">
+                            <EyeIcon className="w-4 h-4 mr-1 text-green-600" />
+                            {t('serviceManagement.settings.advanced.active')}
+                          </span>
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="is_active"
+                            checked={serviceFormData.is_active === false}
+                            onChange={() => setServiceFormData(prev => ({ ...prev, is_active: false }))}
+                            className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
+                          />
+                          <span className="ml-2 flex items-center">
+                            <EyeSlashIcon className="w-4 h-4 mr-1 text-gray-500" />
+                            {t('serviceManagement.settings.advanced.inactive')}
+                          </span>
+                        </label>
+                      </div>
+                      <div className="mt-2 text-xs text-gray-500">
+                        <div className="flex items-start space-x-1">
+                          <InformationCircleIcon className="w-4 h-4 mt-0.5 text-blue-500" />
+                          <div>
+                            <strong>{t('serviceManagement.settings.advanced.active')}:</strong> {t('serviceManagement.settings.advanced.active.help')}
+                            <br />
+                            <strong>{t('serviceManagement.settings.advanced.inactive')}:</strong> {t('serviceManagement.settings.advanced.inactive.help')}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Form Actions */}
+                <div className="flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 pt-6 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={closeEditServiceModal}
+                    className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    {t('services.cancel')}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={serviceUpdating || !hasServiceChanges}
+                    className="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  >
+                    {serviceUpdating && (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    )}
+                    <CheckCircleIcon className="w-4 h-4 mr-2" />
+                    {t('serviceManagement.settings.save')}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
