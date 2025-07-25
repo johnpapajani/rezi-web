@@ -9,6 +9,7 @@ export const translations: Translations = {
     'nav.contact': 'Kontakti',
     'nav.guide': 'Udhëzuesi',
     'nav.findBooking': 'Gjej Rezervimin',
+    'nav.dashboard': 'Paneli',
     'nav.login': 'Hyr',
     'nav.signup': 'Regjistrohu',
 
@@ -1779,6 +1780,7 @@ export const translations: Translations = {
     'nav.contact': 'Contact',
     'nav.guide': 'User Guide',
     'nav.findBooking': 'Find Booking',
+    'nav.dashboard': 'Dashboard',
     'nav.login': 'Login',
     'nav.signup': 'Sign Up',
 

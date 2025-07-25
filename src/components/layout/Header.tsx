@@ -85,13 +85,6 @@ const Header: React.FC = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            {/* User Guide Link */}
-            <Link 
-              to="/guide" 
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-            >
-              {t('nav.guide')}
-            </Link>
             
             {/* Find Booking Link */}
             <Link 
@@ -143,12 +136,20 @@ const Header: React.FC = () => {
             </div>
 
             {isAuthenticated ? (
-              <button 
-                onClick={() => handleAuthAction('logout')}
-                className="text-gray-700 hover:text-red-600 font-medium transition-colors"
-              >
-                {t('dashboard.signOut')}
-              </button>
+              <>
+                <Link 
+                  to="/dashboard"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
+                  {t('nav.dashboard')}
+                </Link>
+                <button 
+                  onClick={() => handleAuthAction('logout')}
+                  className="text-gray-700 hover:text-red-600 font-medium transition-colors"
+                >
+                  {t('dashboard.signOut')}
+                </button>
+              </>
             ) : (
               <>
                 <button 
@@ -204,15 +205,6 @@ const Header: React.FC = () => {
                 </button>
               ))}
               
-              {/* User Guide Link - show on all pages */}
-              <Link 
-                to="/guide" 
-                onClick={() => setIsMenuOpen(false)}
-                className="block w-full text-left text-gray-700 hover:text-blue-600 font-medium py-2"
-              >
-                {t('nav.guide')}
-              </Link>
-              
               {/* Find Booking Link - show on all pages */}
               <Link 
                 to="/booking-search" 
@@ -244,12 +236,21 @@ const Header: React.FC = () => {
                 
                 <div className="space-y-2">
                   {isAuthenticated ? (
-                    <button 
-                      onClick={() => handleAuthAction('logout')}
-                      className="block w-full text-left text-gray-700 hover:text-red-600 font-medium py-2"
-                    >
-                      {t('dashboard.signOut')}
-                    </button>
+                    <>
+                      <Link 
+                        to="/dashboard"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="block w-full text-left text-gray-700 hover:text-blue-600 font-medium py-2"
+                      >
+                        {t('nav.dashboard')}
+                      </Link>
+                      <button 
+                        onClick={() => handleAuthAction('logout')}
+                        className="block w-full text-left text-gray-700 hover:text-red-600 font-medium py-2"
+                      >
+                        {t('dashboard.signOut')}
+                      </button>
+                    </>
                   ) : (
                     <>
                       <button 
