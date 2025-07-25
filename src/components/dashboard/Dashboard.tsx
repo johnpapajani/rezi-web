@@ -166,7 +166,7 @@ const Dashboard: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/business/${business.id}/select-service`);
+                          navigate(`/business/${business.id}`);
                         }}
                         className="text-purple-600 hover:text-purple-800 text-sm font-medium px-3 py-2 rounded-md hover:bg-purple-50 transition-colors touch-manipulation"
                       >

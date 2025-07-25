@@ -6,7 +6,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useServices } from '../../hooks/useServices';
 import { useBusiness } from '../../hooks/useBusiness';
 import { useServiceCategories } from '../../hooks/useServiceCategories';
-import { BusinessUpdate, Service, ServiceUpdate } from '../../types';
+import { BusinessUpdate, Service, ServiceUpdate, ServiceCreate, Weekday } from '../../types';
 import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
   BuildingStorefrontIcon,
@@ -43,11 +43,12 @@ const ServiceDashboard: React.FC = () => {
   const navigate = useNavigate();
   
   const { business, loading: businessLoading, error: businessError, updating, updateBusiness } = useBusiness({ bizId: bizId || '' });
-  const { services, loading: servicesLoading, error: servicesError, updating: serviceUpdating, updateService } = useServices({ bizId: bizId || '', activeOnly: false });
+  const { services, loading: servicesLoading, error: servicesError, updating: serviceUpdating, creating: serviceCreating, updateService, createService } = useServices({ bizId: bizId || '', activeOnly: false });
   const { categories, loading: categoriesLoading, refetch: refetchCategories } = useServiceCategories();
 
   // Service editing state
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [serviceFormData, setServiceFormData] = useState<ServiceUpdate>({});
   const [showServiceSuccess, setShowServiceSuccess] = useState(false);
   const [serviceFormError, setServiceFormError] = useState<string | null>(null);
@@ -87,39 +88,57 @@ const ServiceDashboard: React.FC = () => {
         category_id: editingService.category_id || '',
         capacity: editingService.capacity || undefined,
       });
+    } else if (isCreateModalOpen) {
+      // Reset form for creation
+      setServiceFormData({
+        name: '',
+        slug: '',
+        description: '',
+        duration_min: 60,
+        price_minor: 0,
+        is_active: true,
+        category_id: '',
+        capacity: undefined,
+      });
     }
-  }, [editingService]);
+  }, [editingService, isCreateModalOpen]);
 
-  // Refresh categories when edit modal opens
+  // Refresh categories when either modal opens
   useEffect(() => {
-    if (editingService) {
+    if (editingService || isCreateModalOpen) {
       refetchCategories();
     }
-  }, [editingService, refetchCategories]);
+  }, [editingService, isCreateModalOpen, refetchCategories]);
 
   // Check for service form changes
   useEffect(() => {
-    if (!editingService) return;
-
-    const hasFieldChanges = Object.keys(serviceFormData).some(key => {
-      const formKey = key as keyof ServiceUpdate;
-      const serviceKey = key as keyof Service;
-      
-      const formValue = serviceFormData[formKey];
-      const serviceValue = editingService[serviceKey];
-      
-      if (formKey === 'description') {
-        return (formValue || '') !== (serviceValue || '');
-      }
-      if (formKey === 'category_id') {
-        return (formValue || '') !== (serviceValue || '');
-      }
-      
-      return formValue !== serviceValue;
-    });
-
-    setHasServiceChanges(hasFieldChanges);
-  }, [serviceFormData, editingService]);
+    if (isCreateModalOpen) {
+      // For create mode, check if required fields are filled
+      const hasRequiredFields = !!(serviceFormData.name?.trim() && serviceFormData.duration_min && serviceFormData.duration_min > 0);
+      setHasServiceChanges(hasRequiredFields);
+    } else if (editingService) {
+      // For edit mode, check if any fields have changed
+      const hasFieldChanges = Object.keys(serviceFormData).some(key => {
+        const formKey = key as keyof ServiceUpdate;
+        const serviceKey = key as keyof Service;
+        
+        const formValue = serviceFormData[formKey];
+        const serviceValue = editingService[serviceKey];
+        
+        if (formKey === 'description') {
+          return (formValue || '') !== (serviceValue || '');
+        }
+        if (formKey === 'category_id') {
+          return (formValue || '') !== (serviceValue || '');
+        }
+        
+        return formValue !== serviceValue;
+      });
+      setHasServiceChanges(hasFieldChanges);
+    } else {
+      setHasServiceChanges(false);
+    }
+  }, [serviceFormData, editingService, isCreateModalOpen]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -151,7 +170,7 @@ const ServiceDashboard: React.FC = () => {
   };
 
   const handleCreateService = () => {
-    navigate(`/business/${bizId}/services?create=true`);
+    setIsCreateModalOpen(true);
   };
 
   // Service editing handlers
@@ -160,8 +179,9 @@ const ServiceDashboard: React.FC = () => {
     setEditingService(service);
   };
 
-  const closeEditServiceModal = () => {
+  const closeServiceModal = () => {
     setEditingService(null);
+    setIsCreateModalOpen(false);
     setServiceFormData({});
     setServiceFormError(null);
     setShowServiceSuccess(false);
@@ -207,46 +227,96 @@ const ServiceDashboard: React.FC = () => {
     setServiceFormError(null);
 
     if (!hasServiceChanges) {
-      setServiceFormError(t('serviceManagement.settings.noChanges'));
+      if (isCreateModalOpen) {
+        setServiceFormError(t('services.validation.nameRequired'));
+      } else {
+        setServiceFormError(t('serviceManagement.settings.noChanges'));
+      }
       return;
     }
 
-    if (!editingService) return;
-
     try {
-      // Only send changed fields
-      const updates: ServiceUpdate = {};
-      Object.keys(serviceFormData).forEach(key => {
-        const formKey = key as keyof ServiceUpdate;
-        const serviceKey = key as keyof Service;
-        
-        const formValue = serviceFormData[formKey];
-        const serviceValue = editingService[serviceKey];
-        
-        if (formKey === 'description') {
-          const formDesc = formValue as string | undefined;
-          const serviceDesc = serviceValue as string | undefined;
-          if ((formDesc || '') !== (serviceDesc || '')) {
-            updates[formKey] = formDesc || '';
-          }
-        } else if (formKey === 'category_id') {
-          const formCat = formValue as string | undefined;
-          const serviceCat = serviceValue as string | undefined;
-          if ((formCat || '') !== (serviceCat || '')) {
-            updates[formKey] = formCat || undefined;
-          }
-        } else if (formValue !== serviceValue) {
-          (updates as any)[formKey] = formValue;
-        }
-      });
+      if (isCreateModalOpen) {
+        // Create new service
+        const createData: ServiceCreate = {
+          name: serviceFormData.name!,
+          slug: serviceFormData.slug!,
+          description: serviceFormData.description || '',
+          duration_min: serviceFormData.duration_min!,
+          price_minor: serviceFormData.price_minor || 0,
+          category_id: serviceFormData.category_id || undefined,
+          is_active: serviceFormData.is_active ?? true,
+          open_intervals: [
+            { weekday: Weekday.monday, start_time: '09:00', end_time: '17:00' },
+            { weekday: Weekday.tuesday, start_time: '09:00', end_time: '17:00' },
+            { weekday: Weekday.wednesday, start_time: '09:00', end_time: '17:00' },
+            { weekday: Weekday.thursday, start_time: '09:00', end_time: '17:00' },
+            { weekday: Weekday.friday, start_time: '09:00', end_time: '17:00' },
+            { weekday: Weekday.saturday, start_time: '10:00', end_time: '16:00' },
+            { weekday: Weekday.sunday, start_time: '10:00', end_time: '16:00' },
+          ],
+        };
 
-      await updateService(editingService.id, updates);
-      setShowServiceSuccess(true);
-      setTimeout(() => {
-        closeEditServiceModal();
-      }, 2000);
+        // Set default category if none selected
+        if (!createData.category_id || createData.category_id.trim() === '') {
+          // Find the "Other" category by slug
+          const otherCategory = categories.find(cat => 
+            cat.slug === 'other' || 
+            cat.slug === 'others' || 
+            cat.name.toLowerCase().includes('other')
+          );
+          if (otherCategory) {
+            createData.category_id = otherCategory.id;
+          } else {
+            // If no "Other" category found, omit the field
+            delete createData.category_id;
+          }
+        }
+        
+        await createService(createData);
+        setShowServiceSuccess(true);
+        setTimeout(() => {
+          closeServiceModal();
+        }, 2000);
+      } else if (editingService) {
+        // Update existing service
+        const updates: ServiceUpdate = {};
+        Object.keys(serviceFormData).forEach(key => {
+          const formKey = key as keyof ServiceUpdate;
+          const serviceKey = key as keyof Service;
+          
+          const formValue = serviceFormData[formKey];
+          const serviceValue = editingService[serviceKey];
+          
+          if (formKey === 'description') {
+            const formDesc = formValue as string | undefined;
+            const serviceDesc = serviceValue as string | undefined;
+            if ((formDesc || '') !== (serviceDesc || '')) {
+              updates[formKey] = formDesc || '';
+            }
+          } else if (formKey === 'category_id') {
+            const formCat = formValue as string | undefined;
+            const serviceCat = serviceValue as string | undefined;
+            if ((formCat || '') !== (serviceCat || '')) {
+              updates[formKey] = formCat || undefined;
+            }
+          } else if (formValue !== serviceValue) {
+            (updates as any)[formKey] = formValue;
+          }
+        });
+
+        await updateService(editingService.id, updates);
+        setShowServiceSuccess(true);
+        setTimeout(() => {
+          closeServiceModal();
+        }, 2000);
+      }
     } catch (error: any) {
-      setServiceFormError(error.detail || t('serviceManagement.settings.error'));
+      if (isCreateModalOpen) {
+        setServiceFormError(error.detail || error.message || t('services.error.createFailed'));
+      } else {
+        setServiceFormError(error.detail || error.message || t('services.error.updateFailed'));
+      }
     }
   };
 
@@ -754,9 +824,9 @@ const ServiceDashboard: React.FC = () => {
         </motion.div>
       </main>
 
-      {/* Service Edit Modal */}
+      {/* Service Create/Edit Modal */}
       <AnimatePresence>
-        {editingService && (
+        {(editingService || isCreateModalOpen) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -772,10 +842,10 @@ const ServiceDashboard: React.FC = () => {
               <div className="px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium text-gray-900">
-                    {t('services.editService')}
+                    {editingService ? t('services.editService') : t('services.addService')}
                   </h3>
                   <button
-                    onClick={closeEditServiceModal}
+                    onClick={closeServiceModal}
                     className="text-gray-400 hover:text-gray-600"
                   >
                     <XMarkIcon className="w-6 h-6" />
@@ -792,7 +862,9 @@ const ServiceDashboard: React.FC = () => {
                     className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-3"
                   >
                     <CheckCircleIcon className="w-5 h-5 text-green-600" />
-                    <span className="text-green-800 font-medium">{t('serviceManagement.settings.success')}</span>
+                    <span className="text-green-800 font-medium">
+                      {editingService ? t('services.success.updated') : t('services.success.created')}
+                    </span>
                   </motion.div>
                 )}
 
@@ -1035,21 +1107,21 @@ const ServiceDashboard: React.FC = () => {
                 <div className="flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 pt-6 border-t border-gray-200">
                   <button
                     type="button"
-                    onClick={closeEditServiceModal}
+                    onClick={closeServiceModal}
                     className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     {t('services.cancel')}
                   </button>
                   <button
                     type="submit"
-                    disabled={serviceUpdating || !hasServiceChanges}
+                    disabled={(serviceUpdating || serviceCreating) || !hasServiceChanges}
                     className="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
-                    {serviceUpdating && (
+                    {(serviceUpdating || serviceCreating) && (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     )}
                     <CheckCircleIcon className="w-4 h-4 mr-2" />
-                    {t('serviceManagement.settings.save')}
+                    {editingService ? t('serviceManagement.settings.save') : t('services.create')}
                   </button>
                 </div>
               </form>

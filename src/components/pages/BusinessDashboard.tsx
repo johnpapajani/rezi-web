@@ -998,7 +998,7 @@ const BusinessDashboard: React.FC = () => {
                     <h3 className="text-lg font-medium text-gray-900 mb-4">{t('business.dashboard.quickActions.title')}</h3>
                     <div className="space-y-3">
                       <button
-                        onClick={() => navigate(`/business/${bizId}/select-service`)}
+                        onClick={() => navigate(`/business/${bizId}`)}
                         className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors touch-manipulation"
                       >
                         <div className="flex items-center space-x-3">
