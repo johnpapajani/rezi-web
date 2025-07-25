@@ -831,23 +831,23 @@ const ServiceDashboard: React.FC = () => {
                       />
                     </div>
 
-                    <div>
-                      <label htmlFor="service_slug" className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('serviceManagement.settings.basicInfo.slug')}
-                      </label>
-                      <input
-                        type="text"
-                        id="service_slug"
-                        name="slug"
-                        value={serviceFormData.slug || ''}
-                        onChange={handleServiceInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
-                        readOnly
-                      />
-                      <p className="mt-1 text-xs text-gray-500">
-                        {t('serviceManagement.settings.basicInfo.slug.help')}
-                      </p>
-                    </div>
+                                         <div>
+                       <label htmlFor="service_slug" className="block text-sm font-medium text-gray-700 mb-2">
+                         {t('serviceManagement.settings.basicInfo.slug')}
+                       </label>
+                       <input
+                         type="text"
+                         id="service_slug"
+                         name="slug"
+                         value={serviceFormData.slug || ''}
+                         onChange={handleServiceInputChange}
+                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                         placeholder="service-slug"
+                       />
+                       <p className="mt-1 text-xs text-gray-500">
+                         {t('serviceManagement.settings.basicInfo.slug.help')}
+                       </p>
+                     </div>
 
                     <div>
                       <label htmlFor="service_description" className="block text-sm font-medium text-gray-700 mb-2">

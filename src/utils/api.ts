@@ -312,13 +312,13 @@ export const serviceApi = {
     return handleResponse<Service>(response);
   },
 
-  updateService: async (bizId: string, serviceId: string, serviceUpdate: ServiceUpdate): Promise<Service> => {
+  updateService: async (serviceId: string, serviceUpdate: ServiceUpdate): Promise<Service> => {
     const accessToken = tokenStorage.getAccessToken();
     if (!accessToken) {
       throw new ApiErrorClass('No access token available', 401);
     }
 
-    const response = await fetch(`${API_BASE_URL}/business/${bizId}/services/${serviceId}`, {
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${accessToken}`,

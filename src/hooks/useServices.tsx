@@ -63,7 +63,7 @@ export const useServices = ({ bizId, activeOnly = true }: UseServicesProps) => {
     try {
       setUpdating(true);
       setError(null);
-      const updatedService = await serviceApi.updateService(bizId, serviceId, serviceUpdate);
+      const updatedService = await serviceApi.updateService(serviceId, serviceUpdate);
       setServices(prev => prev.map(service => 
         service.id === serviceId 
           ? { ...service, ...updatedService }
