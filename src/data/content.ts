@@ -15,9 +15,9 @@ export const features: BusinessFeature[] = [
   },
   {
     id: 3,
-    icon: 'BellIcon',
-    title: 'features.notifications.title',
-    description: 'features.notifications.description',
+    icon: 'LanguageIcon',
+    title: 'features.multilingual.title',
+    description: 'features.multilingual.description',
   },
   {
     id: 4,
@@ -27,9 +27,9 @@ export const features: BusinessFeature[] = [
   },
   {
     id: 5,
-    icon: 'LanguageIcon',
-    title: 'features.multilingual.title',
-    description: 'features.multilingual.description',
+    icon: 'BellIcon',
+    title: 'features.notifications.title',
+    description: 'features.notifications.description',
   },
   {
     id: 6,
