@@ -21,6 +21,10 @@ export const translations: Translations = {
     'hero.stats.businesses': 'Biznese',
     'hero.stats.reservations': 'Rezervime',
     'hero.stats.satisfaction': 'Kënaqësi',
+    'hero.stats.thisWeek': 'Këtë javë',
+    'hero.stats.bookingsToday': 'Rezervime Sot',
+    'hero.mockup.dashboardTitle': 'Rezi Dashboard',
+    'hero.mockup.statusOnline': 'Online',
 
     // Features Section
     'features.title': 'Veçoritë që Keni Nevojë',
@@ -37,6 +41,8 @@ export const translations: Translations = {
     'features.multilingual.description': 'Mbështetje për shqip, anglisht dhe gjuhë të tjera',
     'features.mobile.title': 'Aplikacion Mobil',
     'features.mobile.description': 'Menaxho biznezin nga telefoni juaj',
+    'features.cta.title': 'Gati për të filluar?',
+    'features.cta.description': 'Bashkoju me qindra biznese që tashmë përdorin Rezi për të menaxhuar rezervimet e tyre.',
     'features.cta.learnMore': 'Mëso Më Shumë',
 
     // How It Works
@@ -70,6 +76,9 @@ export const translations: Translations = {
     'testimonials.stats.satisfaction.label': 'Kënaqësi klientësh',
     'testimonials.stats.support.value': '24/7',
     'testimonials.stats.support.label': 'Mbështetje',
+    'testimonials.content.ardit': 'Rezi na ka ndihmuar të organizojmë rezervimet në mënyrë profesionale. Klientët tanë janë shumë të kënaqur me sistemin e ri.',
+    'testimonials.content.elona': 'Aplikacioni është shumë i lehtë për tu përdorur. Tani klientët e mi mund të rezervojnë online dhe unë mund ta menaxhoj gjithçka nga telefoni.',
+    'testimonials.content.driton': 'Sistemi i rezervimeve të Rezi është i shkëlqyer. Na ka kursyer shumë kohë dhe ka rritur efikasitetin e hotelit tonë.',
 
     // Pricing
     'pricing.title': 'Çmime të Thjeshta',
@@ -1721,6 +1730,10 @@ export const translations: Translations = {
     'hero.stats.businesses': 'Businesses',
     'hero.stats.reservations': 'Reservations',
     'hero.stats.satisfaction': 'Satisfaction',
+    'hero.stats.thisWeek': 'This week',
+    'hero.stats.bookingsToday': 'Bookings Today',
+    'hero.mockup.dashboardTitle': 'Rezi Dashboard',
+    'hero.mockup.statusOnline': 'Online',
 
     // Features Section
     'features.title': 'Features You Need',
@@ -1737,6 +1750,8 @@ export const translations: Translations = {
     'features.multilingual.description': 'Support for Albanian, English and other languages',
     'features.mobile.title': 'Mobile App',
     'features.mobile.description': 'Manage your business from your phone',
+    'features.cta.title': 'Ready to get started?',
+    'features.cta.description': 'Join hundreds of businesses already using Rezi to manage their reservations.',
     'features.cta.learnMore': 'Learn More',
 
     // How It Works
@@ -1770,6 +1785,9 @@ export const translations: Translations = {
     'testimonials.stats.satisfaction.label': 'Customer satisfaction',
     'testimonials.stats.support.value': '24/7',
     'testimonials.stats.support.label': 'Support',
+    'testimonials.content.ardit': 'Rezi has helped us organize reservations professionally. Our customers are very satisfied with the new system.',
+    'testimonials.content.elona': 'The application is very easy to use. Now my clients can book online and I can manage everything from my phone.',
+    'testimonials.content.driton': 'Rezi\'s booking system is excellent. It has saved us a lot of time and increased our hotel\'s efficiency.',
 
     // Pricing
     'pricing.title': 'Simple Pricing',

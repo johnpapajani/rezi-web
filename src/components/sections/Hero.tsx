@@ -169,14 +169,14 @@ const Hero: React.FC = () => {
                 className="relative z-20 mx-auto w-80 h-96 bg-white rounded-3xl shadow-2xl border-8 border-gray-200 overflow-hidden"
               >
                 <div className="bg-blue-600 h-24 flex items-center justify-center">
-                  <div className="text-white font-bold text-xl">Rezi Dashboard</div>
+                  <div className="text-white font-bold text-xl">{t('hero.mockup.dashboardTitle')}</div>
                 </div>
                 <div className="p-6 space-y-4">
                   <div className="bg-gray-100 h-4 rounded-full animate-pulse" />
                   <div className="bg-gray-100 h-4 w-3/4 rounded-full animate-pulse" />
                   <div className="bg-blue-100 p-4 rounded-lg">
                     <div className="flex justify-between items-center">
-                      <div className="text-sm font-semibold">Rezervime Sot</div>
+                      <div className="text-sm font-semibold">{t('hero.stats.bookingsToday')}</div>
                       <div className="text-2xl font-bold text-blue-600">24</div>
                     </div>
                   </div>
@@ -200,7 +200,7 @@ const Hero: React.FC = () => {
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm font-medium">Online</span>
+                  <span className="text-sm font-medium">{t('hero.mockup.statusOnline')}</span>
                 </div>
               </motion.div>
 
@@ -212,7 +212,7 @@ const Hero: React.FC = () => {
               >
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-600">+15%</div>
-                  <div className="text-xs text-gray-600">Këtë javë</div>
+                  <div className="text-xs text-gray-600">{t('hero.stats.thisWeek')}</div>
                 </div>
               </motion.div>
             </div>

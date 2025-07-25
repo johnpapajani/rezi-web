@@ -104,10 +104,10 @@ const Features: React.FC = () => {
         >
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 md:p-12">
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-              Gati për të filluar?
+              {t('features.cta.title')}
             </h3>
             <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
-              Bashkoju me qindra biznese që tashmë përdorin Rezi për të menaxhuar rezervimet e tyre.
+              {t('features.cta.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 

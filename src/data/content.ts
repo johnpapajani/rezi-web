@@ -46,7 +46,7 @@ export const testimonials: Testimonial[] = [
     business: 'Restaurant "Të Shtënat"',
     avatar: '/avatars/ardit.jpg',
     rating: 5,
-    content: 'Rezi na ka ndihmuar të organizojmë rezervimet në mënyrë profesionale. Klientët tanë janë shumë të kënaqur me sistemin e ri.',
+    content: 'testimonials.content.ardit',
   },
   {
     id: 2,
@@ -54,7 +54,7 @@ export const testimonials: Testimonial[] = [
     business: 'Salon "Eleganca"',
     avatar: '/avatars/elona.jpg',
     rating: 5,
-    content: 'Aplikacioni është shumë i lehtë për tu përdorur. Tani klientët e mi mund të rezervojnë online dhe unë mund ta menaxhoj gjithçka nga telefoni.',
+    content: 'testimonials.content.elona',
   },
   {
     id: 3,
@@ -62,7 +62,7 @@ export const testimonials: Testimonial[] = [
     business: 'Hotel "Rilindja"',
     avatar: '/avatars/driton.jpg',
     rating: 5,
-    content: 'Sistemi i rezervimeve të Rezi është i shkëlqyer. Na ka kursyer shumë kohë dhe ka rritur efikasitetin e hotelit tonë.',
+    content: 'testimonials.content.driton',
   },
 ];
 
