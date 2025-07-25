@@ -548,9 +548,6 @@ const BusinessOnboarding: React.FC = () => {
 
         if (totalTables === 0) {
           setShowSuccess(true);
-          setTimeout(() => {
-            navigate(`/business/${createdBusinessId}`);
-          }, 2000);
           return;
         }
 
@@ -621,9 +618,6 @@ const BusinessOnboarding: React.FC = () => {
         }
 
         setShowSuccess(true);
-        setTimeout(() => {
-          navigate(`/business/${createdBusinessId}`);
-        }, 2000);
       }
 
     } catch (error: any) {
@@ -654,17 +648,197 @@ const BusinessOnboarding: React.FC = () => {
   ];
 
   if (showSuccess) {
+    const bookingUrl = `${window.location.origin}/book/${businessData.slug}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(bookingUrl)}`;
+
+    const copyToClipboard = async () => {
+      try {
+        await navigator.clipboard.writeText(bookingUrl);
+        // You might want to show a toast notification here
+      } catch (err) {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = bookingUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+    };
+
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center bg-white p-8 rounded-xl shadow-lg max-w-md"
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="text-center bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full"
         >
-          <CheckCircleIcon className="w-16 h-16 text-green-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('onboarding.success.title')}</h2>
-          <p className="text-gray-600 mb-4">{t('onboarding.success.description')}</p>
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+          {/* Celebration Header */}
+          <div className="mb-8">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="relative mb-6"
+            >
+              <CheckCircleIcon className="w-20 h-20 text-green-600 mx-auto" />
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="absolute -top-2 -right-2"
+              >
+                <SparklesIcon className="w-8 h-8 text-yellow-500" />
+              </motion.div>
+            </motion.div>
+            
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl font-bold text-gray-900 mb-3"
+            >
+              🎉 {t('onboarding.success.title')}
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-lg text-gray-600 mb-2"
+            >
+              <strong>{businessData.name}</strong> {t('onboarding.success.isLive')}
+            </motion.p>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-green-600 font-medium"
+            >
+              {t('onboarding.success.customersCanBook')}
+            </motion.p>
+          </div>
+
+          {/* Booking Link Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-gray-50 rounded-xl p-6 mb-8"
+          >
+            <div className="flex items-center justify-center mb-4">
+              <GlobeAltIcon className="w-6 h-6 text-blue-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">{t('onboarding.success.bookingLink')}</h3>
+            </div>
+            
+            <div className="bg-white border-2 border-dashed border-blue-300 rounded-lg p-4 mb-4">
+              <p className="text-sm text-gray-600 mb-3 font-medium">{t('onboarding.success.shareThisLink')}</p>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-2">
+                <input
+                  type="text"
+                  value={bookingUrl}
+                  readOnly
+                  className="flex-1 px-3 py-3 sm:py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm font-mono min-w-0 touch-manipulation"
+                />
+                <button
+                  onClick={copyToClipboard}
+                  className="px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap touch-manipulation"
+                >
+                  {t('common.copy')}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* QR Code */}
+              <div className="text-center">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">{t('onboarding.success.qrCode')}</h4>
+                <div className="inline-block p-4 bg-white rounded-lg border-2 border-gray-200">
+                  <img
+                    src={qrCodeUrl}
+                    alt="QR Code for booking"
+                    className="w-32 h-32 mx-auto"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-2">{t('onboarding.success.qrCodeHelp')}</p>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">{t('onboarding.success.quickActions')}</h4>
+                
+                <a
+                  href={bookingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium space-x-2"
+                >
+                  <GlobeAltIcon className="w-4 h-4" />
+                  <span>{t('onboarding.success.testBooking')}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+                
+                <button
+                  onClick={() => navigate(`/business/${createdBusinessId}`)}
+                  className="flex items-center justify-center w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium space-x-2"
+                >
+                  <CogIcon className="w-4 h-4" />
+                  <span>{t('onboarding.success.manageBusiness')}</span>
+                </button>
+                
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium space-x-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6a2 2 0 01-2 2H10a2 2 0 01-2-2V5z" />
+                  </svg>
+                  <span>{t('onboarding.success.goToDashboard')}</span>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Next Steps */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="text-left"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">{t('onboarding.success.nextSteps')}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <div className="flex items-center mb-2">
+                  <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">1</span>
+                  <h4 className="font-medium text-blue-900">{t('onboarding.success.step1.title')}</h4>
+                </div>
+                <p className="text-blue-700">{t('onboarding.success.step1.description')}</p>
+              </div>
+              
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <div className="flex items-center mb-2">
+                  <span className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">2</span>
+                  <h4 className="font-medium text-green-900">{t('onboarding.success.step2.title')}</h4>
+                </div>
+                <p className="text-green-700">{t('onboarding.success.step2.description')}</p>
+              </div>
+              
+              <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                <div className="flex items-center mb-2">
+                  <span className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">3</span>
+                  <h4 className="font-medium text-purple-900">{t('onboarding.success.step3.title')}</h4>
+                </div>
+                <p className="text-purple-700">{t('onboarding.success.step3.description')}</p>
+              </div>
+            </div>
+          </motion.div>
+
+
         </motion.div>
       </div>
     );
