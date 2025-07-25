@@ -8,13 +8,10 @@ import { useBusiness } from '../../hooks/useBusiness';
 import { BusinessUpdate } from '../../types';
 import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
-  UserCircleIcon, 
   BuildingStorefrontIcon,
   CalendarDaysIcon,
   ArrowRightOnRectangleIcon,
   GlobeAltIcon,
-  ChevronDownIcon,
-  CogIcon,
   ExclamationTriangleIcon,
   ClockIcon,
   CurrencyDollarIcon,
