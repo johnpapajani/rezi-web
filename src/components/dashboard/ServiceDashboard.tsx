@@ -797,7 +797,7 @@ const ServiceDashboard: React.FC = () => {
           },
           {
             id: 'settings',
-            label: t('business.dashboard.tabs.settings'),
+            label: t('business.dashboard.tabs.businessSettings'),
             isActive: currentTab === 'settings',
             onClick: () => setCurrentTab('settings')
           }
@@ -814,6 +814,13 @@ const ServiceDashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Page Description */}
+        <div className="mb-6">
+          <p className="text-gray-600 text-sm sm:text-base">
+            {t('service.dashboard.description')}
+          </p>
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

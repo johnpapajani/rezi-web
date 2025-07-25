@@ -800,7 +800,7 @@ const BusinessDashboard: React.FC = () => {
           },
           {
             id: 'settings',
-            label: t('business.dashboard.tabs.settings'),
+            label: t('business.dashboard.tabs.businessSettings'),
             isActive: currentTab === 'settings',
             onClick: () => handleTabChange('settings')
           },
@@ -827,6 +827,13 @@ const BusinessDashboard: React.FC = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Description */}
+        <div className="mb-6">
+          <p className="text-gray-600 text-sm sm:text-base">
+            {t('business.dashboard.description')}
+          </p>
+        </div>
+        
         <AnimatePresence mode="wait">
           {currentTab === 'dashboard' && (
             <motion.div

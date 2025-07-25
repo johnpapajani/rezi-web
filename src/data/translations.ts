@@ -383,6 +383,8 @@ export const translations: Translations = {
 
     // Business Dashboard
     'business.dashboard.title': 'Paneli i Biznesit',
+    'business.dashboard.description': 'Monitoroni performancën e biznesit tuaj, menaxhoni rezervimet dhe konfiguroni cilësimet.',
+    'service.dashboard.description': 'Menaxhoni shërbimet e biznesit tuaj, modifikoni çmimet dhe oraret, dhe konfiguroni cilësimet e shërbimeve.',
     'business.dashboard.loading': 'Duke ngarkuar panelin e biznesit...',
     'business.dashboard.error.businessIdRequired': 'ID-ja e Biznesit është e Kërkuar',
     'business.dashboard.error.businessIdRequiredDesc': 'Një ID biznesi të vlefshme kërkohet për të parë këtë panel.',
@@ -391,6 +393,8 @@ export const translations: Translations = {
     'business.dashboard.viewAllBookings': 'Shiko të Gjitha Rezervimet',
     'business.dashboard.calendar': 'Kalendar',
     'business.dashboard.tabs.dashboard': 'Paneli',
+    'business.dashboard.tabs.businessSettings': 'Cilësimet e Biznesit',
+    'business.dashboard.tabs.serviceSettings': 'Cilësimet e Shërbimeve',
     'business.dashboard.tabs.settings': 'Cilësimet',
     'business.dashboard.tabs.services': 'Shërbimet',
     'business.dashboard.tabs.tables': 'Njësitë',
@@ -754,7 +758,7 @@ export const translations: Translations = {
     'serviceManagement.tabs.bookings': 'Rezervimet',
     'serviceManagement.tabs.tables': 'Njësitë',
     'serviceManagement.tabs.availability': 'Disponueshmëria',
-    'serviceManagement.tabs.settings': 'Cilësimet',
+    'serviceManagement.tabs.settings': 'Cilësimet e Shërbimit',
     'serviceManagement.overview.title': 'Përmbledhje e Shërbimit',
     'serviceManagement.overview.duration': 'Kohëzgjatja',
     'serviceManagement.overview.basePrice': 'Çmimi Bazë',
@@ -2206,7 +2210,7 @@ export const translations: Translations = {
     'serviceManagement.tabs.bookings': 'Bookings',
     'serviceManagement.tabs.tables': 'Units',
     'serviceManagement.tabs.availability': 'Availability',
-    'serviceManagement.tabs.settings': 'Settings',
+    'serviceManagement.tabs.settings': 'Service Settings',
     'serviceManagement.overview.title': 'Service Overview',
     'serviceManagement.overview.duration': 'Duration',
     'serviceManagement.overview.basePrice': 'Base Price',
@@ -2969,6 +2973,8 @@ export const translations: Translations = {
 
     // Business Dashboard
     'business.dashboard.title': 'Business Dashboard',
+    'business.dashboard.description': 'Monitor your business performance, manage bookings, and configure business settings.',
+    'service.dashboard.description': 'Manage your business services, modify pricing and schedules, and configure service settings.',
     'business.dashboard.loading': 'Loading business dashboard...',
     'business.dashboard.error.businessIdRequired': 'Business ID Required',
     'business.dashboard.error.businessIdRequiredDesc': 'A valid business ID is required to view this dashboard.',
@@ -2977,6 +2983,8 @@ export const translations: Translations = {
     'business.dashboard.viewAllBookings': 'View All Bookings',
     'business.dashboard.calendar': 'Calendar',
     'business.dashboard.tabs.dashboard': 'Dashboard',
+    'business.dashboard.tabs.businessSettings': 'Business Settings',
+    'business.dashboard.tabs.serviceSettings': 'Service Settings',
     'business.dashboard.tabs.settings': 'Settings',
     'business.dashboard.tabs.services': 'Services',
     'business.dashboard.tabs.tables': 'Units',
