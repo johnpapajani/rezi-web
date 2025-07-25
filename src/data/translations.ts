@@ -753,7 +753,7 @@ export const translations: Translations = {
 
     // Service Management Dashboard
     'serviceManagement.title': 'Menaxhimi i Shërbimit',
-    'serviceManagement.noTablesDescription': 'Klientët nuk mund të shohin oraret e disponueshme dhe të bëjnë rezervime pa njësi.',
+    'serviceManagement.noTablesDescription': 'Klientët nuk mund të shohin oraret e disponueshme për këtë shërbim dhe të bëjnë rezervime pa shtuar njësi.',
     'serviceManagement.addTables': 'Shto Njësi',
     'serviceManagement.selectService': 'Shërbimi',
     'serviceManagement.selectService.placeholder': 'Përzgjidh shërbimin',
@@ -2211,7 +2211,7 @@ export const translations: Translations = {
 
     // Service Management Dashboard
     'serviceManagement.title': 'Service Management',
-    'serviceManagement.noTablesDescription': 'Customers cannot see available time slots and make bookings without tables.',
+    'serviceManagement.noTablesDescription': 'Customers cannot see available time slots for this service and make bookings without adding tables.',
     'serviceManagement.addTables': 'Add Tables',
     'serviceManagement.selectService': 'Service',
     'serviceManagement.selectService.placeholder': 'Select a service',
