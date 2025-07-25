@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { EnvelopeIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
 
 const Contact: React.FC = () => {
@@ -54,21 +54,27 @@ const Contact: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="flex items-start space-x-4 p-8 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors duration-300"
+                className="group cursor-pointer"
+                onClick={() => window.open(`mailto:${info.value}`, '_blank')}
               >
-                <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <info.icon className="w-8 h-8 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="text-xl font-semibold text-gray-900 mb-2">
-                    {info.title}
-                  </h4>
-                  <p className="text-lg text-gray-900 font-medium mb-2">
-                    {info.value}
-                  </p>
-                  <p className="text-gray-600">
-                    {info.description}
-                  </p>
+                <div className="flex items-start space-x-4 p-8 bg-gray-50 rounded-2xl hover:bg-blue-50 hover:border-blue-200 border border-transparent transition-all duration-300 group-hover:shadow-lg">
+                  <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors duration-300">
+                    <info.icon className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-xl font-semibold text-gray-900 mb-2">
+                      {info.title}
+                    </h4>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-lg text-blue-600 font-medium group-hover:text-blue-700 transition-colors duration-200">
+                        {info.value}
+                      </span>
+                      <ArrowTopRightOnSquareIcon className="w-4 h-4 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    </div>
+                    <p className="text-gray-600">
+                      {info.description}
+                    </p>
+                  </div>
                 </div>
               </motion.div>
             ))}
