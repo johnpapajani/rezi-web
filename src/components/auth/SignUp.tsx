@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
+import { mapAuthErrorToTranslationKey } from '../../utils/errorUtils';
 
 const SignUp: React.FC = () => {
   const { signUp, isLoading, error, clearError, isAuthenticated } = useAuth();
@@ -149,7 +150,9 @@ const SignUp: React.FC = () => {
               className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center"
             >
               <ExclamationCircleIcon className="w-5 h-5 text-red-400 mr-3" />
-              <span className="text-sm text-red-700">{error}</span>
+              <span className="text-sm text-red-700">
+                {t(mapAuthErrorToTranslationKey(error))}
+              </span>
             </motion.div>
           )}
 

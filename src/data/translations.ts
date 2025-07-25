@@ -247,6 +247,16 @@ export const translations: Translations = {
     'auth.errors.confirmPasswordRequired': 'Konfirmimi i fjalëkalimit është i detyrueshëm',
     'auth.errors.passwordsDoNotMatch': 'Fjalëkalimet nuk përputhen',
     'auth.errors.phoneInvalid': 'Numri i telefonit nuk është i vlefshëm',
+    'auth.errors.emailAlreadyExists': 'Ky email tashmë është regjistruar',
+    'auth.errors.invalidCredentials': 'Email-i ose fjalëkalimi është i gabuar',
+    'auth.errors.userNotFound': 'Përdoruesi nuk u gjet',
+    'auth.errors.accountDisabled': 'Llogaria është e çaktivizuar',
+    'auth.errors.signUpFailed': 'Regjistrimi dështoi. Provo përsëri.',
+    'auth.errors.signInFailed': 'Kyçja dështoi. Provo përsëri.',
+    'auth.errors.networkError': 'Gabim në rrjet. Kontrollo lidhjen e internetit.',
+    'auth.errors.serverError': 'Gabim në server. Provo përsëri më vonë.',
+    'auth.errors.sessionExpired': 'Seanca ka skaduar. Të lutem kyçu përsëri.',
+    'auth.errors.tooManyAttempts': 'Shumë përpjekje të dështuara. Provo përsëri më vonë.',
 
     // Dashboard
     'dashboard.welcome': 'Mirë se erdhe',
@@ -1956,6 +1966,16 @@ export const translations: Translations = {
     'auth.errors.confirmPasswordRequired': 'Password confirmation is required',
     'auth.errors.passwordsDoNotMatch': 'Passwords do not match',
     'auth.errors.phoneInvalid': 'Phone number is not valid',
+    'auth.errors.emailAlreadyExists': 'This email is already registered',
+    'auth.errors.invalidCredentials': 'Invalid email or password',
+    'auth.errors.userNotFound': 'User not found',
+    'auth.errors.accountDisabled': 'Account is disabled',
+    'auth.errors.signUpFailed': 'Sign up failed. Please try again.',
+    'auth.errors.signInFailed': 'Sign in failed. Please try again.',
+    'auth.errors.networkError': 'Network error. Please check your internet connection.',
+    'auth.errors.serverError': 'Server error. Please try again later.',
+    'auth.errors.sessionExpired': 'Session expired. Please sign in again.',
+    'auth.errors.tooManyAttempts': 'Too many failed attempts. Please try again later.',
 
     // Dashboard
     'dashboard.welcome': 'Welcome',
