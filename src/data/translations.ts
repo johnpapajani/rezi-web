@@ -1672,6 +1672,7 @@ export const translations: Translations = {
     'public.confirmation.localTime': 'ora lokale',
     'public.confirmation.bookingAt': 'Rezervimi tek',
     'public.confirmation.serviceDetails': 'Detajet e Shërbimit',
+    'public.confirmation.totalAmount': 'Shuma Totale',
 
     // Cancel Booking Modal
     'public.cancel.title': 'Anulo Rezervimin',
@@ -3398,6 +3399,7 @@ export const translations: Translations = {
     'public.confirmation.localTime': 'local time',
     'public.confirmation.bookingAt': 'Booking at',
     'public.confirmation.serviceDetails': 'Service Details',
+    'public.confirmation.totalAmount': 'Total Amount',
 
     // Cancel Booking Modal
     'public.cancel.title': 'Cancel Booking',

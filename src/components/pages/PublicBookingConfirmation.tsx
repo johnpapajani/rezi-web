@@ -127,7 +127,7 @@ const PublicBookingConfirmation: React.FC = () => {
   }, [bookingId, stateData, location.search]);
 
   const formatPrice = (priceMinor: number | undefined, currency: string = 'ALL') => {
-    if (priceMinor === undefined) return 'N/A';
+    if (priceMinor === undefined || priceMinor === null || priceMinor <= 0) return '';
     const price = priceMinor / 100;
     const locale = currentLanguage === 'sq' ? 'sq-AL' : 'en-US';
     return new Intl.NumberFormat(locale, {
@@ -449,18 +449,6 @@ const PublicBookingConfirmation: React.FC = () => {
                     </p>
                   </div>
                 </div>
-
-                {booking.service_price_minor && booking.service_price_minor > 0 && (
-                  <div className="flex items-start">
-                    <CurrencyDollarIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
-                    <div>
-                      <p className="text-sm text-gray-600">{t('public.confirmation.price')}</p>
-                      <p className="font-medium text-gray-900">
-                        {formatPrice(booking.service_price_minor, business?.currency)}
-                      </p>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Customer & Contact */}
@@ -492,6 +480,28 @@ const PublicBookingConfirmation: React.FC = () => {
                 )}
               </div>
             </div>
+
+            {/* Price Section - Only show if there's a price greater than 0 */}
+            {booking.service_price_minor !== undefined && booking.service_price_minor !== null && booking.service_price_minor > 0 && (
+              <div className="mt-6 pt-6 border-t">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <CurrencyDollarIcon className="h-6 w-6 text-green-600 mr-3" />
+                      <div>
+                        <p className="text-sm font-medium text-green-800">{t('public.confirmation.price')}</p>
+                        <p className="text-xs text-green-600">{t('public.confirmation.totalAmount')}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-green-900">
+                        {formatPrice(booking.service_price_minor, business?.currency)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Booking ID */}
             <div className="mt-6 pt-6 border-t">
