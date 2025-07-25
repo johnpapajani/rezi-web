@@ -248,6 +248,7 @@ export interface ServiceUpdate {
 export interface ServiceWithTables extends ServiceWithOpenIntervals {
   tables: Table[];
   table_count: number;
+  monthly_reservations: number;
 }
 
 // Availability types

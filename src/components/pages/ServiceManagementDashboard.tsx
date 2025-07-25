@@ -566,6 +566,34 @@ const ServiceManagementDashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Warning Banner for No Tables */}
+        {service && tables.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start space-x-3"
+          >
+            <ExclamationTriangleIcon className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-amber-800">
+                {t('serviceDashboard.notPublicWarning')}
+              </h3>
+              <p className="mt-1 text-sm text-amber-700">
+                {t('serviceManagement.noTablesDescription')}
+              </p>
+              <div className="mt-3">
+                <button
+                  onClick={() => setCurrentTab('tables')}
+                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-amber-800 bg-amber-100 border border-amber-300 rounded-md hover:bg-amber-200 transition-colors"
+                >
+                  <RectangleGroupIcon className="w-4 h-4 mr-1.5" />
+                  {t('serviceManagement.addTables')}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {currentTab === 'dashboard' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

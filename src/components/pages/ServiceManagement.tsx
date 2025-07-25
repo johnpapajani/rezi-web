@@ -546,6 +546,12 @@ const ServiceManagement: React.FC = () => {
                       <span className="font-medium">{t('services.tables')}: </span>
                       {service.table_count} {service.table_count === 1 ? t('services.table') : t('services.tables')}
                     </div>
+                    {service.table_count === 0 && (
+                      <div className="flex items-center space-x-1 text-amber-600 text-xs mt-2 pt-2 border-t border-amber-100">
+                        <ExclamationTriangleIcon className="w-3 h-3" />
+                        <span className="font-medium">{t('serviceDashboard.notPublicWarning')}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -489,17 +489,24 @@ const ServiceDashboard: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      {/* Secondary stats row - Tables and Bookings */}
+                      {/* Secondary stats row - Tables and Monthly Bookings */}
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <div className="flex items-center space-x-1">
                           <RectangleGroupIcon className="w-3 h-3" />
-                          <span>{service.table_count || 0} {service.table_count === 1 ? t('services.table') : t('services.tables')}</span>
+                          <span>{service.table_count} {service.table_count === 1 ? t('services.table') : t('services.tables')}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <CalendarDaysIcon className="w-3 h-3" />
-                          <span>{t('serviceDashboard.recentBookings')}</span>
+                          <span>{service.monthly_reservations || 0} {t('serviceDashboard.thisMonth')}</span>
                         </div>
                       </div>
+                      {/* Availability Status */}
+                      {service.table_count === 0 && (
+                        <div className="flex items-center space-x-1 text-amber-600 text-xs mt-2 pt-2 border-t border-gray-100">
+                          <ExclamationTriangleIcon className="w-3 h-3" />
+                          <span className="font-medium">{t('serviceDashboard.notPublicWarning')}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="border-t border-gray-100 pt-4">

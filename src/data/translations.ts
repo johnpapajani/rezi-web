@@ -746,9 +746,15 @@ export const translations: Translations = {
     'serviceDashboard.returnToDashboard': 'Kthehu në Panel',
     'serviceDashboard.recentBookings': 'Rezervime të Fundit',
     'serviceDashboard.clickToManage': 'Kliko për të menaxhuar',
+    'serviceDashboard.notPublic': 'Jo Publik',
+    'serviceDashboard.publiclyAvailable': 'Publik',
+    'serviceDashboard.thisMonth': 'këtë muaj',
+    'serviceDashboard.notPublicWarning': 'Duhet të shtoni njësi për ta bërë publik',
 
     // Service Management Dashboard
     'serviceManagement.title': 'Menaxhimi i Shërbimit',
+    'serviceManagement.noTablesDescription': 'Klientët nuk mund të shohin oraret e disponueshme dhe të bëjnë rezervime pa njësi.',
+    'serviceManagement.addTables': 'Shto Njësi',
     'serviceManagement.selectService': 'Shërbimi',
     'serviceManagement.selectService.placeholder': 'Përzgjidh shërbimin',
     'serviceManagement.loadingService': 'Duke ngarkuar shërbimin...',
@@ -2198,9 +2204,15 @@ export const translations: Translations = {
     'serviceDashboard.returnToDashboard': 'Return to Dashboard',
     'serviceDashboard.recentBookings': 'Recent Bookings',
     'serviceDashboard.clickToManage': 'Click to manage',
+    'serviceDashboard.notPublic': 'Not Public',
+    'serviceDashboard.publiclyAvailable': 'Public',
+    'serviceDashboard.thisMonth': 'this month',
+    'serviceDashboard.notPublicWarning': 'Add tables to make this service public',
 
     // Service Management Dashboard
     'serviceManagement.title': 'Service Management',
+    'serviceManagement.noTablesDescription': 'Customers cannot see available time slots and make bookings without tables.',
+    'serviceManagement.addTables': 'Add Tables',
     'serviceManagement.selectService': 'Service',
     'serviceManagement.selectService.placeholder': 'Select a service',
     'serviceManagement.loadingService': 'Loading service...',
