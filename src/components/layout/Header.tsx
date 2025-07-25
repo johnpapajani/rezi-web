@@ -168,8 +168,49 @@ const Header: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
+          {/* Mobile Actions - Language Switcher and Menu Button */}
+          <div className="flex items-center space-x-4 md:hidden">
+            {/* Mobile Language Selector */}
+            <div className="relative">
+              <button
+                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors p-1"
+              >
+                <GlobeAltIcon className="w-5 h-5" />
+                <span className="text-sm">
+                  {languages.find(lang => lang.code === currentLanguage)?.flag}
+                </span>
+              </button>
+
+              <AnimatePresence>
+                {isLanguageOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                  >
+                    {languages.map((language) => (
+                      <button
+                        key={language.code}
+                        onClick={() => {
+                          setLanguage(language.code);
+                          setIsLanguageOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
+                          currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                        }`}
+                      >
+                        <span>{language.flag}</span>
+                        <span className="text-xs">{language.name}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-700 hover:text-blue-600 transition-colors"
@@ -215,25 +256,6 @@ const Header: React.FC = () => {
               </Link>
               
               <div className="border-t border-gray-100 pt-4">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-gray-700 font-medium">Gjuha / Language</span>
-                  <div className="flex space-x-2">
-                    {languages.map((language) => (
-                      <button
-                        key={language.code}
-                        onClick={() => setLanguage(language.code)}
-                        className={`px-3 py-1 rounded-md text-sm ${
-                          currentLanguage === language.code
-                            ? 'bg-blue-100 text-blue-600'
-                            : 'text-gray-600 hover:bg-gray-100'
-                        }`}
-                      >
-                        {language.flag} {language.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
                 <div className="space-y-2">
                   {isAuthenticated ? (
                     <>
