@@ -1,68 +1,118 @@
 /**
- * Maps server error messages to translation keys for proper localization
+ * Maps API errors to translation keys based on HTTP status codes and endpoint context
+ * This is much more robust than parsing localized error messages
  */
-export const mapAuthErrorToTranslationKey = (error: string): string => {
-  // Convert error to lowercase for case-insensitive matching
-  const errorLower = error.toLowerCase();
+
+export interface ApiErrorInfo {
+  detail: string;
+  status?: number;
+  endpoint?: string;
+}
+
+/**
+ * Maps authentication errors to translation keys based on status codes and context
+ */
+export const mapAuthErrorToTranslationKey = (errorInfo: ApiErrorInfo): string => {
+  const { status, endpoint, detail } = errorInfo;
   
-  // Direct mappings for exact Albanian error messages
-  if (errorLower === 'ky email tashmë është regjistruar.' || errorLower === 'ky email tashmë është regjistruar') {
-    return 'auth.errors.emailAlreadyExists';
+  // Map by HTTP status code and endpoint - much more reliable than text parsing
+  if (status) {
+    switch (status) {
+      case 400:
+        // Bad Request - usually validation errors or business logic errors
+        if (endpoint?.includes('/auth/signup')) {
+          // For signup, 400 typically means email already exists or validation error
+          if (detail.toLowerCase().includes('email')) {
+            return 'auth.errors.emailAlreadyExists';
+          }
+          return 'auth.errors.signUpFailed';
+        }
+        if (endpoint?.includes('/auth/login')) {
+          // For login, 400 typically means invalid credentials
+          return 'auth.errors.invalidCredentials';
+        }
+        return 'auth.errors.invalidCredentials';
+        
+      case 401:
+        // Unauthorized - invalid credentials or expired session
+        if (endpoint?.includes('/auth/login')) {
+          return 'auth.errors.invalidCredentials';
+        }
+        return 'auth.errors.sessionExpired';
+        
+      case 403:
+        // Forbidden - account disabled or insufficient permissions
+        return 'auth.errors.accountDisabled';
+        
+      case 404:
+        // Not Found - user doesn't exist
+        return 'auth.errors.userNotFound';
+        
+      case 409:
+        // Conflict - resource already exists (email already registered)
+        return 'auth.errors.emailAlreadyExists';
+        
+      case 422:
+        // Unprocessable Entity - validation errors
+        if (endpoint?.includes('/auth/signup')) {
+          // Try to determine specific validation error
+          const detailLower = detail.toLowerCase();
+          if (detailLower.includes('email')) {
+            return 'auth.errors.emailInvalid';
+          }
+          if (detailLower.includes('password')) {
+            return 'auth.errors.passwordTooShort';
+          }
+          return 'auth.errors.signUpFailed';
+        }
+        return 'auth.errors.invalidCredentials';
+        
+      case 429:
+        // Too Many Requests - rate limiting
+        return 'auth.errors.tooManyAttempts';
+        
+      case 500:
+      case 502:
+      case 503:
+      case 504:
+        // Server errors
+        return 'auth.errors.serverError';
+        
+      default:
+        // Unknown status code
+        break;
+    }
   }
   
-  // Common server error patterns to translation keys
-  // Handle both English and Albanian error messages for email already exists
-  if (errorLower.includes('email') && (
-    errorLower.includes('already') || 
-    errorLower.includes('exists') || 
-    errorLower.includes('taken') ||
-    errorLower.includes('tashmë') || 
-    errorLower.includes('regjistruar')
-  )) {
-    return 'auth.errors.emailAlreadyExists';
+  // Fallback: Check for network errors (no status code)
+  if (!status) {
+    if (detail.toLowerCase().includes('network') || 
+        detail.toLowerCase().includes('connection') ||
+        detail.toLowerCase().includes('fetch')) {
+      return 'auth.errors.networkError';
+    }
   }
   
-  if (errorLower.includes('invalid') && (errorLower.includes('credentials') || errorLower.includes('password') || errorLower.includes('email')) ||
-      (errorLower.includes('fjalëkalimi') && errorLower.includes('gabuar')) ||
-      (errorLower.includes('email') && errorLower.includes('gabuar'))) {
-    return 'auth.errors.invalidCredentials';
-  }
-  
-  if ((errorLower.includes('user') && errorLower.includes('not found')) ||
-      (errorLower.includes('përdoruesi') && errorLower.includes('nuk u gjet'))) {
-    return 'auth.errors.userNotFound';
-  }
-  
-  if ((errorLower.includes('account') && (errorLower.includes('disabled') || errorLower.includes('inactive'))) ||
-      (errorLower.includes('llogaria') && errorLower.includes('çaktivizuar'))) {
-    return 'auth.errors.accountDisabled';
-  }
-  
-  if (errorLower.includes('network') || errorLower.includes('connection')) {
-    return 'auth.errors.networkError';
-  }
-  
-  if (errorLower.includes('server') || errorLower.includes('internal')) {
-    return 'auth.errors.serverError';
-  }
-  
-  if (errorLower.includes('session') && errorLower.includes('expired')) {
-    return 'auth.errors.sessionExpired';
-  }
-  
-  if (errorLower.includes('too many') || errorLower.includes('rate limit')) {
-    return 'auth.errors.tooManyAttempts';
-  }
-  
-  if (error === 'Sign up failed') {
+  // Final fallback for generic auth errors
+  if (endpoint?.includes('/auth/signup')) {
     return 'auth.errors.signUpFailed';
   }
-  
-  if (error === 'Sign in failed') {
+  if (endpoint?.includes('/auth/login')) {
     return 'auth.errors.signInFailed';
   }
   
-  // If no specific mapping found, return the original error
-  // This allows for custom server messages to still be displayed
-  return error;
+  // If all else fails, return a generic error key
+  // The translation system will fall back to displaying the original detail
+  return 'auth.errors.serverError';
+};
+
+/**
+ * Helper function for backward compatibility with simple string errors
+ */
+export const mapSimpleAuthError = (error: string): string => {
+  return mapAuthErrorToTranslationKey({ 
+    detail: error,
+    status: undefined,
+    endpoint: undefined 
+  });
 }; 

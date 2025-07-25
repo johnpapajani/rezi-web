@@ -60,7 +60,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await authApi.signUp(data);
       handleAuthResponse(response);
     } catch (err: any) {
-      setError(err.detail || 'Sign up failed');
+      // Store the full error information for proper error mapping
+      const errorInfo = {
+        detail: err.detail || 'Sign up failed',
+        status: err.status,
+        endpoint: '/auth/signup'
+      };
+      setError(JSON.stringify(errorInfo));
       throw err;
     } finally {
       setIsLoading(false);
@@ -74,7 +80,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await authApi.signIn(data);
       handleAuthResponse(response);
     } catch (err: any) {
-      setError(err.detail || 'Sign in failed');
+      // Store the full error information for proper error mapping
+      const errorInfo = {
+        detail: err.detail || 'Sign in failed',
+        status: err.status,
+        endpoint: '/auth/login'
+      };
+      setError(JSON.stringify(errorInfo));
       throw err;
     } finally {
       setIsLoading(false);
