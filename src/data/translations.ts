@@ -14,7 +14,7 @@ export const translations: Translations = {
 
     // Hero Section
     'hero.title': 'Platforma Moderne e Rezervimeve për Bizneset Shqiptare',
-    'hero.subtitle': 'Për çdo lloj biznesi, të madh apo të vogël. Menaxho rezervimet me lehtësi, lejo klientët të rezervojnë online dhe rris kënaqësinë e tyre.',
+    'hero.subtitle': 'Çdo biznes - restorant, zyrë ligjore dhe më shumë - sistemo rezervimet. Lejo klientët të rezervojnë online 24/7 ndërsa zhvillon biznesin.',
     'hero.cta.primary': 'Fillo Falas',
     'hero.cta.secondary': 'Shiko Demo',
     'hero.guide.link': 'Lexo Udhëzuesin e Biznesit',
@@ -28,7 +28,7 @@ export const translations: Translations = {
 
     // Features Section
     'features.title': 'Veçoritë që Keni Nevojë',
-    'features.subtitle': 'Qoftë berber, restorant, klinikë apo salon bukurie - të gjitha mjetet e nevojshme për çdo lloj biznesi në një vend',
+    'features.subtitle': 'Qoftë restorant, berber, klinikë apo salon bukurie - të gjitha mjetet e nevojshme për çdo lloj biznesi në një vend',
     'features.online.title': 'Rezervime Online',
     'features.online.description': 'Klientët mund të rezervojnë përmes kodit QR ose linkut tuaj',
     'features.calendar.title': 'Kalendar i Zgjuar',
@@ -1626,7 +1626,7 @@ export const translations: Translations = {
     'public.booking.validation.nameRequired': 'Emri është i detyrueshëm',
     'public.booking.validation.phoneRequired': 'Numri i telefonit është i detyrueshëm',
     'public.booking.validation.phoneInvalid': 'Ju lutem vendosni një numër telefoni të vlefshëm',
-    'public.booking.validation.emailInvalid': 'Ju lutem vendosni një adresë elektronike të vlefshme',
+    'public.booking.validation.emailInvalid': 'Ju lutem vendosni një adresë email të vlefshme',
     'public.booking.validation.noTableAvailable': 'Nuk ka njësi të disponueshme për madhësinë tuaj të grupit',
 
     // Booking Confirmation
@@ -1723,7 +1723,7 @@ export const translations: Translations = {
 
     // Hero Section
     'hero.title': 'Modern Reservation Platform for Albanian Businesses',
-    'hero.subtitle': 'For every type of business, big or small. Manage reservations with ease, let customers book online, and increase their satisfaction.',
+    'hero.subtitle': 'Any business - restaurants, law offices, and more - streamline your reservations. Let customers book online 24/7 while you grow your business.',
     'hero.cta.primary': 'Start Free',
     'hero.cta.secondary': 'View Demo',
     'hero.guide.link': 'Read Business User Guide',
@@ -1737,7 +1737,7 @@ export const translations: Translations = {
 
     // Features Section
     'features.title': 'Features You Need',
-    'features.subtitle': 'Whether barbershop, restaurant, clinic or beauty salon - all the tools needed for every type of business in one place',
+    'features.subtitle': 'Whether restaurant, barbershop, clinic or beauty salon - all the tools needed for every type of business in one place',
     'features.online.title': 'Online Reservations',
     'features.online.description': 'Customers can book through QR code or your link',
     'features.calendar.title': 'Smart Calendar',
