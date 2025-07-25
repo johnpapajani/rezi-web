@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useServices } from '../../hooks/useServices';
@@ -11,7 +11,6 @@ import {
   UserCircleIcon, 
   BuildingStorefrontIcon,
   CalendarDaysIcon,
-  ChartBarIcon,
   ArrowRightOnRectangleIcon,
   GlobeAltIcon,
   ChevronDownIcon,
@@ -24,29 +23,21 @@ import {
   RectangleGroupIcon,
   ArrowRightIcon,
   PlusIcon,
-  ArrowLeftIcon,
-  PhotoIcon,
   MapPinIcon,
   CheckCircleIcon,
+  PhotoIcon,
   QrCodeIcon
 } from '@heroicons/react/24/outline';
 
-type TabType = 'services' | 'settings' | 'qrcode';
+type TabType = 'services' | 'settings';
 
 const ServiceDashboard: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
-  const { user, signOut } = useAuth();
+  const { signOut } = useAuth();
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState<TabType>('services');
   const navigate = useNavigate();
-  const location = useLocation();
   
-  // Check if we're on QR page for highlighting tab
-  useEffect(() => {
-    if (location.pathname.includes('/qr')) {
-      setCurrentTab('qrcode');
-    }
-  }, [location.pathname]);
   const { business, loading: businessLoading, error: businessError, updating, updateBusiness } = useBusiness({ bizId: bizId || '' });
   const { services, loading: servicesLoading, error: servicesError } = useServices({ bizId: bizId || '', activeOnly: false });
 
@@ -185,6 +176,13 @@ const ServiceDashboard: React.FC = () => {
           {t('serviceDashboard.availableServices')}
         </h2>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+          <button
+            onClick={() => window.open(`/business/${bizId}/qr`, '_blank')}
+            className="inline-flex items-center justify-center px-4 py-2 border border-purple-300 text-sm font-medium rounded-md text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 touch-manipulation"
+          >
+            <QrCodeIcon className="w-4 h-4 mr-2" />
+            {t('business.qr.title')}
+          </button>
           <button
             onClick={() => window.open(`/book/${business?.slug}`, '_blank')}
             className="inline-flex items-center justify-center px-4 py-2 border border-green-300 text-sm font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 touch-manipulation"
@@ -559,12 +557,6 @@ const ServiceDashboard: React.FC = () => {
             label: t('business.dashboard.tabs.settings'),
             isActive: currentTab === 'settings',
             onClick: () => setCurrentTab('settings')
-          },
-          {
-            id: 'qrcode',
-            label: t('business.qr.title'),
-            isActive: currentTab === 'qrcode',
-            onClick: () => navigate(`/business/${bizId}/qr`)
           }
         ]}
         actions={[
