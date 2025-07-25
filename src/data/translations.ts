@@ -1670,6 +1670,8 @@ export const translations: Translations = {
     'public.confirmation.phoneRequiredError': 'Numri i telefonit është i nevojshëm për të parë detajet e rezervimit. Ju lutem përdorni faqen e kërkimit të rezervimeve.',
     'public.confirmation.bookingDetailsNotAvailable': 'Detajet e rezervimit nuk janë të disponueshme. Ju lutem përdorni faqen e kërkimit të rezervimeve për të gjetur rezervimin tuaj.',
     'public.confirmation.localTime': 'ora lokale',
+    'public.confirmation.bookingAt': 'Rezervimi tek',
+    'public.confirmation.serviceDetails': 'Detajet e Shërbimit',
 
     // Cancel Booking Modal
     'public.cancel.title': 'Anulo Rezervimin',
@@ -3394,6 +3396,8 @@ export const translations: Translations = {
     'public.confirmation.phoneRequiredError': 'Phone number is required to view booking details. Please use the booking search page.',
     'public.confirmation.bookingDetailsNotAvailable': 'Booking details are not available. Please use the booking search page to find your booking.',
     'public.confirmation.localTime': 'local time',
+    'public.confirmation.bookingAt': 'Booking at',
+    'public.confirmation.serviceDetails': 'Service Details',
 
     // Cancel Booking Modal
     'public.cancel.title': 'Cancel Booking',

@@ -351,18 +351,54 @@ const PublicBookingConfirmation: React.FC = () => {
           </div>
         </div>
 
+        {/* Business Information Card */}
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden mb-6">
+          <div className="bg-blue-600 px-6 py-4">
+            <div className="text-white">
+              <h3 className="text-xl font-bold">
+                {business?.name || 'Business'}
+              </h3>
+              <p className="text-blue-100 text-sm">
+                {t('public.confirmation.bookingAt')}
+              </p>
+            </div>
+          </div>
+          
+          {/* Business Address - Always show if available */}
+          {business && (business.address_line1 || business.city) && (
+            <div className="p-6">
+              <div className="flex items-start">
+                <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t('public.confirmation.location')}</p>
+                  <div className="text-gray-900">
+                    {business.address_line1 && <div>{business.address_line1}</div>}
+                    {business.address_line2 && <div>{business.address_line2}</div>}
+                    {business.city && (
+                      <div>
+                        {business.city}
+                        {business.postal_code && `, ${business.postal_code}`}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Booking Details Card */}
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
           {/* Header */}
-          <div className="bg-blue-50 px-6 py-4 border-b">
+          <div className="bg-gray-50 px-6 py-4 border-b">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   {booking.service_name || 'Service'}
                 </h3>
-                {business && (
-                  <p className="text-sm text-gray-600">{business.name}</p>
-                )}
+                <p className="text-sm text-gray-600">
+                  {t('public.confirmation.serviceDetails')}
+                </p>
               </div>
               <div className="text-right">
                 <span className={`
@@ -454,32 +490,8 @@ const PublicBookingConfirmation: React.FC = () => {
                     </div>
                   </div>
                 )}
-
-
               </div>
             </div>
-
-            {/* Business Address */}
-            {business && (business.address_line1 || business.city) && (
-              <div className="mt-6 pt-6 border-t">
-                <div className="flex items-start">
-                  <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
-                  <div>
-                    <p className="text-sm text-gray-600">{t('public.confirmation.location')}</p>
-                    <div className="font-medium text-gray-900">
-                      {business.address_line1 && <div>{business.address_line1}</div>}
-                      {business.address_line2 && <div>{business.address_line2}</div>}
-                      {business.city && (
-                        <div>
-                          {business.city}
-                          {business.postal_code && `, ${business.postal_code}`}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Booking ID */}
             <div className="mt-6 pt-6 border-t">
@@ -529,25 +541,7 @@ const PublicBookingConfirmation: React.FC = () => {
           </div>
         </div>
 
-        {/* Additional Info */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <div className="h-5 w-5 text-blue-400">ℹ️</div>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">{t('public.confirmation.importantInfo')}</h3>
-              <div className="mt-2 text-sm text-blue-700">
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>{t('public.confirmation.arriveEarly')}</li>
-                  <li>{t('public.confirmation.confirmationCall')}</li>
-                  <li>{t('public.confirmation.callForChanges')}</li>
-                  <li>{t('public.confirmation.cancellationPolicy')}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+
 
         {/* Error Message */}
         {error && (
