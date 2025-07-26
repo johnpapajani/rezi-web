@@ -280,6 +280,30 @@ const ServiceDashboard: React.FC = () => {
     }
   };
 
+  const formatDateTimeInBusinessTimezone = (dateTimeString: string): { date: string; time: string } => {
+    const date = new Date(dateTimeString);
+    const timezone = business?.timezone || 'UTC';
+    
+    const dateFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+    
+    const timeFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    
+    return {
+      date: dateFormatter.format(date),
+      time: timeFormatter.format(date)
+    };
+  };
+
   const handleServiceSelect = (serviceId: string) => {
     navigate(`/service/${serviceId}`);
   };
@@ -1017,7 +1041,10 @@ const ServiceDashboard: React.FC = () => {
                             {booking.service_name}
                           </td>
                                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                             {new Date(booking.starts_at).toLocaleDateString()} {new Date(booking.starts_at).toLocaleTimeString()}
+                             {(() => {
+                               const { date, time } = formatDateTimeInBusinessTimezone(booking.starts_at);
+                               return `${date} ${time}`;
+                             })()}
                            </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -1146,7 +1173,10 @@ const ServiceDashboard: React.FC = () => {
                    <div>
                      <p className="text-sm font-medium text-gray-700">{t('bookings.list.dateTime')}</p>
                      <p className="text-lg font-semibold text-gray-900">
-                       {new Date(selectedBooking.starts_at).toLocaleDateString()} {new Date(selectedBooking.starts_at).toLocaleTimeString()}
+                       {(() => {
+                         const { date, time } = formatDateTimeInBusinessTimezone(selectedBooking.starts_at);
+                         return `${date} ${time}`;
+                       })()}
                      </p>
                    </div>
                    <div>

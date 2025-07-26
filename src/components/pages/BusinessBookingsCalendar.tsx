@@ -35,13 +35,11 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('month');
 
-  // Safe translation helper
+  // Translation helper - all keys should exist in both languages
   const safeT = (key: string, fallback: string) => {
-    try {
-      return t(key);
-    } catch {
-      return fallback;
-    }
+    const translation = t(key);
+    // Only use fallback if translation returns the key itself (not found)
+    return translation === key ? fallback : translation;
   };
 
   // Navigation helpers
@@ -77,7 +75,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
       'calendar.months.july', 'calendar.months.august', 'calendar.months.september',
       'calendar.months.october', 'calendar.months.november', 'calendar.months.december'
     ];
-    return safeT(monthKeys[monthIndex], new Date(2023, monthIndex, 1).toLocaleDateString(undefined, { month: 'long' }));
+    return t(monthKeys[monthIndex]);
   };
 
   const getDayName = (dayIndex: number) => {
@@ -85,7 +83,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
       'calendar.days.sunday', 'calendar.days.monday', 'calendar.days.tuesday',
       'calendar.days.wednesday', 'calendar.days.thursday', 'calendar.days.friday', 'calendar.days.saturday'
     ];
-    return safeT(dayKeys[dayIndex], new Date(2023, 0, dayIndex + 1).toLocaleDateString(undefined, { weekday: 'long' }));
+    return t(dayKeys[dayIndex]);
   };
 
   const formatDate = (date: Date) => {
@@ -303,11 +301,11 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
             </h2>
             {isToday(currentDate) && (
               <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mt-2">
-                {safeT('calendar.today', 'Today')}
+                {t('calendar.today')}
               </span>
             )}
             <p className="mt-2 text-gray-600">
-              {dayBookings.length} {dayBookings.length === 1 ? safeT('calendar.booking', 'booking') : safeT('calendar.bookings', 'bookings')} {safeT('calendar.scheduled', 'scheduled')}
+              {dayBookings.length} {dayBookings.length === 1 ? t('calendar.booking') : t('calendar.bookings')} {t('calendar.scheduled')}
             </p>
           </div>
         </div>
@@ -317,8 +315,8 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
           {dayBookings.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
               <CalendarDaysIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">{safeT('calendar.noBookings', 'No bookings')}</h3>
-              <p className="text-gray-500">{safeT('calendar.noBookingsToday', 'No bookings scheduled for this day')}</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">{t('calendar.noBookings')}</h3>
+              <p className="text-gray-500">{t('calendar.noBookingsToday')}</p>
             </div>
           ) : (
             dayBookings.map((booking, index) => (
@@ -391,8 +389,8 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
         {Object.entries(groupedBookings).length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
             <CalendarDaysIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">{safeT('calendar.noUpcomingBookings', 'No upcoming bookings')}</h3>
-            <p className="text-gray-500">{safeT('calendar.noUpcomingBookingsDesc', 'No bookings in the next 30 days')}</p>
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('calendar.noUpcomingBookings')}</h3>
+              <p className="text-gray-500">{t('calendar.noUpcomingBookingsDesc')}</p>
           </div>
         ) : (
           Object.entries(groupedBookings).map(([dateStr, dayBookings], dateIndex) => {
@@ -411,12 +409,12 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
                     {formatDate(date)}
                     {isToday(date) && (
                       <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {safeT('calendar.today', 'Today')}
+                        {t('calendar.today')}
                       </span>
                     )}
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    {dayBookings.length} {dayBookings.length === 1 ? safeT('calendar.booking', 'booking') : safeT('calendar.bookings', 'bookings')}
+                    {dayBookings.length} {dayBookings.length === 1 ? t('calendar.booking') : t('calendar.bookings')}
                   </p>
                 </div>
                 <div className="divide-y divide-gray-200">
@@ -477,7 +475,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
             {viewMode === 'month' && `${getMonthName(currentDate.getMonth())} ${currentDate.getFullYear()}`}
             {viewMode === 'week' && `Week of ${formatDate(getWeekDays()[0])}`}
             {viewMode === 'day' && formatDate(currentDate)}
-            {viewMode === 'agenda' && safeT('calendar.agenda', 'Agenda')}
+            {viewMode === 'agenda' && t('calendar.agenda')}
           </h2>
           <button
             onClick={() => navigateDate('next')}
@@ -492,7 +490,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
             onClick={goToToday}
             className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
           >
-            {safeT('calendar.today', 'Today')}
+            {t('calendar.today')}
           </button>
           
           {/* View mode selector */}
@@ -506,7 +504,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
               }`}
             >
               <Squares2X2Icon className="w-4 h-4 mr-1 inline" />
-              {safeT('calendar.views.month', 'Month')}
+              {t('calendar.views.month')}
             </button>
             <button
               onClick={() => setViewMode('week')}
@@ -517,7 +515,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
               }`}
             >
               <ViewColumnsIcon className="w-4 h-4 mr-1 inline" />
-              {safeT('calendar.views.week', 'Week')}
+              {t('calendar.views.week')}
             </button>
             <button
               onClick={() => setViewMode('day')}
@@ -528,7 +526,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
               }`}
             >
               <CalendarIcon className="w-4 h-4 mr-1 inline" />
-              {safeT('calendar.views.day', 'Day')}
+              {t('calendar.views.day')}
             </button>
             <button
               onClick={() => setViewMode('agenda')}
@@ -539,7 +537,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
               }`}
             >
               <ListBulletIcon className="w-4 h-4 mr-1 inline" />
-              {safeT('calendar.views.agenda', 'Agenda')}
+              {t('calendar.views.agenda')}
             </button>
           </div>
         </div>

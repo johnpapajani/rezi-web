@@ -1486,6 +1486,10 @@ export const translations: Translations = {
     'calendar.views.list': 'Listë',
     'calendar.views.calendar': 'Kalendar',
 
+    // Calendar Additional Labels
+    'calendar.agenda': 'Agjendë',
+    'calendar.noUpcomingBookingsDesc': 'Nuk ka rezervime në 30 ditët e ardhshme',
+
     // Calendar Navigation & Controls
     'calendar.navigation.previous': 'I mëparshëm',
     'calendar.navigation.next': 'I ardhshëm',
@@ -3316,6 +3320,10 @@ export const translations: Translations = {
     'calendar.views.agenda': 'Agenda',
     'calendar.views.list': 'List',
     'calendar.views.calendar': 'Calendar',
+
+    // Calendar Additional Labels
+    'calendar.agenda': 'Agenda',
+    'calendar.noUpcomingBookingsDesc': 'No bookings in the next 30 days',
 
     // Calendar Navigation & Controls
     'calendar.navigation.previous': 'Previous',

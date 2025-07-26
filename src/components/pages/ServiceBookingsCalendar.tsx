@@ -72,7 +72,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
       'calendar.months.july', 'calendar.months.august', 'calendar.months.september',
       'calendar.months.october', 'calendar.months.november', 'calendar.months.december'
     ];
-    return safeT(monthKeys[monthIndex], new Date(2023, monthIndex, 1).toLocaleDateString(undefined, { month: 'long' }));
+    return t(monthKeys[monthIndex]);
   };
 
   const getDayName = (dayIndex: number, short: boolean = false) => {
@@ -85,8 +85,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
       'calendar.days.wed', 'calendar.days.thu', 'calendar.days.fri', 'calendar.days.sat'
     ];
     const keys = short ? shortDayKeys : longDayKeys;
-    const fallback = new Date(2023, 0, dayIndex + 1).toLocaleDateString(undefined, { weekday: short ? 'short' : 'long' });
-    return safeT(keys[dayIndex], fallback);
+    return t(keys[dayIndex]);
   };
 
   const formatDate = (date: Date) => {
@@ -124,14 +123,11 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
            date.getFullYear() === currentDate.getFullYear();
   };
 
-  // Safe translation helper
+  // Translation helper - all keys should exist in both languages
   const safeT = (key: string, fallback?: string) => {
-    try {
-      const result = t(key);
-      return typeof result === 'string' ? result : (fallback || key);
-    } catch (error) {
-      return fallback || key;
-    }
+    const translation = t(key);
+    // Only use fallback if translation returns the key itself (not found)
+    return translation === key ? (fallback || key) : translation;
   };
 
   // Filter bookings for the current view period
@@ -612,7 +608,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
               }`}
             >
               <Squares2X2Icon className="w-4 h-4 mr-1 inline" />
-              {safeT('calendar.views.month', 'Month')}
+              {t('calendar.views.month')}
             </button>
             <button
               onClick={() => setViewMode('week')}
@@ -623,7 +619,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
               }`}
             >
               <ViewColumnsIcon className="w-4 h-4 mr-1 inline" />
-              {safeT('calendar.views.week', 'Week')}
+              {t('calendar.views.week')}
             </button>
             <button
               onClick={() => setViewMode('day')}
@@ -634,7 +630,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
               }`}
             >
               <CalendarIcon className="w-4 h-4 mr-1 inline" />
-              {safeT('calendar.views.day', 'Day')}
+              {t('calendar.views.day')}
             </button>
             <button
               onClick={() => setViewMode('agenda')}
@@ -645,7 +641,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
               }`}
             >
               <ListBulletIcon className="w-4 h-4 mr-1 inline" />
-              {safeT('calendar.views.agenda', 'Agenda')}
+              {t('calendar.views.agenda')}
             </button>
           </div>
         </div>
