@@ -926,6 +926,14 @@ export const translations: Translations = {
     'common.remove': 'Hiq',
     'common.copy': 'Kopjo',
     'common.duration.minutes': 'minuta',
+    'common.list': 'Lista',
+    'common.partySize': 'Madhësia e Grupit',
+    'common.contact': 'Kontakt',
+    'common.notProvided': 'Nuk është dhënë',
+    'common.complete': 'Përfundo',
+    'common.reopen': 'Rihap',
+    'common.person': 'person',
+    'common.people': 'persona',
 
     // Business User Guide
     'guide.title': 'Udhëzuesi i Biznesit',
@@ -2416,6 +2424,14 @@ export const translations: Translations = {
     'common.remove': 'Remove',
     'common.copy': 'Copy',
     'common.duration.minutes': 'minutes',
+    'common.list': 'List',
+    'common.partySize': 'Party Size',
+    'common.contact': 'Contact',
+    'common.notProvided': 'Not provided',
+    'common.complete': 'Complete',
+    'common.reopen': 'Reopen',
+    'common.person': 'person',
+    'common.people': 'people',
 
     // Business User Guide
     'guide.title': 'Business User Guide',

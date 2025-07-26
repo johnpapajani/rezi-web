@@ -6,8 +6,10 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useServices } from '../../hooks/useServices';
 import { useBusiness } from '../../hooks/useBusiness';
 import { useServiceCategories } from '../../hooks/useServiceCategories';
-import { BusinessUpdate, Service, ServiceUpdate, ServiceCreate, Weekday } from '../../types';
+import { useBookings, useCalendarBookings } from '../../hooks/useBookings';
+import { BusinessUpdate, Service, ServiceUpdate, ServiceCreate, Weekday, BookingWithService, BookingFilters, BookingStatus } from '../../types';
 import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
+import BusinessBookingsCalendar from '../pages/BusinessBookingsCalendar';
 import { 
   BuildingStorefrontIcon,
   CalendarDaysIcon,
@@ -30,21 +32,34 @@ import {
   CogIcon,
   TagIcon,
   UserGroupIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  MagnifyingGlassIcon,
+  AdjustmentsHorizontalIcon,
+  ListBulletIcon,
+  ViewColumnsIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
 
-type TabType = 'services' | 'settings';
+type TabType = 'services' | 'settings' | 'bookings';
+type BookingViewType = 'list' | 'calendar';
 
 const ServiceDashboard: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
   const { signOut } = useAuth();
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState<TabType>('services');
+  const [bookingView, setBookingView] = useState<BookingViewType>('list');
   const navigate = useNavigate();
   
   const { business, loading: businessLoading, error: businessError, updating, updateBusiness } = useBusiness({ bizId: bizId || '' });
   const { services, loading: servicesLoading, error: servicesError, updating: serviceUpdating, creating: serviceCreating, updateService, createService } = useServices({ bizId: bizId || '', activeOnly: false });
   const { categories, loading: categoriesLoading, refetch: refetchCategories } = useServiceCategories();
+  
+  // Booking management
+  const { bookings, loading: bookingsLoading, error: bookingsError, searchBookings, updateBookingStatus, rescheduleBooking } = useBookings({ bizId: bizId || '' });
+  const { calendarBookings, loading: calendarLoading, fetchCalendarBookings } = useCalendarBookings({ bizId: bizId || '' });
 
   // Service editing state
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -58,6 +73,15 @@ const ServiceDashboard: React.FC = () => {
   const [formData, setFormData] = useState<BusinessUpdate>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Booking filtering and management state
+  const [bookingFilters, setBookingFilters] = useState<BookingFilters>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<BookingStatus | ''>('');
+  const [serviceFilter, setServiceFilter] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<'today' | 'tomorrow' | 'week' | 'month' | ''>('');
+  const [selectedBooking, setSelectedBooking] = useState<BookingWithService | null>(null);
+  const [showBookingDetails, setShowBookingDetails] = useState(false);
 
   // Populate form when business data loads
   useEffect(() => {
@@ -139,6 +163,91 @@ const ServiceDashboard: React.FC = () => {
       setHasServiceChanges(false);
     }
   }, [serviceFormData, editingService, isCreateModalOpen]);
+
+  // Load bookings when tab is selected
+  useEffect(() => {
+    if (currentTab === 'bookings' && bizId) {
+      searchBookings(bookingFilters);
+    }
+  }, [currentTab, bizId, searchBookings, bookingFilters]);
+
+  // Load calendar bookings for calendar view
+  useEffect(() => {
+    if (currentTab === 'bookings' && bookingView === 'calendar' && bizId) {
+      const today = new Date();
+      const oneMonthFromNow = new Date();
+      oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+      
+      fetchCalendarBookings(
+        today.toISOString().split('T')[0],
+        oneMonthFromNow.toISOString().split('T')[0]
+      );
+    }
+  }, [currentTab, bookingView, bizId, fetchCalendarBookings]);
+
+  // Apply booking filters
+  useEffect(() => {
+    if (currentTab !== 'bookings') return;
+
+    const filters: BookingFilters = {};
+    
+    if (searchTerm) {
+      filters.customer_name = searchTerm;
+    }
+    
+    if (statusFilter) {
+      filters.status = statusFilter;
+    }
+
+    if (serviceFilter) {
+      filters.service_id = serviceFilter;
+    }
+
+    if (dateFilter) {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      switch (dateFilter) {
+        case 'today':
+          const todayStart = new Date(today);
+          todayStart.setHours(0, 0, 0, 0);
+          const todayEnd = new Date(today);
+          todayEnd.setHours(23, 59, 59, 999);
+          filters.date_from = todayStart.toISOString();
+          filters.date_to = todayEnd.toISOString();
+          break;
+        case 'tomorrow':
+          const tomorrowStart = new Date(tomorrow);
+          tomorrowStart.setHours(0, 0, 0, 0);
+          const tomorrowEnd = new Date(tomorrow);
+          tomorrowEnd.setHours(23, 59, 59, 999);
+          filters.date_from = tomorrowStart.toISOString();
+          filters.date_to = tomorrowEnd.toISOString();
+          break;
+        case 'week':
+          const weekStart = new Date(today);
+          weekStart.setHours(0, 0, 0, 0);
+          const weekEnd = new Date(today);
+          weekEnd.setDate(weekEnd.getDate() + 7);
+          weekEnd.setHours(23, 59, 59, 999);
+          filters.date_from = weekStart.toISOString();
+          filters.date_to = weekEnd.toISOString();
+          break;
+        case 'month':
+          const monthStart = new Date(today);
+          monthStart.setHours(0, 0, 0, 0);
+          const monthEnd = new Date(today);
+          monthEnd.setMonth(monthEnd.getMonth() + 1);
+          monthEnd.setHours(23, 59, 59, 999);
+          filters.date_from = monthStart.toISOString();
+          filters.date_to = monthEnd.toISOString();
+          break;
+      }
+    }
+
+    setBookingFilters(filters);
+  }, [searchTerm, statusFilter, serviceFilter, dateFilter, currentTab]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -785,12 +894,335 @@ const ServiceDashboard: React.FC = () => {
     </motion.div>
   );
 
+  const renderBookingsTab = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.2 }}
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-8"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-6">
+                 <h2 className="text-xl font-semibold text-gray-900">
+           {t('bookings.list.title')}
+         </h2>
+         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+           <button
+             onClick={() => setBookingView('list')}
+             className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md ${
+               bookingView === 'list'
+                 ? 'text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                 : 'text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500'
+             }`}
+           >
+             <ListBulletIcon className="w-4 h-4 mr-2" />
+             {t('common.list')}
+           </button>
+           <button
+             onClick={() => setBookingView('calendar')}
+             className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md ${
+               bookingView === 'calendar'
+                 ? 'text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                 : 'text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500'
+             }`}
+           >
+             <ViewColumnsIcon className="w-4 h-4 mr-2" />
+             {t('bookings.calendar.title')}
+           </button>
+         </div>
+      </div>
+
+      {bookingView === 'list' && (
+        <div className="overflow-x-auto">
+          <div className="inline-block min-w-full py-2 align-middle">
+            <div className="overflow-hidden border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                <div className="flex items-center space-x-2">
+                  <MagnifyingGlassIcon className="w-5 h-5 text-gray-500" />
+                                     <input
+                     type="text"
+                     placeholder={t('bookings.list.searchPlaceholder')}
+                     value={searchTerm}
+                     onChange={(e) => setSearchTerm(e.target.value)}
+                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                   />
+                 </div>
+                 <div className="flex items-center space-x-2">
+                   <AdjustmentsHorizontalIcon className="w-5 h-5 text-gray-500" />
+                   <select
+                     value={statusFilter}
+                     onChange={(e) => setStatusFilter(e.target.value as BookingStatus | '')}
+                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                   >
+                     <option value="">{t('bookings.list.filters.allStatuses')}</option>
+                     <option value="pending">{t('bookings.list.filters.pending')}</option>
+                     <option value="confirmed">{t('bookings.list.filters.confirmed')}</option>
+                     <option value="cancelled">{t('bookings.list.filters.cancelled')}</option>
+                     <option value="completed">{t('bookings.list.filters.completed')}</option>
+                   </select>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                                     <thead className="bg-gray-50">
+                     <tr>
+                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                         {t('bookings.list.customer')}
+                       </th>
+                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                         {t('bookings.list.service')}
+                       </th>
+                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                         {t('bookings.list.dateTime')}
+                       </th>
+                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                         {t('bookings.list.status')}
+                       </th>
+                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                         {t('bookings.list.actions')}
+                       </th>
+                     </tr>
+                   </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                                                              {bookingsLoading ? (
+                       <tr>
+                         <td colSpan={5} className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                           {t('common.loading')}
+                         </td>
+                       </tr>
+                     ) : bookingsError ? (
+                       <tr>
+                         <td colSpan={5} className="px-6 py-4 whitespace-nowrap text-center text-sm text-red-600">
+                           {bookingsError}
+                         </td>
+                       </tr>
+                     ) : bookings.length === 0 ? (
+                       <tr>
+                         <td colSpan={5} className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                           {t('bookings.list.noBookings')}
+                         </td>
+                       </tr>
+                    ) : (
+                                             bookings.map((booking) => (
+                         <tr key={booking.id}>
+                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                             {booking.customer_name}
+                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {booking.service_name}
+                          </td>
+                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                             {new Date(booking.starts_at).toLocaleDateString()} {new Date(booking.starts_at).toLocaleTimeString()}
+                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              booking.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : booking.status === 'confirmed'
+                                ? 'bg-green-100 text-green-800'
+                                : booking.status === 'cancelled'
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {t(`bookingStatus.${booking.status}`)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                         <button
+                               onClick={() => setSelectedBooking(booking)}
+                               className="text-blue-600 hover:text-blue-900 mr-3"
+                               title={t('bookings.list.actions.viewDetails')}
+                             >
+                               <EyeIcon className="w-5 h-5" />
+                             </button>
+                             {booking.status === 'pending' && (
+                               <>
+                                 <button
+                                   onClick={() => updateBookingStatus(booking.id, { status: BookingStatus.confirmed })}
+                                   className="text-green-600 hover:text-green-900 mr-3"
+                                   title={t('common.confirm')}
+                                 >
+                                   <CheckCircleIcon className="w-5 h-5" />
+                                 </button>
+                                 <button
+                                   onClick={() => updateBookingStatus(booking.id, { status: BookingStatus.cancelled })}
+                                   className="text-red-600 hover:text-red-900"
+                                   title={t('bookings.list.actions.cancel')}
+                                 >
+                                   <XMarkIcon className="w-5 h-5" />
+                                 </button>
+                               </>
+                             )}
+                             {booking.status === 'confirmed' && (
+                               <button
+                                 onClick={() => updateBookingStatus(booking.id, { status: BookingStatus.completed })}
+                                 className="text-purple-600 hover:text-purple-900"
+                                 title={t('common.complete')}
+                               >
+                                 <CheckCircleIcon className="w-5 h-5" />
+                               </button>
+                             )}
+                             {booking.status === 'cancelled' && (
+                               <button
+                                 onClick={() => updateBookingStatus(booking.id, { status: BookingStatus.pending })}
+                                 className="text-yellow-600 hover:text-yellow-900"
+                                 title={t('common.reopen')}
+                               >
+                                 <ArrowRightIcon className="w-5 h-5" />
+                               </button>
+                             )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+             {bookingView === 'calendar' && (
+         <div className="mt-6">
+           {calendarLoading ? (
+             <div className="text-center py-8">
+               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+               <p className="text-gray-600">{t('common.loading')}</p>
+             </div>
+           ) : (
+             <BusinessBookingsCalendar
+               bookings={calendarBookings}
+               businessTimezone={business?.timezone}
+               onBookingClick={(booking: BookingWithService) => setSelectedBooking(booking)}
+             />
+           )}
+         </div>
+       )}
+
+      {selectedBooking && (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 sm:p-6 z-50"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                                     <h3 className="text-lg font-medium text-gray-900">
+                     {t('bookings.list.actions.viewDetails')}
+                   </h3>
+                  <button
+                    onClick={() => setSelectedBooking(null)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <XMarkIcon className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-6">
+                                 <div className="grid grid-cols-2 gap-4">
+                   <div>
+                     <p className="text-sm font-medium text-gray-700">{t('bookings.list.customer')}</p>
+                     <p className="text-lg font-semibold text-gray-900">{selectedBooking.customer_name}</p>
+                   </div>
+                   <div>
+                     <p className="text-sm font-medium text-gray-700">{t('bookings.list.service')}</p>
+                     <p className="text-lg font-semibold text-gray-900">{selectedBooking.service_name}</p>
+                   </div>
+                   <div>
+                     <p className="text-sm font-medium text-gray-700">{t('bookings.list.dateTime')}</p>
+                     <p className="text-lg font-semibold text-gray-900">
+                       {new Date(selectedBooking.starts_at).toLocaleDateString()} {new Date(selectedBooking.starts_at).toLocaleTimeString()}
+                     </p>
+                   </div>
+                   <div>
+                     <p className="text-sm font-medium text-gray-700">{t('bookings.list.status')}</p>
+                     <p className="text-lg font-semibold text-gray-900">
+                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                         selectedBooking.status === 'pending'
+                           ? 'bg-yellow-100 text-yellow-800'
+                           : selectedBooking.status === 'confirmed'
+                           ? 'bg-green-100 text-green-800'
+                           : selectedBooking.status === 'cancelled'
+                           ? 'bg-red-100 text-red-800'
+                           : 'bg-gray-100 text-gray-800'
+                       }`}>
+                         {t(`bookings.list.filters.${selectedBooking.status}`)}
+                       </span>
+                     </p>
+                   </div>
+                   <div>
+                     <p className="text-sm font-medium text-gray-700">{t('common.partySize')}</p>
+                     <p className="text-lg font-semibold text-gray-900">{selectedBooking.party_size} {selectedBooking.party_size === 1 ? t('bookings.list.person') : t('bookings.list.people')}</p>
+                   </div>
+                   <div>
+                     <p className="text-sm font-medium text-gray-700">{t('common.contact')}</p>
+                     <p className="text-lg font-semibold text-gray-900">
+                       <PhoneIcon className="w-5 h-5 inline mr-1" /> {selectedBooking.customer_phone || t('common.notProvided')}
+                       <br />
+                       <EnvelopeIcon className="w-5 h-5 inline mr-1" /> {selectedBooking.customer_email || t('common.notProvided')}
+                     </p>
+                   </div>
+                 </div>
+
+                                 {selectedBooking.status === 'pending' && (
+                   <div className="flex justify-end space-x-3">
+                     <button
+                       onClick={() => updateBookingStatus(selectedBooking.id, { status: BookingStatus.confirmed })}
+                       className="px-6 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                     >
+                       <CheckCircleIcon className="w-4 h-4 mr-2" /> {t('common.confirm')}
+                     </button>
+                     <button
+                       onClick={() => updateBookingStatus(selectedBooking.id, { status: BookingStatus.cancelled })}
+                       className="px-6 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                     >
+                       <XMarkIcon className="w-4 h-4 mr-2" /> {t('common.cancel')}
+                     </button>
+                   </div>
+                 )}
+                 {selectedBooking.status === 'confirmed' && (
+                   <div className="flex justify-end space-x-3">
+                     <button
+                       onClick={() => updateBookingStatus(selectedBooking.id, { status: BookingStatus.completed })}
+                       className="px-6 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                     >
+                       <CheckCircleIcon className="w-4 h-4 mr-2" /> {t('common.complete')}
+                     </button>
+                   </div>
+                 )}
+                 {selectedBooking.status === 'cancelled' && (
+                   <div className="flex justify-end space-x-3">
+                     <button
+                       onClick={() => updateBookingStatus(selectedBooking.id, { status: BookingStatus.pending })}
+                       className="px-6 py-2 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                     >
+                       <ArrowRightIcon className="w-4 h-4 mr-2" /> {t('common.reopen')}
+                     </button>
+                   </div>
+                 )}
+              </div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
+      )}
+    </motion.div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <MobileOptimizedHeader
         title={business?.name || ''}
-        subtitle={currentTab === 'services' ? t('serviceDashboard.subtitle') : t('business.management.settings')}
+                  subtitle={currentTab === 'services' ? t('serviceDashboard.subtitle') : currentTab === 'bookings' ? t('bookings.list.subtitle') : t('business.management.settings')}
         backUrl="/dashboard"
         logoUrl={business?.logo_url}
         icon={!business?.logo_url ? BuildingStorefrontIcon : undefined}
@@ -807,6 +1239,12 @@ const ServiceDashboard: React.FC = () => {
             label: t('business.dashboard.tabs.businessSettings'),
             isActive: currentTab === 'settings',
             onClick: () => setCurrentTab('settings')
+          },
+          {
+            id: 'bookings',
+            label: t('business.dashboard.tabs.bookings'),
+            isActive: currentTab === 'bookings',
+            onClick: () => setCurrentTab('bookings')
           }
         ]}
         actions={[
@@ -835,6 +1273,7 @@ const ServiceDashboard: React.FC = () => {
         >
           {currentTab === 'services' && renderServicesTab()}
           {currentTab === 'settings' && renderSettingsTab()}
+          {currentTab === 'bookings' && renderBookingsTab()}
         </motion.div>
       </main>
 
