@@ -181,9 +181,9 @@ const ServiceDashboard: React.FC = () => {
       const threeMonthsFromNow = new Date();
       threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
       
-      // Format dates as ISO strings for the API
-      const dateFrom = threeMonthsAgo.toISOString().split('T')[0];
-      const dateTo = threeMonthsFromNow.toISOString().split('T')[0];
+      // Format dates as YYYY-MM-DD strings for the API
+      const dateFrom = formatDateForAPI(threeMonthsAgo);
+      const dateTo = formatDateForAPI(threeMonthsFromNow);
       
       console.log('Fetching calendar bookings for date range:', dateFrom, 'to', dateTo);
       
@@ -211,43 +211,29 @@ const ServiceDashboard: React.FC = () => {
 
     if (dateFilter) {
       const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
       
       switch (dateFilter) {
         case 'today':
-          const todayStart = new Date(today);
-          todayStart.setHours(0, 0, 0, 0);
-          const todayEnd = new Date(today);
-          todayEnd.setHours(23, 59, 59, 999);
-          filters.date_from = todayStart.toISOString();
-          filters.date_to = todayEnd.toISOString();
+          filters.date_from = formatDateForAPI(today);
+          filters.date_to = formatDateForAPI(today);
           break;
         case 'tomorrow':
-          const tomorrowStart = new Date(tomorrow);
-          tomorrowStart.setHours(0, 0, 0, 0);
-          const tomorrowEnd = new Date(tomorrow);
-          tomorrowEnd.setHours(23, 59, 59, 999);
-          filters.date_from = tomorrowStart.toISOString();
-          filters.date_to = tomorrowEnd.toISOString();
+          const tomorrow = new Date(today);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          filters.date_from = formatDateForAPI(tomorrow);
+          filters.date_to = formatDateForAPI(tomorrow);
           break;
         case 'week':
-          const weekStart = new Date(today);
-          weekStart.setHours(0, 0, 0, 0);
           const weekEnd = new Date(today);
           weekEnd.setDate(weekEnd.getDate() + 7);
-          weekEnd.setHours(23, 59, 59, 999);
-          filters.date_from = weekStart.toISOString();
-          filters.date_to = weekEnd.toISOString();
+          filters.date_from = formatDateForAPI(today);
+          filters.date_to = formatDateForAPI(weekEnd);
           break;
         case 'month':
-          const monthStart = new Date(today);
-          monthStart.setHours(0, 0, 0, 0);
           const monthEnd = new Date(today);
           monthEnd.setMonth(monthEnd.getMonth() + 1);
-          monthEnd.setHours(23, 59, 59, 999);
-          filters.date_from = monthStart.toISOString();
-          filters.date_to = monthEnd.toISOString();
+          filters.date_from = formatDateForAPI(today);
+          filters.date_to = formatDateForAPI(monthEnd);
           break;
       }
     }
@@ -257,6 +243,14 @@ const ServiceDashboard: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  // Helper function to format date as YYYY-MM-DD string
+  const formatDateForAPI = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const formatPrice = (priceMinor: number, currency: string = 'ALL'): string => {
@@ -327,8 +321,8 @@ const ServiceDashboard: React.FC = () => {
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
       const threeMonthsFromNow = new Date();
       threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
-      const dateFrom = threeMonthsAgo.toISOString().split('T')[0];
-      const dateTo = threeMonthsFromNow.toISOString().split('T')[0];
+      const dateFrom = formatDateForAPI(threeMonthsAgo);
+      const dateTo = formatDateForAPI(threeMonthsFromNow);
       fetchCalendarBookings(dateFrom, dateTo);
     }
   };
@@ -958,382 +952,469 @@ const ServiceDashboard: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.2 }}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-8"
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-8"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-6">
-                 <h2 className="text-xl font-semibold text-gray-900">
-           {t('bookings.list.title')}
-         </h2>
-         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-           <button
-             onClick={() => setBookingView('list')}
-             className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md ${
-               bookingView === 'list'
-                 ? 'text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-                 : 'text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500'
-             }`}
-           >
-             <ListBulletIcon className="w-4 h-4 mr-2" />
-             {t('common.list')}
-           </button>
-           <button
-             onClick={() => setBookingView('calendar')}
-             className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md ${
-               bookingView === 'calendar'
-                 ? 'text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-                 : 'text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500'
-             }`}
-           >
-             <ViewColumnsIcon className="w-4 h-4 mr-2" />
-             {t('bookings.calendar.title')}
-           </button>
-         </div>
-      </div>
+      <div className="flex flex-col space-y-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+          <h2 className="text-xl font-semibold text-gray-900">
+            {t('bookings.list.title')}
+          </h2>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+            <button
+              onClick={() => setBookingView('list')}
+              className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-colors ${
+                bookingView === 'list'
+                  ? 'text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500'
+              }`}
+            >
+              <ListBulletIcon className="w-4 h-4 mr-2" />
+              {t('common.list')}
+            </button>
+            <button
+              onClick={() => setBookingView('calendar')}
+              className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-colors ${
+                bookingView === 'calendar'
+                  ? 'text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500'
+              }`}
+            >
+              <ViewColumnsIcon className="w-4 h-4 mr-2" />
+              {t('bookings.calendar.title')}
+            </button>
+          </div>
+        </div>
 
-      {bookingView === 'list' && (
-        <div className="overflow-x-auto">
-          <div className="inline-block min-w-full py-2 align-middle">
-            <div className="overflow-hidden border border-gray-200 rounded-lg">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-                <div className="flex items-center space-x-2">
-                  <MagnifyingGlassIcon className="w-5 h-5 text-gray-500" />
-                                     <input
-                     type="text"
-                     placeholder={t('bookings.list.searchPlaceholder')}
-                     value={searchTerm}
-                     onChange={(e) => setSearchTerm(e.target.value)}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                   />
-                 </div>
-                 <div className="flex items-center space-x-2">
-                   <AdjustmentsHorizontalIcon className="w-5 h-5 text-gray-500" />
-                   <select
-                     value={statusFilter}
-                     onChange={(e) => setStatusFilter(e.target.value as BookingStatus | '')}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                   >
-                     <option value="">{t('bookings.list.filters.allStatuses')}</option>
-                     <option value="pending">{t('bookings.list.filters.pending')}</option>
-                     <option value="confirmed">{t('bookings.list.filters.confirmed')}</option>
-                     <option value="cancelled">{t('bookings.list.filters.cancelled')}</option>
-                     <option value="completed">{t('bookings.list.filters.completed')}</option>
-                   </select>
-                </div>
+        {/* Mobile-optimized filters */}
+        {bookingView === 'list' && (
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                                     <thead className="bg-gray-50">
-                     <tr>
-                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                         {t('bookings.list.customer')}
-                       </th>
-                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                         {t('bookings.list.service')}
-                       </th>
-                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                         {t('bookings.list.dateTime')}
-                       </th>
-                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                         {t('bookings.list.status')}
-                       </th>
-                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                         {t('bookings.list.actions')}
-                       </th>
-                     </tr>
-                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                                                              {bookingsLoading ? (
-                       <tr>
-                         <td colSpan={5} className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                           {t('common.loading')}
-                         </td>
-                       </tr>
-                     ) : bookingsError ? (
-                       <tr>
-                         <td colSpan={5} className="px-6 py-4 whitespace-nowrap text-center text-sm text-red-600">
-                           {bookingsError}
-                         </td>
-                       </tr>
-                     ) : bookings.length === 0 ? (
-                       <tr>
-                         <td colSpan={5} className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                           {t('bookings.list.noBookings')}
-                         </td>
-                       </tr>
-                    ) : (
-                                             bookings.map((booking) => (
-                         <tr key={booking.id}>
-                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                             {booking.customer_name}
-                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {booking.service_name}
-                          </td>
-                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                             {(() => {
-                               const { date, time } = formatDateTimeInBusinessTimezone(booking.starts_at);
-                               return `${date} ${time}`;
-                             })()}
-                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              booking.status === 'pending'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : booking.status === 'confirmed'
-                                ? 'bg-green-100 text-green-800'
-                                :                                booking.status === 'cancelled'
-                               ? 'bg-red-100 text-red-800'
-                               : 'bg-gray-100 text-gray-800'
-                             }`}>
-                               {t(`bookings.list.filters.${booking.status}`)}
-                             </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                         <button
-                               onClick={() => setSelectedBooking(booking)}
-                               className="text-blue-600 hover:text-blue-900 mr-3"
-                               title={t('bookings.list.actions.viewDetails')}
-                             >
-                               <EyeIcon className="w-5 h-5" />
-                             </button>
-                             {booking.status === 'pending' && (
-                               <>
-                                 <button
-                                   onClick={async () => {
-                                     try {
-                                       await updateBookingStatus(booking.id, { status: BookingStatus.confirmed });
-                                       refreshBookingViews();
-                                     } catch (error) {
-                                       console.error('Failed to update booking status:', error);
-                                     }
-                                   }}
-                                   className="text-green-600 hover:text-green-900 mr-3"
-                                   title={t('common.confirm')}
-                                 >
-                                   <CheckCircleIcon className="w-5 h-5" />
-                                 </button>
-                                 <button
-                                   onClick={async () => {
-                                     try {
-                                       await updateBookingStatus(booking.id, { status: BookingStatus.cancelled });
-                                       refreshBookingViews();
-                                     } catch (error) {
-                                       console.error('Failed to update booking status:', error);
-                                     }
-                                   }}
-                                   className="text-red-600 hover:text-red-900"
-                                   title={t('bookings.list.actions.cancel')}
-                                 >
-                                   <XMarkIcon className="w-5 h-5" />
-                                 </button>
-                               </>
-                             )}
-                             {booking.status === 'confirmed' && (
-                               <button
-                                 onClick={async () => {
-                                   try {
-                                     await updateBookingStatus(booking.id, { status: BookingStatus.completed });
-                                     refreshBookingViews();
-                                   } catch (error) {
-                                     console.error('Failed to update booking status:', error);
-                                   }
-                                 }}
-                                 className="text-purple-600 hover:text-purple-900"
-                                 title={t('common.complete')}
-                               >
-                                 <CheckCircleIcon className="w-5 h-5" />
-                               </button>
-                             )}
-                             {booking.status === 'cancelled' && (
-                               <button
-                                 onClick={async () => {
-                                   try {
-                                     await updateBookingStatus(booking.id, { status: BookingStatus.pending });
-                                     refreshBookingViews();
-                                   } catch (error) {
-                                     console.error('Failed to update booking status:', error);
-                                   }
-                                 }}
-                                 className="text-yellow-600 hover:text-yellow-900"
-                                 title={t('common.reopen')}
-                               >
-                                 <ArrowRightIcon className="w-5 h-5" />
-                               </button>
-                             )}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+              <input
+                type="text"
+                placeholder={t('bookings.list.searchPlaceholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+              />
+            </div>
+
+            {/* Filter Row - Responsive Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  {t('bookings.list.filters.status')}
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as BookingStatus | '')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="">{t('bookings.list.filters.allStatuses')}</option>
+                  <option value="pending">{t('bookings.list.filters.pending')}</option>
+                  <option value="confirmed">{t('bookings.list.filters.confirmed')}</option>
+                  <option value="cancelled">{t('bookings.list.filters.cancelled')}</option>
+                  <option value="completed">{t('bookings.list.filters.completed')}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  {t('bookings.list.filters.service')}
+                </label>
+                <select
+                  value={serviceFilter}
+                  onChange={(e) => setServiceFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="">{t('bookings.list.filters.allServices')}</option>
+                  {services.map((service) => (
+                    <option key={service.id} value={service.id}>
+                      {service.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  {t('bookings.list.filters.date')}
+                </label>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value as any)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="">{t('bookings.list.filters.allDates')}</option>
+                  <option value="today">{t('bookings.list.filters.today')}</option>
+                  <option value="tomorrow">{t('bookings.list.filters.tomorrow')}</option>
+                  <option value="week">{t('bookings.list.filters.thisWeek')}</option>
+                  <option value="month">{t('bookings.list.filters.thisMonth')}</option>
+                </select>
               </div>
             </div>
           </div>
+        )}
+      </div>
+
+      {bookingView === 'list' && (
+        <div className="space-y-4">
+          {bookingsLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">{t('common.loading')}</p>
+            </div>
+          ) : bookingsError ? (
+            <div className="text-center py-8">
+              <ExclamationTriangleIcon className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <p className="text-red-600 font-medium">{bookingsError}</p>
+            </div>
+          ) : bookings.length === 0 ? (
+            <div className="text-center py-12">
+              <CalendarDaysIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">{t('bookings.list.noBookings')}</h3>
+              <p className="text-gray-600">{t('bookings.list.noBookingsDesc')}</p>
+            </div>
+          ) : (
+            /* Mobile-optimized booking cards */
+            <div className="space-y-3">
+              {bookings.map((booking) => {
+                const { date, time } = formatDateTimeInBusinessTimezone(booking.starts_at);
+                return (
+                  <motion.div
+                    key={booking.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                    onClick={() => setSelectedBooking(booking)}
+                  >
+                    {/* Card Header */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900 truncate">
+                          {booking.customer_name}
+                        </h3>
+                        <p className="text-sm text-gray-600 truncate">
+                          {booking.service_name}
+                        </p>
+                      </div>
+                      <span className={`ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
+                        booking.status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : booking.status === 'confirmed'
+                          ? 'bg-green-100 text-green-800'
+                          : booking.status === 'cancelled'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {t(`bookings.list.filters.${booking.status}`)}
+                      </span>
+                    </div>
+
+                    {/* Card Content */}
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <CalendarDaysIcon className="w-4 h-4 mr-2 text-gray-400" />
+                        <span>{date}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <ClockIcon className="w-4 h-4 mr-2 text-gray-400" />
+                        <span>{time}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <UserGroupIcon className="w-4 h-4 mr-2 text-gray-400" />
+                        <span>{booking.party_size} {booking.party_size === 1 ? t('bookings.list.person') : t('bookings.list.people')}</span>
+                      </div>
+                      {booking.customer_phone && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <PhoneIcon className="w-4 h-4 mr-2 text-gray-400" />
+                          <span className="truncate">{booking.customer_phone}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
+                      {booking.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                await updateBookingStatus(booking.id, { status: BookingStatus.confirmed });
+                                refreshBookingViews();
+                              } catch (error) {
+                                console.error('Failed to update booking status:', error);
+                              }
+                            }}
+                            className="flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition-colors touch-manipulation"
+                          >
+                            <CheckCircleIcon className="w-4 h-4 mr-1" />
+                            {t('common.confirm')}
+                          </button>
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                await updateBookingStatus(booking.id, { status: BookingStatus.cancelled });
+                                refreshBookingViews();
+                              } catch (error) {
+                                console.error('Failed to update booking status:', error);
+                              }
+                            }}
+                            className="flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors touch-manipulation"
+                          >
+                            <XMarkIcon className="w-4 h-4 mr-1" />
+                            {t('bookings.list.actions.cancel')}
+                          </button>
+                        </>
+                      )}
+                      {booking.status === 'confirmed' && (
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              await updateBookingStatus(booking.id, { status: BookingStatus.completed });
+                              refreshBookingViews();
+                            } catch (error) {
+                              console.error('Failed to update booking status:', error);
+                            }
+                          }}
+                          className="flex items-center px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-md hover:bg-purple-100 transition-colors touch-manipulation"
+                        >
+                          <CheckCircleIcon className="w-4 h-4 mr-1" />
+                          {t('common.complete')}
+                        </button>
+                      )}
+                      {booking.status === 'cancelled' && (
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              await updateBookingStatus(booking.id, { status: BookingStatus.pending });
+                              refreshBookingViews();
+                            } catch (error) {
+                              console.error('Failed to update booking status:', error);
+                            }
+                          }}
+                          className="flex items-center px-3 py-1.5 text-xs font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-md hover:bg-yellow-100 transition-colors touch-manipulation"
+                        >
+                          <ArrowRightIcon className="w-4 h-4 mr-1" />
+                          {t('common.reopen')}
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedBooking(booking);
+                        }}
+                        className="flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors touch-manipulation ml-auto"
+                      >
+                        <EyeIcon className="w-4 h-4 mr-1" />
+                        {t('bookings.list.actions.viewDetails')}
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
-             {bookingView === 'calendar' && (
-         <div className="mt-6">
-           {calendarLoading ? (
-             <div className="text-center py-8">
-               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-               <p className="text-gray-600">{t('common.loading')}</p>
-             </div>
-           ) : (
-             <BusinessBookingsCalendar
-               bookings={calendarBookings.length > 0 ? calendarBookings : bookings}
-               businessTimezone={business?.timezone}
-               onBookingClick={(booking: BookingWithService) => setSelectedBooking(booking)}
-             />
-           )}
-         </div>
-       )}
+      {bookingView === 'calendar' && (
+        <div className="mt-6">
+          {calendarLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">{t('common.loading')}</p>
+            </div>
+          ) : (
+            <BusinessBookingsCalendar
+              bookings={calendarBookings.length > 0 ? calendarBookings : bookings}
+              businessTimezone={business?.timezone}
+              onBookingClick={(booking: BookingWithService) => setSelectedBooking(booking)}
+            />
+          )}
+        </div>
+      )}
 
+      {/* Mobile-optimized booking details modal */}
       {selectedBooking && (
         <AnimatePresence>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 sm:p-6 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50"
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              initial={{ opacity: 0, y: '100%', scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: '100%', scale: 0.95 }}
+              className="bg-white rounded-t-lg sm:rounded-lg shadow-xl w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto"
             >
-              <div className="px-6 py-4 border-b border-gray-200">
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-white px-4 sm:px-6 py-4 border-b border-gray-200 rounded-t-lg">
                 <div className="flex items-center justify-between">
-                                     <h3 className="text-lg font-medium text-gray-900">
-                     {t('bookings.list.actions.viewDetails')}
-                   </h3>
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {t('bookings.list.actions.viewDetails')}
+                  </h3>
                   <button
                     onClick={() => setSelectedBooking(null)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors touch-manipulation"
                   >
                     <XMarkIcon className="w-6 h-6" />
                   </button>
                 </div>
               </div>
 
-              <div className="p-6 space-y-6">
-                                 <div className="grid grid-cols-2 gap-4">
-                   <div>
-                     <p className="text-sm font-medium text-gray-700">{t('bookings.list.customer')}</p>
-                     <p className="text-lg font-semibold text-gray-900">{selectedBooking.customer_name}</p>
-                   </div>
-                   <div>
-                     <p className="text-sm font-medium text-gray-700">{t('bookings.list.service')}</p>
-                     <p className="text-lg font-semibold text-gray-900">{selectedBooking.service_name}</p>
-                   </div>
-                   <div>
-                     <p className="text-sm font-medium text-gray-700">{t('bookings.list.dateTime')}</p>
-                     <p className="text-lg font-semibold text-gray-900">
-                       {(() => {
-                         const { date, time } = formatDateTimeInBusinessTimezone(selectedBooking.starts_at);
-                         return `${date} ${time}`;
-                       })()}
-                     </p>
-                   </div>
-                   <div>
-                     <p className="text-sm font-medium text-gray-700">{t('bookings.list.status')}</p>
-                     <p className="text-lg font-semibold text-gray-900">
-                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                         selectedBooking.status === 'pending'
-                           ? 'bg-yellow-100 text-yellow-800'
-                           : selectedBooking.status === 'confirmed'
-                           ? 'bg-green-100 text-green-800'
-                           : selectedBooking.status === 'cancelled'
-                           ? 'bg-red-100 text-red-800'
-                           : 'bg-gray-100 text-gray-800'
-                       }`}>
-                         {t(`bookings.list.filters.${selectedBooking.status}`)}
-                       </span>
-                     </p>
-                   </div>
-                   <div>
-                     <p className="text-sm font-medium text-gray-700">{t('common.partySize')}</p>
-                     <p className="text-lg font-semibold text-gray-900">{selectedBooking.party_size} {selectedBooking.party_size === 1 ? t('bookings.list.person') : t('bookings.list.people')}</p>
-                   </div>
-                   <div>
-                     <p className="text-sm font-medium text-gray-700">{t('common.contact')}</p>
-                     <p className="text-lg font-semibold text-gray-900">
-                       <PhoneIcon className="w-5 h-5 inline mr-1" /> {selectedBooking.customer_phone || t('common.notProvided')}
-                       <br />
-                       <EnvelopeIcon className="w-5 h-5 inline mr-1" /> {selectedBooking.customer_email || t('common.notProvided')}
-                     </p>
-                   </div>
-                 </div>
+              {/* Modal Content */}
+              <div className="p-4 sm:p-6 space-y-6">
+                {/* Customer Info */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                    <UserIcon className="w-4 h-4 mr-2" />
+                    {t('bookings.list.customer')}
+                  </h4>
+                  <div className="space-y-2">
+                    <p className="text-xl font-semibold text-gray-900">{selectedBooking.customer_name}</p>
+                    {selectedBooking.customer_phone && (
+                      <p className="text-sm text-gray-600 flex items-center">
+                        <PhoneIcon className="w-4 h-4 mr-2" />
+                        <a href={`tel:${selectedBooking.customer_phone}`} className="text-blue-600 hover:text-blue-700">
+                          {selectedBooking.customer_phone}
+                        </a>
+                      </p>
+                    )}
+                    {selectedBooking.customer_email && (
+                      <p className="text-sm text-gray-600 flex items-center">
+                        <EnvelopeIcon className="w-4 h-4 mr-2" />
+                        <a href={`mailto:${selectedBooking.customer_email}`} className="text-blue-600 hover:text-blue-700">
+                          {selectedBooking.customer_email}
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-                                 {selectedBooking.status === 'pending' && (
-                   <div className="flex justify-end space-x-3">
-                     <button
-                       onClick={async () => {
-                         try {
-                           const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.confirmed });
-                           setSelectedBooking(updatedBooking);
-                           refreshBookingViews();
-                         } catch (error) {
-                           console.error('Failed to update booking status:', error);
-                         }
-                       }}
-                       className="px-6 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                     >
-                       <CheckCircleIcon className="w-4 h-4 mr-2" /> {t('common.confirm')}
-                     </button>
-                     <button
-                       onClick={async () => {
-                         try {
-                           const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.cancelled });
-                           setSelectedBooking(updatedBooking);
-                           refreshBookingViews();
-                         } catch (error) {
-                           console.error('Failed to update booking status:', error);
-                         }
-                       }}
-                       className="px-6 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                     >
-                       <XMarkIcon className="w-4 h-4 mr-2" /> {t('common.cancel')}
-                     </button>
-                   </div>
-                 )}
-                 {selectedBooking.status === 'confirmed' && (
-                   <div className="flex justify-end space-x-3">
-                     <button
-                       onClick={async () => {
-                         try {
-                           const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.completed });
-                           setSelectedBooking(updatedBooking);
-                           refreshBookingViews();
-                         } catch (error) {
-                           console.error('Failed to update booking status:', error);
-                         }
-                       }}
-                       className="px-6 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                     >
-                       <CheckCircleIcon className="w-4 h-4 mr-2" /> {t('common.complete')}
-                     </button>
-                   </div>
-                 )}
-                 {selectedBooking.status === 'cancelled' && (
-                   <div className="flex justify-end space-x-3">
-                     <button
-                       onClick={async () => {
-                         try {
-                           const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.pending });
-                           setSelectedBooking(updatedBooking);
-                           refreshBookingViews();
-                         } catch (error) {
-                           console.error('Failed to update booking status:', error);
-                         }
-                       }}
-                       className="px-6 py-2 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-                     >
-                       <ArrowRightIcon className="w-4 h-4 mr-2" /> {t('common.reopen')}
-                     </button>
-                   </div>
-                 )}
+                {/* Booking Details Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-1">{t('bookings.list.service')}</p>
+                    <p className="text-lg font-semibold text-gray-900">{selectedBooking.service_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-1">{t('bookings.list.status')}</p>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
+                      selectedBooking.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : selectedBooking.status === 'confirmed'
+                        ? 'bg-green-100 text-green-800'
+                        : selectedBooking.status === 'cancelled'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {t(`bookings.list.filters.${selectedBooking.status}`)}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-1">{t('bookings.list.dateTime')}</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {(() => {
+                        const { date, time } = formatDateTimeInBusinessTimezone(selectedBooking.starts_at);
+                        return `${date} ${time}`;
+                      })()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-1">{t('common.partySize')}</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {selectedBooking.party_size} {selectedBooking.party_size === 1 ? t('bookings.list.person') : t('bookings.list.people')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+                  {selectedBooking.status === 'pending' && (
+                    <>
+                      <button
+                        onClick={async () => {
+                          try {
+                            const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.confirmed });
+                            setSelectedBooking(updatedBooking);
+                            refreshBookingViews();
+                          } catch (error) {
+                            console.error('Failed to update booking status:', error);
+                          }
+                        }}
+                        className="flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors touch-manipulation"
+                      >
+                        <CheckCircleIcon className="w-5 h-5 mr-2" />
+                        {t('common.confirm')}
+                      </button>
+                      <button
+                        onClick={async () => {
+                          try {
+                            const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.cancelled });
+                            setSelectedBooking(updatedBooking);
+                            refreshBookingViews();
+                          } catch (error) {
+                            console.error('Failed to update booking status:', error);
+                          }
+                        }}
+                        className="flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors touch-manipulation"
+                      >
+                        <XMarkIcon className="w-5 h-5 mr-2" />
+                        {t('common.cancel')}
+                      </button>
+                    </>
+                  )}
+                  {selectedBooking.status === 'confirmed' && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.completed });
+                          setSelectedBooking(updatedBooking);
+                          refreshBookingViews();
+                        } catch (error) {
+                          console.error('Failed to update booking status:', error);
+                        }
+                      }}
+                      className="flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors touch-manipulation"
+                    >
+                      <CheckCircleIcon className="w-5 h-5 mr-2" />
+                      {t('common.complete')}
+                    </button>
+                  )}
+                  {selectedBooking.status === 'cancelled' && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.pending });
+                          setSelectedBooking(updatedBooking);
+                          refreshBookingViews();
+                        } catch (error) {
+                          console.error('Failed to update booking status:', error);
+                        }
+                      }}
+                      className="flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors touch-manipulation"
+                    >
+                      <ArrowRightIcon className="w-5 h-5 mr-2" />
+                      {t('common.reopen')}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setSelectedBooking(null)}
+                    className="flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors touch-manipulation sm:ml-auto"
+                  >
+                    {t('common.close')}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>

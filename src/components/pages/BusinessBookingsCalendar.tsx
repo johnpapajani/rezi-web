@@ -10,7 +10,8 @@ import {
   ViewColumnsIcon,
   Squares2X2Icon,
   ListBulletIcon,
-  CalendarIcon
+  CalendarIcon,
+  UserGroupIcon
 } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
 import { BookingWithService, BookingStatus } from '../../types';
@@ -195,18 +196,19 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
     const calendarDays = getCalendarDays();
     
     return (
-      <div className="space-y-4">
+      <div className="space-y-2 sm:space-y-4">
         {/* Month header */}
         <div className="grid grid-cols-7 gap-1 mb-2">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-            <div key={day} className="p-2 text-center text-xs font-medium text-gray-500 uppercase">
-              {getDayName(index).substring(0, 3)}
+            <div key={day} className="p-1 sm:p-2 text-center text-xs font-medium text-gray-500 uppercase">
+              <span className="hidden sm:inline">{getDayName(index).substring(0, 3)}</span>
+              <span className="sm:hidden">{getDayName(index).substring(0, 1)}</span>
             </div>
           ))}
         </div>
         
         {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
           {calendarDays.map((date, index) => {
             const dayBookings = getBookingsForDate(date);
             const isCurrentMonth = date.getMonth() === currentDate.getMonth();
@@ -216,8 +218,9 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
               <motion.div
                 key={index}
                 whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 className={`
-                  min-h-20 p-2 border rounded-lg cursor-pointer transition-all
+                  min-h-16 sm:min-h-20 p-1 sm:p-2 border rounded-md sm:rounded-lg cursor-pointer transition-all touch-manipulation
                   ${isCurrentMonth ? 'bg-white' : 'bg-gray-50 opacity-50'}
                   ${isToday(date) ? 'ring-2 ring-blue-500' : 'border-gray-200'}
                   ${isSelected ? 'bg-blue-50 border-blue-300' : ''}
@@ -225,10 +228,11 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
                 `}
                 onClick={() => setSelectedDate(date)}
               >
-                <div className={`text-sm font-medium mb-1 ${isToday(date) ? 'text-blue-600' : 'text-gray-900'}`}>
+                <div className={`text-xs sm:text-sm font-medium mb-1 ${isToday(date) ? 'text-blue-600' : 'text-gray-900'}`}>
                   {date.getDate()}
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5 sm:space-y-1">
+                  {/* Show booking indicators - dots on mobile, details on desktop */}
                   {dayBookings.slice(0, 3).map((booking) => (
                     <div
                       key={booking.id}
@@ -237,17 +241,24 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
                         onBookingClick?.(booking);
                       }}
                       className={`
-                        text-xs px-1 py-0.5 rounded border truncate cursor-pointer
+                        text-xs px-1 py-0.5 rounded border truncate cursor-pointer touch-manipulation
                         ${getStatusColor(booking.status)}
                       `}
                       title={`${booking.customer_name} - ${booking.service_name} - ${formatTime(booking.starts_at)}`}
                     >
-                      {formatTime(booking.starts_at)} {booking.customer_name}
+                      <span className="hidden sm:inline">{formatTime(booking.starts_at)} {booking.customer_name}</span>
+                      <span className="sm:hidden w-1 h-1 rounded-full bg-current inline-block"></span>
                     </div>
                   ))}
                   {dayBookings.length > 3 && (
                     <div className="text-xs text-gray-500 text-center">
-                      +{dayBookings.length - 3} {t('calendar.more')}
+                      <span className="hidden sm:inline">+{dayBookings.length - 3} {t('calendar.more')}</span>
+                    </div>
+                  )}
+                  {/* Mobile: Show count if there are bookings */}
+                  {dayBookings.length > 0 && (
+                    <div className="sm:hidden text-xs text-gray-500 text-center font-medium">
+                      {dayBookings.length}
                     </div>
                   )}
                 </div>
@@ -264,41 +275,95 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
     
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-7 gap-2">
-          {weekDays.map((date, index) => {
-            const dayBookings = getBookingsForDate(date).sort((a, b) => 
-              new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
-            );
-            
-            return (
-              <div key={index} className="space-y-2">
-                <div className={`text-center p-2 rounded-lg ${isToday(date) ? 'bg-blue-100 text-blue-800' : 'bg-gray-50'}`}>
-                  <div className="text-xs font-medium">{getDayName(date.getDay()).substring(0, 3)}</div>
-                  <div className={`text-lg font-bold ${isToday(date) ? 'text-blue-600' : 'text-gray-900'}`}>
-                    {date.getDate()}
+        {/* Mobile: Horizontal scroll, Desktop: Grid */}
+        <div className="sm:hidden">
+          <div className="flex space-x-3 overflow-x-auto pb-4">
+            {weekDays.map((date, index) => {
+              const dayBookings = getBookingsForDate(date).sort((a, b) => 
+                new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
+              );
+              
+              return (
+                <div key={index} className="flex-shrink-0 w-64 space-y-3">
+                  <div className={`text-center p-3 rounded-lg ${isToday(date) ? 'bg-blue-100 text-blue-800' : 'bg-gray-50'}`}>
+                    <div className="text-sm font-medium">{getDayName(date.getDay())}</div>
+                    <div className={`text-2xl font-bold ${isToday(date) ? 'text-blue-600' : 'text-gray-900'}`}>
+                      {date.getDate()}
+                    </div>
+                    <div className="text-xs text-gray-600">{getMonthName(date.getMonth())}</div>
+                  </div>
+                  <div className="space-y-2 min-h-64">
+                    {dayBookings.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500 text-sm">
+                        {t('calendar.noBookings')}
+                      </div>
+                    ) : (
+                      dayBookings.map((booking) => (
+                        <motion.div
+                          key={booking.id}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => onBookingClick?.(booking)}
+                          className={`
+                            p-3 rounded-lg border cursor-pointer text-sm touch-manipulation
+                            ${getStatusColor(booking.status)}
+                            hover:shadow-sm
+                          `}
+                        >
+                          <div className="font-medium mb-1">{formatTime(booking.starts_at)}</div>
+                          <div className="truncate font-medium">{booking.customer_name}</div>
+                          <div className="truncate text-gray-600 text-xs">{booking.service_name}</div>
+                          <div className="text-xs text-gray-600 mt-1">
+                            {booking.party_size} {booking.party_size === 1 ? 'person' : 'people'}
+                          </div>
+                        </motion.div>
+                      ))
+                    )}
                   </div>
                 </div>
-                <div className="space-y-1 min-h-64">
-                  {dayBookings.map((booking) => (
-                    <motion.div
-                      key={booking.id}
-                      whileHover={{ scale: 1.02 }}
-                      onClick={() => onBookingClick?.(booking)}
-                      className={`
-                        p-2 rounded border cursor-pointer text-xs
-                        ${getStatusColor(booking.status)}
-                        hover:shadow-sm
-                      `}
-                    >
-                      <div className="font-medium">{formatTime(booking.starts_at)}</div>
-                      <div className="truncate">{booking.customer_name}</div>
-                      <div className="truncate text-gray-600">{booking.service_name}</div>
-                    </motion.div>
-                  ))}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop: Grid layout */}
+        <div className="hidden sm:block">
+          <div className="grid grid-cols-7 gap-2">
+            {weekDays.map((date, index) => {
+              const dayBookings = getBookingsForDate(date).sort((a, b) => 
+                new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
+              );
+              
+              return (
+                <div key={index} className="space-y-2">
+                  <div className={`text-center p-2 rounded-lg ${isToday(date) ? 'bg-blue-100 text-blue-800' : 'bg-gray-50'}`}>
+                    <div className="text-xs font-medium">{getDayName(date.getDay()).substring(0, 3)}</div>
+                    <div className={`text-lg font-bold ${isToday(date) ? 'text-blue-600' : 'text-gray-900'}`}>
+                      {date.getDate()}
+                    </div>
+                  </div>
+                  <div className="space-y-1 min-h-64">
+                    {dayBookings.map((booking) => (
+                      <motion.div
+                        key={booking.id}
+                        whileHover={{ scale: 1.02 }}
+                        onClick={() => onBookingClick?.(booking)}
+                        className={`
+                          p-2 rounded border cursor-pointer text-xs
+                          ${getStatusColor(booking.status)}
+                          hover:shadow-sm
+                        `}
+                      >
+                        <div className="font-medium">{formatTime(booking.starts_at)}</div>
+                        <div className="truncate">{booking.customer_name}</div>
+                        <div className="truncate text-gray-600">{booking.service_name}</div>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     );
@@ -312,10 +377,11 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
     return (
       <div className="space-y-4">
         {/* Day header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
           <div className="text-center">
-            <h2 className={`text-2xl font-bold ${isToday(currentDate) ? 'text-blue-600' : 'text-gray-900'}`}>
-              {formatDateWithWeekday(currentDate)}
+            <h2 className={`text-xl sm:text-2xl font-bold ${isToday(currentDate) ? 'text-blue-600' : 'text-gray-900'}`}>
+              <span className="sm:hidden">{formatDate(currentDate)}</span>
+              <span className="hidden sm:inline">{formatDateWithWeekday(currentDate)}</span>
             </h2>
             {isToday(currentDate) && (
               <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mt-2">
@@ -343,33 +409,41 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => onBookingClick?.(booking)}
                 className={`
-                  p-4 rounded-lg border cursor-pointer transition-all
+                  p-4 sm:p-6 rounded-lg border cursor-pointer transition-all touch-manipulation
                   ${getStatusColor(booking.status)}
                   hover:shadow-md
                 `}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center space-x-3">
-                      <ClockIcon className="w-5 h-5" />
-                      <span className="font-medium">{formatTime(booking.starts_at)} - {formatTime(booking.ends_at)}</span>
-                    </div>
-                    <div className="mt-2 flex items-center space-x-4">
-                      <span className="flex items-center">
-                        <UserIcon className="w-4 h-4 mr-1" />
-                        {booking.customer_name}
+                    <div className="flex items-center space-x-3 mb-2 sm:mb-0">
+                      <ClockIcon className="w-5 h-5 flex-shrink-0" />
+                      <span className="font-medium text-base">
+                        {formatTime(booking.starts_at)} - {formatTime(booking.ends_at)}
                       </span>
-                      <span className="flex items-center">
-                        <BuildingStorefrontIcon className="w-4 h-4 mr-1" />
+                    </div>
+                    <div className="mt-3 sm:mt-2 space-y-2 sm:space-y-0 sm:flex sm:items-center sm:space-x-6">
+                      <span className="flex items-center text-sm sm:text-base">
+                        <UserIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span className="font-medium">{booking.customer_name}</span>
+                      </span>
+                      <span className="flex items-center text-sm text-gray-600">
+                        <BuildingStorefrontIcon className="w-4 h-4 mr-2 flex-shrink-0" />
                         {booking.service_name}
                       </span>
-                      <span>{booking.party_size} {booking.party_size === 1 ? 'person' : 'people'}</span>
+                      <span className="flex items-center text-sm text-gray-600">
+                        <UserGroupIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                        {booking.party_size} {booking.party_size === 1 ? 'person' : 'people'}
+                      </span>
                     </div>
                   </div>
-                  <div className="text-sm font-medium">
-                    {booking.status}
+                  <div className="mt-3 sm:mt-0 sm:ml-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                      {booking.status}
+                    </span>
                   </div>
                 </div>
               </motion.div>
@@ -424,7 +498,8 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
               >
                 <div className={`px-4 py-3 border-b border-gray-200 ${isToday(date) ? 'bg-blue-50' : 'bg-gray-50'}`}>
                   <h3 className={`font-medium ${isToday(date) ? 'text-blue-900' : 'text-gray-900'}`}>
-                    {formatDateWithWeekday(date)}
+                    <span className="sm:hidden">{formatDate(date)}</span>
+                    <span className="hidden sm:inline">{formatDateWithWeekday(date)}</span>
                     {isToday(date) && (
                       <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         {t('calendar.today')}
@@ -440,28 +515,29 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
                     <motion.div
                       key={booking.id}
                       whileHover={{ backgroundColor: '#f9fafb' }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => onBookingClick?.(booking)}
-                      className="p-4 cursor-pointer transition-colors"
+                      className="p-4 cursor-pointer transition-colors touch-manipulation"
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center space-x-3">
-                            <span className="font-medium text-gray-900">{booking.customer_name}</span>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                            <span className="font-medium text-gray-900 text-base">{booking.customer_name}</span>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium self-start ${getStatusColor(booking.status)}`}>
                               {booking.status}
                             </span>
                           </div>
-                          <div className="mt-1 flex items-center space-x-4 text-sm text-gray-600">
+                          <div className="mt-2 space-y-1 sm:space-y-0 sm:flex sm:items-center sm:space-x-4 text-sm text-gray-600">
                             <span className="flex items-center">
-                              <ClockIcon className="w-4 h-4 mr-1" />
+                              <ClockIcon className="w-4 h-4 mr-1 flex-shrink-0" />
                               {formatTime(booking.starts_at)} - {formatTime(booking.ends_at)}
                             </span>
                             <span className="flex items-center">
-                              <BuildingStorefrontIcon className="w-4 h-4 mr-1" />
-                              {booking.service_name}
+                              <BuildingStorefrontIcon className="w-4 h-4 mr-1 flex-shrink-0" />
+                              <span className="truncate">{booking.service_name}</span>
                             </span>
                             <span className="flex items-center">
-                              <UserIcon className="w-4 h-4 mr-1" />
+                              <UserIcon className="w-4 h-4 mr-1 flex-shrink-0" />
                               {booking.party_size} {booking.party_size === 1 ? 'person' : 'people'}
                             </span>
                           </div>
@@ -479,97 +555,106 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+      {/* Mobile-optimized Header */}
+      <div className="space-y-4">
+        {/* Title and Navigation Row */}
+        <div className="flex items-center justify-between">
           <button
             onClick={() => navigateDate('prev')}
-            className="p-2 rounded-md border border-gray-300 hover:bg-gray-50"
+            className="p-3 rounded-lg border border-gray-300 hover:bg-gray-50 touch-manipulation"
           >
             <ChevronLeftIcon className="w-5 h-5" />
           </button>
-          <h2 className="text-xl font-semibold text-gray-900">
-            {viewMode === 'month' && `${getMonthName(currentDate.getMonth())} ${currentDate.getFullYear()}`}
-            {viewMode === 'week' && (() => {
-              const weekDays = getWeekDays();
-              const startDay = weekDays[0];
-              const endDay = weekDays[6];
-              const startMonth = getMonthName(startDay.getMonth());
-              const endMonth = getMonthName(endDay.getMonth());
-              
-              // If same month, show "Month DD - DD, YYYY"
-              if (startDay.getMonth() === endDay.getMonth()) {
-                return `${startMonth} ${startDay.getDate()} - ${endDay.getDate()}, ${endDay.getFullYear()}`;
-              }
-              // If different months, show "Month DD - Month DD, YYYY"
-              return `${startMonth} ${startDay.getDate()} - ${endMonth} ${endDay.getDate()}, ${endDay.getFullYear()}`;
-            })()}
-            {viewMode === 'day' && formatDateWithWeekday(currentDate)}
-            {viewMode === 'agenda' && t('calendar.agenda')}
-          </h2>
+          
+          <div className="flex-1 text-center px-4">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 leading-tight">
+              {viewMode === 'month' && `${getMonthName(currentDate.getMonth())} ${currentDate.getFullYear()}`}
+              {viewMode === 'week' && (() => {
+                const weekDays = getWeekDays();
+                const startDay = weekDays[0];
+                const endDay = weekDays[6];
+                const startMonth = getMonthName(startDay.getMonth());
+                const endMonth = getMonthName(endDay.getMonth());
+                
+                // If same month, show "Month DD - DD, YYYY"
+                if (startDay.getMonth() === endDay.getMonth()) {
+                  return `${startMonth} ${startDay.getDate()} - ${endDay.getDate()}, ${endDay.getFullYear()}`;
+                }
+                // If different months, show "Month DD - Month DD, YYYY"
+                return `${startMonth} ${startDay.getDate()} - ${endMonth} ${endDay.getDate()}, ${endDay.getFullYear()}`;
+              })()}
+              {viewMode === 'day' && formatDateWithWeekday(currentDate)}
+              {viewMode === 'agenda' && t('calendar.agenda')}
+            </h2>
+          </div>
+          
           <button
             onClick={() => navigateDate('next')}
-            className="p-2 rounded-md border border-gray-300 hover:bg-gray-50"
+            className="p-3 rounded-lg border border-gray-300 hover:bg-gray-50 touch-manipulation"
           >
             <ChevronRightIcon className="w-5 h-5" />
           </button>
         </div>
-        
-        <div className="flex items-center space-x-4">
+
+        {/* Today Button and View Mode Selector */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <button
             onClick={goToToday}
-            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 touch-manipulation"
           >
             {t('calendar.today')}
           </button>
           
-          {/* View mode selector */}
-          <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('month')}
-              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-                viewMode === 'month' 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Squares2X2Icon className="w-4 h-4 mr-1 inline" />
-              {t('calendar.views.month')}
-            </button>
-            <button
-              onClick={() => setViewMode('week')}
-              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-                viewMode === 'week' 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <ViewColumnsIcon className="w-4 h-4 mr-1 inline" />
-              {t('calendar.views.week')}
-            </button>
-            <button
-              onClick={() => setViewMode('day')}
-              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-                viewMode === 'day' 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <CalendarIcon className="w-4 h-4 mr-1 inline" />
-              {t('calendar.views.day')}
-            </button>
-            <button
-              onClick={() => setViewMode('agenda')}
-              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-                viewMode === 'agenda' 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <ListBulletIcon className="w-4 h-4 mr-1 inline" />
-              {t('calendar.views.agenda')}
-            </button>
+          {/* Mobile-friendly View Mode Selector */}
+          <div className="flex flex-1">
+            <div className="grid grid-cols-2 sm:grid-cols-4 w-full bg-gray-100 rounded-lg p-1 gap-1">
+              <button
+                onClick={() => setViewMode('month')}
+                className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors touch-manipulation ${
+                  viewMode === 'month' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Squares2X2Icon className="w-4 h-4 mx-auto sm:mr-1 sm:inline" />
+                <span className="hidden sm:inline">{t('calendar.views.month')}</span>
+              </button>
+              <button
+                onClick={() => setViewMode('agenda')}
+                className={`px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors touch-manipulation ${
+                  viewMode === 'agenda' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <ListBulletIcon className="w-4 h-4 mx-auto sm:mr-1 sm:inline" />
+                <span className="hidden sm:inline">{t('calendar.views.agenda')}</span>
+              </button>
+              {/* Hide week/day views on mobile, show on larger screens */}
+              <button
+                onClick={() => setViewMode('week')}
+                className={`hidden sm:block px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors touch-manipulation ${
+                  viewMode === 'week' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <ViewColumnsIcon className="w-4 h-4 mx-auto sm:mr-1 sm:inline" />
+                <span className="hidden sm:inline">{t('calendar.views.week')}</span>
+              </button>
+              <button
+                onClick={() => setViewMode('day')}
+                className={`hidden sm:block px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors touch-manipulation ${
+                  viewMode === 'day' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <CalendarIcon className="w-4 h-4 mx-auto sm:mr-1 sm:inline" />
+                <span className="hidden sm:inline">{t('calendar.views.day')}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
