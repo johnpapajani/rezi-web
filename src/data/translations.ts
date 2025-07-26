@@ -662,7 +662,7 @@ export const translations: Translations = {
     'onboarding.errors.genericError': 'Ndodhi një gabim. Ju lutem provoni përsëri.',
     'onboarding.defaultService.description': 'Shërbimi kryesor i restorantit',
     'onboarding.serviceConfigurationNote': 'Ju mund të ndryshoni këto konfigurime më vonë në rregullimet e shërbimit.',
-    'onboarding.noTables': 'Ende nuk ka tavolina të konfigururara për këtë shërbim',
+    'onboarding.noTables': 'Ende nuk ka njësi të konfigururara për biznesin',
     'onboarding.reassurance.title': 'Mos u shqetëso për detajet!',
     'onboarding.reassurance.description': 'Të gjitha këto konfigurime mund të ndryshohen më vonë nga menuja e konfigurimit të biznesit.',
 
@@ -670,7 +670,7 @@ export const translations: Translations = {
     'onboarding.tables.whatAreUnits.title': 'Çfarë janë njësitë/tavolinat?',
     'onboarding.tables.whatAreUnits.description': 'Njësitë përfaqësojnë kapacitetin e biznesit tuaj - vendet ku mund të shërbeni klientët. Këto mund të jenë tavolina për restorante, karrige për salona, dhoma për konsultime, ose çdo lloj njësie shërbimi.',
     'onboarding.tables.helpButton': 'Çfarë janë njësitë?',
-    'onboarding.tables.briefDescription': 'Njësitë përfaqësojnë vendet ku shërbeni klientët (tavolina, karrige, dhoma, etj.). Klikoni "Çfarë janë njësitë?" për shembuj.',
+    'onboarding.tables.briefDescription': 'Njësitë përfaqësojnë vendet ku shërbeni klientët (tavolina, karrige, dhoma, etj.) dhe përdoren për të gjitha shërbimet tuaja. Klikoni "Çfarë janë njësitë?" për shembuj.',
     'onboarding.tables.examples.restaurants.title': '🍽️ Restorante/Kafene',
     'onboarding.tables.examples.restaurants.table2seats': 'Tavolina T1 - 2 vende',
     'onboarding.tables.examples.restaurants.table4seats': 'Tavolina T2 - 4 vende',
@@ -689,6 +689,10 @@ export const translations: Translations = {
     'onboarding.tables.examples.general.unitA': 'Njësi A - 3 persona',
     'onboarding.tables.note.title': 'Shënim',
     'onboarding.tables.note.description': 'Pa njësitë, klientët nuk mund të rezervojnë shërbimet tuaja. Mund të shtoni ose përditësoni njësitë më vonë.',
+    'onboarding.tables.sharedResource.title': 'Njësitë janë të përbashkëta',
+    'onboarding.tables.sharedResource.description': 'Njësitë që krijoni këtu do të përdoren për të gjitha shërbimet tuaja. Nëse një njësi është e rezervuar për një shërbim në një kohë të caktuar, ajo nuk do të jetë e disponueshme për shërbime të tjera në të njëjtën kohë.',
+    'onboarding.tables.businessLevel.title': 'Njësitë e Biznesit',
+    'onboarding.tables.businessLevel.description': 'Krijoni njësitë që do të përdoren në të gjithë biznesin tuaj',
 
     // Service Selection
     'serviceSelection.title': 'Zgjedh Shërbimin',
@@ -2138,7 +2142,7 @@ export const translations: Translations = {
     'onboarding.errors.genericError': 'An error occurred. Please try again.',
     'onboarding.defaultService.description': 'The main service of the restaurant',
     'onboarding.serviceConfigurationNote': 'You can update any of these configurations later in the service settings.',
-    'onboarding.noTables': 'No tables configured for this service yet',
+    'onboarding.noTables': 'No units configured for the business yet',
     'onboarding.reassurance.title': 'Don\'t worry about the details!',
     'onboarding.reassurance.description': 'All of these settings can be changed later from your business settings menu.',
 
@@ -2146,7 +2150,7 @@ export const translations: Translations = {
     'onboarding.tables.whatAreUnits.title': 'What are units/tables?',
     'onboarding.tables.whatAreUnits.description': 'Units represent your business capacity - the spaces where you can serve clients. These could be tables for restaurants, chairs for salons, rooms for consultations, or any type of service unit.',
     'onboarding.tables.helpButton': 'What are units?',
-    'onboarding.tables.briefDescription': 'Units represent the spaces where you serve clients (tables, chairs, rooms, etc.). Click "What are units?" for examples.',
+    'onboarding.tables.briefDescription': 'Units represent the spaces where you serve clients (tables, chairs, rooms, etc.) and are shared across all your services. Click "What are units?" for examples.',
     'onboarding.tables.examples.restaurants.title': '🍽️ Restaurants/Cafes',
     'onboarding.tables.examples.restaurants.table2seats': 'Table T1 - 2 seats',
     'onboarding.tables.examples.restaurants.table4seats': 'Table T2 - 4 seats',
@@ -2165,6 +2169,10 @@ export const translations: Translations = {
     'onboarding.tables.examples.general.unitA': 'Unit A - 3 people',
     'onboarding.tables.note.title': 'Note',
     'onboarding.tables.note.description': 'Without units, your customers will not be able to book your services. You can always add or update units later.',
+    'onboarding.tables.sharedResource.title': 'Units are shared resources',
+    'onboarding.tables.sharedResource.description': 'The units you create here will be used for all your services. If a unit is booked for one service at a specific time, it will not be available for other services at the same time.',
+    'onboarding.tables.businessLevel.title': 'Business Units',
+    'onboarding.tables.businessLevel.description': 'Create the units that will be used across your entire business',
 
     // Service Selection
     'serviceSelection.title': 'Select Service',

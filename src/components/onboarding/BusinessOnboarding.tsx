@@ -105,15 +105,13 @@ const BusinessOnboarding: React.FC = () => {
   // Step 2: Services
   const [services, setServices] = useState<ServiceCreate[]>([]);
 
-  // Step 3: Tables - Change from service index mapping to service ID mapping
-  const [tables, setTables] = useState<{ [serviceIndex: number]: TableCreate[] }>({});
+  // Step 3: Tables - Business-level tables (shared across all services)
+  const [tables, setTables] = useState<TableCreate[]>([]);
   const [createdServices, setCreatedServices] = useState<any[]>([]);
-  const [serviceToTablesMap, setServiceToTablesMap] = useState<{ [serviceId: string]: TableCreate[] }>({});
 
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
-  // Business creation status
-  const [currentError, setCurrentError] = useState<string | null>(null);
+  // Business creation status (removed unused currentError state)
   
   // Modal state for tables help
   const [showTablesHelpModal, setShowTablesHelpModal] = useState(false);
@@ -195,8 +193,8 @@ const BusinessOnboarding: React.FC = () => {
   };
 
   const validateTablesConfiguration = (): boolean => {
-    // Check if any services have tables configured
-    const totalTables = Object.values(tables).reduce((sum, serviceTables) => sum + (serviceTables?.length || 0), 0);
+    // Check if any tables are configured
+    const totalTables = tables.length;
     console.log('Validating tables configuration:', {
       totalTables,
       tablesState: tables,
@@ -206,9 +204,9 @@ const BusinessOnboarding: React.FC = () => {
     // Tables are optional - if no tables are configured, that's fine
     // Just log for debugging purposes
     if (totalTables === 0) {
-      console.log('No tables configured for any service - this is optional');
+      console.log('No tables configured - this is optional');
     } else {
-      console.log(`Found ${totalTables} tables configured across ${services.length} services`);
+      console.log(`Found ${totalTables} tables configured for the business`);
     }
     
     return true; // Tables are optional, so always return true
@@ -261,18 +259,7 @@ const BusinessOnboarding: React.FC = () => {
     }
   };
 
-  const handleServiceHoursChange = (serviceIndex: number, dayIndex: number, field: string, value: any) => {
-    setServices(prev => prev.map((service, i) => 
-      i === serviceIndex 
-        ? {
-            ...service,
-            open_intervals: service.open_intervals?.map((hours, j) =>
-              j === dayIndex ? { ...hours, [field]: value } : hours
-            ) || []
-          }
-        : service
-    ));
-  };
+  // Removed unused handleServiceHoursChange function
 
   const handleServiceIntervalChange = (serviceIndex: number, intervalIndex: number, field: string, value: any) => {
     setServices(prev => prev.map((service, i) => 
@@ -368,43 +355,27 @@ const BusinessOnboarding: React.FC = () => {
     setServices(prev => prev.filter((_, i) => i !== index));
   };
 
-  const addTable = (serviceIndex: number) => {
-    if (serviceIndex < 0 || serviceIndex >= services.length) {
-      return;
-    }
+  const addTable = () => {
+    const newTableCode = `T${tables.length + 1}`;
     
-    setTables(prev => {
-      const currentTablesForService = prev[serviceIndex] || [];
-      const newTableCode = `T${currentTablesForService.length + 1}`;
-      
-      const newTable: TableCreate = {
-        service_id: '', // Will be set after service creation
-        code: newTableCode,
-        seats: 4,
-        is_active: true,
-      };
-      
-      return {
-        ...prev,
-        [serviceIndex]: [...currentTablesForService, newTable]
-      };
-    });
+    const newTable: TableCreate = {
+      service_id: '', // Will be set during table creation (not needed for business-level tables)
+      code: newTableCode,
+      seats: 4,
+      is_active: true,
+    };
+    
+    setTables(prev => [...prev, newTable]);
   };
 
-  const removeTable = (serviceIndex: number, tableIndex: number) => {
-    setTables(prev => ({
-      ...prev,
-      [serviceIndex]: prev[serviceIndex]?.filter((_, i) => i !== tableIndex) || []
-    }));
+  const removeTable = (tableIndex: number) => {
+    setTables(prev => prev.filter((_, i) => i !== tableIndex));
   };
 
-  const handleTableChange = (serviceIndex: number, tableIndex: number, field: string, value: any) => {
-    setTables(prev => ({
-      ...prev,
-      [serviceIndex]: prev[serviceIndex]?.map((table, i) =>
-        i === tableIndex ? { ...table, [field]: value } : table
-      ) || []
-    }));
+  const handleTableChange = (tableIndex: number, field: string, value: any) => {
+    setTables(prev => prev.map((table, i) =>
+      i === tableIndex ? { ...table, [field]: value } : table
+    ));
   };
 
   const handleNext = async () => {
@@ -501,19 +472,6 @@ const BusinessOnboarding: React.FC = () => {
         }
         
         setCreatedServices(createdServicesList);
-        
-        // Map tables from service indices to actual service IDs
-        const newServiceToTablesMap: { [serviceId: string]: TableCreate[] } = {};
-        
-        createdServicesList.forEach((createdService, index) => {
-          if (tables[index] && tables[index].length > 0) {
-            newServiceToTablesMap[createdService.id] = tables[index];
-          }
-        });
-        
-        setServiceToTablesMap(newServiceToTablesMap);
-
-        
         setCurrentStep(3);
 
       } else if (currentStep === 3) {
@@ -523,90 +481,63 @@ const BusinessOnboarding: React.FC = () => {
         }
 
         // Check if there are any tables to create
-        let totalTables = Object.values(serviceToTablesMap).reduce((sum, serviceTables) => sum + (serviceTables?.length || 0), 0);
-
-        // Backup fix: If serviceToTablesMap is empty but we have tables in state, rebuild the mapping
-        if (totalTables === 0 && Object.values(tables).some(serviceTables => serviceTables && serviceTables.length > 0)) {
-          const backupServiceToTablesMap: { [serviceId: string]: TableCreate[] } = {};
-          let backupTotalTablesFound = 0;
-          
-          createdServices.forEach((createdService, index) => {
-            if (tables[index] && tables[index].length > 0) {
-              backupServiceToTablesMap[createdService.id] = tables[index];
-              backupTotalTablesFound += tables[index].length;
-            }
-          });
-          
-          setServiceToTablesMap(backupServiceToTablesMap);
-          
-          // Update working variables for the rest of the function
-          totalTables = backupTotalTablesFound;
-          
-          // Use the backup mapping directly since state updates are async
-          Object.assign(serviceToTablesMap, backupServiceToTablesMap);
-        }
+        const totalTables = tables.length;
 
         if (totalTables === 0) {
           setShowSuccess(true);
           return;
         }
 
-        // Create tables for each service using the reliable mapping
+        // Create business-level tables using the first service (backend handles business lookup)
+        const firstServiceId = createdServices[0]?.id;
+        if (!firstServiceId) {
+          setGlobalError('No services created. Cannot create tables.');
+          return;
+        }
+
         let tablesCreated = 0;
         let tablesFailures = 0;
         const failureDetails: string[] = [];
         
-        for (const [serviceId, serviceTables] of Object.entries(serviceToTablesMap)) {
-          if (serviceTables && serviceTables.length > 0) {
-            for (let i = 0; i < serviceTables.length; i++) {
-              const tableData = serviceTables[i];
-              
-                              try {
-                  // Validate table data
-                  if (!tableData.code?.trim()) {
-                    const error = `Table code is empty for service ${serviceId}`;
-                    failureDetails.push(error);
-                    tablesFailures++;
-                    continue;
-                  }
-                  
-                  // Handle empty seats by defaulting to 1
-                  const seats = tableData.seats || 1;
-                  if (seats < 1) {
-                    const error = `Invalid seats (${seats}) for table ${tableData.code} - must be at least 1`;
-                    failureDetails.push(error);
-                    tablesFailures++;
-                    continue;
-                  }
-                  
-                  if (!serviceId) {
-                    const error = `Service ID is missing for table ${tableData.code}`;
-                    failureDetails.push(error);
-                    tablesFailures++;
-                    continue;
-                  }
-                  
-                  // Set the correct service_id before creating the table
-                  const tableWithServiceId: TableCreate = { 
-                    service_id: serviceId,
-                    code: tableData.code.trim(),
-                    seats: seats, // Use the validated seats value
-                    merge_group: tableData.merge_group?.trim() || undefined,
-                    is_active: tableData.is_active !== false
-                  };
-                  
-                  const createdTable = await serviceApi.addServiceTable(serviceId, tableWithServiceId);
-                  tablesCreated++;
-                } catch (error: any) {
-                  tablesFailures++;
-                
-                                  const errorMessage = error?.detail || error?.message || JSON.stringify(error);
-                  const fullError = `Failed to create table ${tableData.code} for service ${serviceId}: ${errorMessage}`;
-                  failureDetails.push(fullError);
-                }
-              }
+        for (let i = 0; i < tables.length; i++) {
+          const tableData = tables[i];
+          
+          try {
+            // Validate table data
+            if (!tableData.code?.trim()) {
+              const error = `Table code is empty for table ${i + 1}`;
+              failureDetails.push(error);
+              tablesFailures++;
+              continue;
             }
+            
+            // Handle empty seats by defaulting to 1
+            const seats = tableData.seats || 1;
+            if (seats < 1) {
+              const error = `Invalid seats (${seats}) for table ${tableData.code} - must be at least 1`;
+              failureDetails.push(error);
+              tablesFailures++;
+              continue;
+            }
+            
+            // Create table through any service (tables belong to business)
+            const tableWithServiceId: TableCreate = { 
+              service_id: firstServiceId,
+              code: tableData.code.trim(),
+              seats: seats,
+              merge_group: tableData.merge_group?.trim() || undefined,
+              is_active: tableData.is_active !== false
+            };
+            
+            await serviceApi.addServiceTable(firstServiceId, tableWithServiceId);
+            tablesCreated++;
+          } catch (error: any) {
+            tablesFailures++;
+            const errorMessage = error?.detail || error?.message || JSON.stringify(error);
+            const fullError = `Failed to create table ${tableData.code}: ${errorMessage}`;
+            failureDetails.push(fullError);
           }
+        }
 
         if (tablesFailures > 0 && tablesCreated === 0) {
           setGlobalError(`Failed to create any tables. Errors: ${failureDetails.slice(0, 3).join('; ')}${failureDetails.length > 3 ? '...' : ''}`);
@@ -627,15 +558,7 @@ const BusinessOnboarding: React.FC = () => {
 
 
 
-  const dayNames = [
-    t('days.sunday'), 
-    t('days.monday'), 
-    t('days.tuesday'), 
-    t('days.wednesday'), 
-    t('days.thursday'), 
-    t('days.friday'), 
-    t('days.saturday')
-  ];
+  // Removed unused dayNames array
 
   const weekdayOptions = [
     { weekday: Weekday.monday, name: t('days.monday'), short: t('days.short.monday') },
@@ -1471,9 +1394,18 @@ const BusinessOnboarding: React.FC = () => {
                             </button>
                           </div>
                           
-                          <p className="text-gray-600 mb-6">
+                          <p className="text-gray-600 mb-4">
                             {t('onboarding.tables.whatAreUnits.description')}
                           </p>
+                          
+                          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-6">
+                            <h4 className="text-sm font-medium text-blue-800 mb-2">
+                              {t('onboarding.tables.sharedResource.title')}
+                            </h4>
+                            <p className="text-sm text-blue-700">
+                              {t('onboarding.tables.sharedResource.description')}
+                            </p>
+                          </div>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div className="bg-gray-50 p-4 rounded-lg border">
@@ -1541,75 +1473,94 @@ const BusinessOnboarding: React.FC = () => {
                   )}
                 </AnimatePresence>
 
-                <div className="space-y-6">
-                  {services.map((service, serviceIndex) => (
-                    <div key={serviceIndex} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-md font-medium text-gray-900">{service.name}</h3>
-                        <button
-                          onClick={() => addTable(serviceIndex)}
-                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                        >
-                          <PlusIcon className="w-4 h-4 mr-1" />
-                          {t('onboarding.addTable')}
-                        </button>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {(tables[serviceIndex] || []).map((table, tableIndex) => (
-                          <div key={tableIndex} className="border border-gray-200 rounded-lg p-3">
-                            <div className="flex items-center justify-between mb-3">
-                              <h4 className="text-sm font-medium text-gray-900">
-                                {t('onboarding.table')} {tableIndex + 1}
-                              </h4>
-                              <button
-                                onClick={() => removeTable(serviceIndex, tableIndex)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <XMarkIcon className="w-4 h-4" />
-                              </button>
-                            </div>
-
-                            <div className="space-y-3">
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  {t('onboarding.tableCode')}
-                                </label>
-                                <input
-                                  type="text"
-                                  value={table.code}
-                                  onChange={(e) => handleTableChange(serviceIndex, tableIndex, 'code', e.target.value)}
-                                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                                  placeholder="T1"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  {t('onboarding.seats')}
-                                </label>
-                                <input
-                                  type="number"
-                                  value={table.seats}
-                                  onChange={(e) => handleTableChange(serviceIndex, tableIndex, 'seats', parseInt(e.target.value) || '')}
-                                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                                  min="1"
-                                  placeholder="1"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {(!tables[serviceIndex] || tables[serviceIndex].length === 0) && (
-                        <div className="text-center py-6 text-gray-500">
-                          <RectangleGroupIcon className="w-8 h-8 mx-auto mb-2" />
-                          <p className="text-sm">{t('onboarding.noTables')}</p>
-                        </div>
-                      )}
+                {/* Shared Resource Notice */}
+                <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <InformationCircleIcon className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                    <div>
+                      <h4 className="text-sm font-medium text-amber-800">
+                        {t('onboarding.tables.sharedResource.title')}
+                      </h4>
+                      <p className="text-sm text-amber-700 mt-1">
+                        {t('onboarding.tables.sharedResource.description')}
+                      </p>
                     </div>
-                  ))}
+                  </div>
+                </div>
+
+                {/* Business Tables Section */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-md font-medium text-gray-900">
+                        {t('onboarding.tables.businessLevel.title')}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {t('onboarding.tables.businessLevel.description')}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => addTable()}
+                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      <PlusIcon className="w-4 h-4 mr-1" />
+                      {t('onboarding.addTable')}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {tables.map((table, tableIndex) => (
+                      <div key={tableIndex} className="border border-gray-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-medium text-gray-900">
+                            {t('onboarding.table')} {tableIndex + 1}
+                          </h4>
+                          <button
+                            onClick={() => removeTable(tableIndex)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <XMarkIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              {t('onboarding.tableCode')}
+                            </label>
+                            <input
+                              type="text"
+                              value={table.code}
+                              onChange={(e) => handleTableChange(tableIndex, 'code', e.target.value)}
+                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="T1"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              {t('onboarding.seats')}
+                            </label>
+                            <input
+                              type="number"
+                              value={table.seats}
+                              onChange={(e) => handleTableChange(tableIndex, 'seats', parseInt(e.target.value) || '')}
+                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                              min="1"
+                              placeholder="1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {tables.length === 0 && (
+                    <div className="text-center py-6 text-gray-500">
+                      <RectangleGroupIcon className="w-8 h-8 mx-auto mb-2" />
+                      <p className="text-sm">{t('onboarding.noTables')}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
