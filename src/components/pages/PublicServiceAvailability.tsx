@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { publicApi } from '../../utils/api';
-import { Business, ServiceWithOpenIntervals, Table, AvailabilityMatrix, AvailabilitySlot } from '../../types';
+import { Business, ServiceWithOpenIntervals, AvailabilityMatrix, AvailabilitySlot } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 import { formatTimeInTimezone } from '../../utils/timezone';
 import { 
@@ -43,20 +43,16 @@ const PublicServiceAvailability: React.FC = () => {
   
   const [business, setBusiness] = useState<Business | null>(null);
   const [service, setService] = useState<ServiceWithOpenIntervals | null>(null);
-  const [tables, setTables] = useState<Table[]>([]);
-  const [availability, setAvailability] = useState<AvailabilityMatrix | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    const today = new Date();
-    return formatLocalDateAsYYYYMMDD(today);
-  });
-  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
-  const [partySize, setPartySize] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
-
-  // Calendar state
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
+  const [partySize, setPartySize] = useState(2);
+  const [availability, setAvailability] = useState<AvailabilityMatrix | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
 
   useEffect(() => {
@@ -65,14 +61,12 @@ const PublicServiceAvailability: React.FC = () => {
 
       try {
         setLoading(true);
-        const [businessData, servicesData, tablesData] = await Promise.all([
+        const [businessData, servicesData] = await Promise.all([
           publicApi.getBusinessDetails(slug),
-          publicApi.getBusinessServices(slug),
-          publicApi.getServiceTables(slug, serviceId)
+          publicApi.getBusinessServices(slug)
         ]);
         
         setBusiness(businessData);
-        setTables(tablesData);
         
         // Find the specific service
         const foundService = servicesData.find(s => s.id === serviceId);

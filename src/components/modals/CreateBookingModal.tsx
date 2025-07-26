@@ -251,9 +251,8 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
       }
     }
 
-    if (!formData.table_id) {
-      newErrors['table_id'] = t('booking.create.errors.tableRequired');
-    }
+    // Table selection is now optional - backend will auto-allocate if not specified
+    // No validation needed for table_id
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -274,7 +273,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
 
       const bookingData: BookingCreate = {
         service_id: serviceId,
-        table_id: formData.table_id,
+        ...(formData.table_id && { table_id: formData.table_id }), // Only include table_id if selected
         starts_at,
         ends_at,
         party_size: formData.party_size,
@@ -569,12 +568,18 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
 
             {/* Table Selection */}
             <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <RectangleGroupIcon className="w-5 h-5 text-purple-600" />
-                <h4 className="text-lg font-medium text-gray-900">
-                  {t('booking.create.sections.tableSelection')}
-                </h4>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <RectangleGroupIcon className="w-5 h-5 text-purple-600" />
+                  <h4 className="text-lg font-medium text-gray-900">
+                    {t('booking.create.sections.tableSelection')}
+                  </h4>
+                  <span className="text-sm text-gray-500">({t('booking.create.optional')})</span>
+                </div>
               </div>
+              <p className="text-sm text-gray-600">
+                {t('booking.create.tableSelectionHint')}
+              </p>
 
               {availableTables.length === 0 ? (
                 <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -584,6 +589,35 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {/* Auto-assign option */}
+                  <label
+                    className={`cursor-pointer border-2 rounded-lg p-3 transition-colors ${
+                      formData.table_id === ''
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="table_id"
+                      value=""
+                      checked={formData.table_id === ''}
+                      onChange={(e) => handleInputChange('table_id', e.target.value)}
+                      className="sr-only"
+                    />
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-gray-900">{t('booking.create.autoAssignTable')}</div>
+                        <div className="text-sm text-gray-600">
+                          {t('booking.create.autoAssignDescription')}
+                        </div>
+                      </div>
+                      {formData.table_id === '' && (
+                        <CheckCircleIcon className="w-5 h-5 text-blue-500" />
+                      )}
+                    </div>
+                  </label>
+                  
                   {availableTables.map((table) => (
                     <label
                       key={table.id}

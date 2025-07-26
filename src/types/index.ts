@@ -252,10 +252,17 @@ export interface ServiceWithTables extends ServiceWithOpenIntervals {
 }
 
 // Availability types
+export interface AvailableTable {
+  id: string;
+  code: string;
+  seats: number;
+}
+
 export interface AvailabilitySlot {
   starts_at: string;
   ends_at: string;
-  available_tables: number;
+  available_tables: number; // Total count for backward compatibility
+  available_table_details?: AvailableTable[]; // Specific table info
 }
 
 export interface AvailabilityMatrix {
@@ -342,7 +349,7 @@ export interface BookingCreateCustomer {
 
 export interface BookingCreate {
   service_id: string;
-  table_id: string;
+  table_id?: string; // Made optional since backend handles allocation
   starts_at: string;
   ends_at: string;
   party_size: number;

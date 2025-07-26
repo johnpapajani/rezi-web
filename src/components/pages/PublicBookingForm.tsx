@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { publicApi } from '../../utils/api';
-import { Business, ServiceWithOpenIntervals, Table, BookingCreate } from '../../types';
+import { Business, ServiceWithOpenIntervals, BookingCreate } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
-import { formatTimeInTimezone } from '../../utils/timezone';
+import { formatTimeInTimezone, formatDateTimeInTimezone } from '../../utils/timezone';
 import { 
   ArrowLeftIcon,
   UserIcon,
@@ -40,17 +40,16 @@ const PublicBookingForm: React.FC = () => {
     business: Business;
   } || {};
 
-  const [availableTable, setAvailableTable] = useState<Table | null>(null);
   const [customerData, setCustomerData] = useState({
     name: '',
     phone: '',
     email: ''
   });
   const [loading, setLoading] = useState(false);
-  const [tablesLoading, setTablesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const languageDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Redirect if no booking data
@@ -58,29 +57,21 @@ const PublicBookingForm: React.FC = () => {
       navigate(`/book/${slug}/service/${serviceId}`);
       return;
     }
+  }, [slug, serviceId, bookingData, service, business, navigate]);
 
-    const fetchTables = async () => {
-      try {
-        setTablesLoading(true);
-        const tablesData = await publicApi.getServiceTables(slug!, serviceId!);
-        // Filter tables that can accommodate the party size
-        const suitableTables = tablesData.filter(table => table.seats >= bookingData.partySize);
-        
-        // Auto-select the first suitable table
-        if (suitableTables.length > 0) {
-          setAvailableTable(suitableTables[0]);
-        } else {
-          setAvailableTable(null);
-        }
-      } catch (err: any) {
-        setError(err.detail || t('public.error.loadingAvailabilityFailed'));
-      } finally {
-        setTablesLoading(false);
+  // Close language dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (languageDropdownRef.current && !languageDropdownRef.current.contains(event.target as Node)) {
+        setIsLanguageOpen(false);
       }
     };
 
-    fetchTables();
-  }, [slug, serviceId, bookingData, service, business, navigate]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const formatPrice = (priceMinor: number, currency: string = 'ALL') => {
     const price = priceMinor / 100;
@@ -152,10 +143,6 @@ const PublicBookingForm: React.FC = () => {
       errors.email = t('public.booking.validation.emailInvalid');
     }
 
-    if (!availableTable) {
-      errors.table = t('public.booking.validation.noTableAvailable');
-    }
-
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -167,7 +154,7 @@ const PublicBookingForm: React.FC = () => {
       return;
     }
 
-    if (!availableTable || !bookingData) {
+    if (!bookingData) {
       return;
     }
 
@@ -185,7 +172,6 @@ const PublicBookingForm: React.FC = () => {
 
       const bookingRequest: BookingCreate = {
         service_id: bookingData.serviceId,
-        table_id: availableTable.id,
         starts_at: bookingData.startTime,
         ends_at: bookingData.endTime,
         party_size: bookingData.partySize,
@@ -247,7 +233,7 @@ const PublicBookingForm: React.FC = () => {
             </div>
             
             {/* Language Switcher */}
-            <div className="relative">
+            <div className="relative" ref={languageDropdownRef}>
               <button
                 onClick={() => setIsLanguageOpen(!isLanguageOpen)}
                 className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 text-sm font-medium transition-colors"
@@ -452,10 +438,10 @@ const PublicBookingForm: React.FC = () => {
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <button
                   type="submit"
-                  disabled={loading || !availableTable}
+                  disabled={loading || !bookingData}
                   className={`
                     w-full py-3 px-4 rounded-md font-medium transition-colors duration-200
-                    ${loading || !availableTable
+                    ${loading || !bookingData
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-green-600 text-white hover:bg-green-700'
                     }
