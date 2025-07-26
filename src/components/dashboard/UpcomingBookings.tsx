@@ -17,8 +17,17 @@ interface UpcomingBookingsProps {
 
 const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bizId }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const { upcomingBookings, loading, error } = useUpcomingBookings({ bizId });
+
+  // Locale mapping helper
+  const getLocale = (langCode: string) => {
+    switch (langCode) {
+      case 'sq': return 'sq-AL'; // Albanian (Albania)
+      case 'en': return 'en-US'; // English (US)
+      default: return 'en-US';
+    }
+  };
 
   const getStatusColor = (status: BookingStatus) => {
     switch (status) {
@@ -41,7 +50,7 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bizId }) => {
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
+    return date.toLocaleTimeString(getLocale(currentLanguage), { 
       hour: '2-digit', 
       minute: '2-digit',
       hour12: true
@@ -59,7 +68,7 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bizId }) => {
     } else if (date.toDateString() === tomorrow.toDateString()) {
       return t('bookings.upcoming.tomorrow');
     } else {
-      return date.toLocaleDateString('en-US', { 
+      return date.toLocaleDateString(getLocale(currentLanguage), { 
         weekday: 'short', 
         month: 'short', 
         day: 'numeric' 

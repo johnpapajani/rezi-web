@@ -48,7 +48,7 @@ type BookingViewType = 'list' | 'calendar';
 const ServiceDashboard: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
   const { signOut } = useAuth();
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const [currentTab, setCurrentTab] = useState<TabType>('services');
   const [bookingView, setBookingView] = useState<BookingViewType>('list');
   const navigate = useNavigate();
@@ -284,14 +284,25 @@ const ServiceDashboard: React.FC = () => {
     const date = new Date(dateTimeString);
     const timezone = business?.timezone || 'UTC';
     
-    const dateFormatter = new Intl.DateTimeFormat('en-US', {
+    // Map app language codes to locale identifiers
+    const getLocale = (langCode: string) => {
+      switch (langCode) {
+        case 'sq': return 'sq-AL'; // Albanian (Albania)
+        case 'en': return 'en-US'; // English (US)
+        default: return 'en-US';
+      }
+    };
+    
+    const locale = getLocale(currentLanguage);
+    
+    const dateFormatter = new Intl.DateTimeFormat(locale, {
       timeZone: timezone,
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
     
-    const timeFormatter = new Intl.DateTimeFormat('en-US', {
+    const timeFormatter = new Intl.DateTimeFormat(locale, {
       timeZone: timezone,
       hour: '2-digit',
       minute: '2-digit',
@@ -302,6 +313,24 @@ const ServiceDashboard: React.FC = () => {
       date: dateFormatter.format(date),
       time: timeFormatter.format(date)
     };
+  };
+
+  const refreshBookingViews = () => {
+    // Always refresh list view
+    searchBookings(bookingFilters);
+    
+    // Only refresh calendar data if user is currently viewing the calendar
+    // This prevents disrupting the calendar's current view state (day, week, month, etc.)
+    if (bizId && bookingView === 'calendar') {
+      const today = new Date();
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      const threeMonthsFromNow = new Date();
+      threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
+      const dateFrom = threeMonthsAgo.toISOString().split('T')[0];
+      const dateTo = threeMonthsFromNow.toISOString().split('T')[0];
+      fetchCalendarBookings(dateFrom, dateTo);
+    }
   };
 
   const handleServiceSelect = (serviceId: string) => {
@@ -1070,14 +1099,28 @@ const ServiceDashboard: React.FC = () => {
                              {booking.status === 'pending' && (
                                <>
                                  <button
-                                   onClick={() => updateBookingStatus(booking.id, { status: BookingStatus.confirmed })}
+                                   onClick={async () => {
+                                     try {
+                                       await updateBookingStatus(booking.id, { status: BookingStatus.confirmed });
+                                       refreshBookingViews();
+                                     } catch (error) {
+                                       console.error('Failed to update booking status:', error);
+                                     }
+                                   }}
                                    className="text-green-600 hover:text-green-900 mr-3"
                                    title={t('common.confirm')}
                                  >
                                    <CheckCircleIcon className="w-5 h-5" />
                                  </button>
                                  <button
-                                   onClick={() => updateBookingStatus(booking.id, { status: BookingStatus.cancelled })}
+                                   onClick={async () => {
+                                     try {
+                                       await updateBookingStatus(booking.id, { status: BookingStatus.cancelled });
+                                       refreshBookingViews();
+                                     } catch (error) {
+                                       console.error('Failed to update booking status:', error);
+                                     }
+                                   }}
                                    className="text-red-600 hover:text-red-900"
                                    title={t('bookings.list.actions.cancel')}
                                  >
@@ -1087,7 +1130,14 @@ const ServiceDashboard: React.FC = () => {
                              )}
                              {booking.status === 'confirmed' && (
                                <button
-                                 onClick={() => updateBookingStatus(booking.id, { status: BookingStatus.completed })}
+                                 onClick={async () => {
+                                   try {
+                                     await updateBookingStatus(booking.id, { status: BookingStatus.completed });
+                                     refreshBookingViews();
+                                   } catch (error) {
+                                     console.error('Failed to update booking status:', error);
+                                   }
+                                 }}
                                  className="text-purple-600 hover:text-purple-900"
                                  title={t('common.complete')}
                                >
@@ -1096,7 +1146,14 @@ const ServiceDashboard: React.FC = () => {
                              )}
                              {booking.status === 'cancelled' && (
                                <button
-                                 onClick={() => updateBookingStatus(booking.id, { status: BookingStatus.pending })}
+                                 onClick={async () => {
+                                   try {
+                                     await updateBookingStatus(booking.id, { status: BookingStatus.pending });
+                                     refreshBookingViews();
+                                   } catch (error) {
+                                     console.error('Failed to update booking status:', error);
+                                   }
+                                 }}
                                  className="text-yellow-600 hover:text-yellow-900"
                                  title={t('common.reopen')}
                                >
@@ -1216,6 +1273,7 @@ const ServiceDashboard: React.FC = () => {
                          try {
                            const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.confirmed });
                            setSelectedBooking(updatedBooking);
+                           refreshBookingViews();
                          } catch (error) {
                            console.error('Failed to update booking status:', error);
                          }
@@ -1229,6 +1287,7 @@ const ServiceDashboard: React.FC = () => {
                          try {
                            const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.cancelled });
                            setSelectedBooking(updatedBooking);
+                           refreshBookingViews();
                          } catch (error) {
                            console.error('Failed to update booking status:', error);
                          }
@@ -1246,6 +1305,7 @@ const ServiceDashboard: React.FC = () => {
                          try {
                            const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.completed });
                            setSelectedBooking(updatedBooking);
+                           refreshBookingViews();
                          } catch (error) {
                            console.error('Failed to update booking status:', error);
                          }
@@ -1263,6 +1323,7 @@ const ServiceDashboard: React.FC = () => {
                          try {
                            const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.pending });
                            setSelectedBooking(updatedBooking);
+                           refreshBookingViews();
                          } catch (error) {
                            console.error('Failed to update booking status:', error);
                          }
@@ -1299,16 +1360,16 @@ const ServiceDashboard: React.FC = () => {
             onClick: () => setCurrentTab('services')
           },
           {
-            id: 'settings',
-            label: t('business.dashboard.tabs.businessSettings'),
-            isActive: currentTab === 'settings',
-            onClick: () => setCurrentTab('settings')
-          },
-          {
             id: 'bookings',
             label: t('business.dashboard.tabs.bookings'),
             isActive: currentTab === 'bookings',
             onClick: () => setCurrentTab('bookings')
+          },
+          {
+            id: 'settings',
+            label: t('business.dashboard.tabs.businessSettings'),
+            isActive: currentTab === 'settings',
+            onClick: () => setCurrentTab('settings')
           }
         ]}
         actions={[

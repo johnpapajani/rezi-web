@@ -25,7 +25,7 @@ import BusinessTabNavigation from '../shared/BusinessTabNavigation';
 const BookingList: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const { bookings, loading, error, searchBookings, updateBookingStatus, cancelBooking } = useBookings({ bizId: bizId || '' });
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +34,15 @@ const BookingList: React.FC = () => {
   const [selectedBooking, setSelectedBooking] = useState<BookingWithService | null>(null);
   const [showBookingDetails, setShowBookingDetails] = useState(false);
   const [currentTab, setCurrentTab] = useState<'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar'>('bookings');
+
+  // Locale mapping helper
+  const getLocale = (langCode: string) => {
+    switch (langCode) {
+      case 'sq': return 'sq-AL'; // Albanian (Albania)
+      case 'en': return 'en-US'; // English (US)
+      default: return 'en-US';
+    }
+  };
 
   const handleTabChange = (tab: 'dashboard' | 'settings' | 'services' | 'tables' | 'bookings' | 'calendar') => {
     setCurrentTab(tab);
@@ -145,7 +154,7 @@ const BookingList: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString(getLocale(currentLanguage), { 
       weekday: 'short', 
       year: 'numeric', 
       month: 'short', 

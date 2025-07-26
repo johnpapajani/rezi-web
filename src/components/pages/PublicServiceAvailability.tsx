@@ -138,8 +138,17 @@ const PublicServiceAvailability: React.FC = () => {
   };
 
   const formatDate = (date: Date) => {
-    const monthKey = `public.calendar.months.${date.toLocaleDateString('en-US', { month: 'long' }).toLowerCase()}`;
-    const weekdayKey = `public.calendar.weekdays.full.${date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()}`;
+    // Use translation keys directly instead of relying on English locale
+    const monthNames = [
+      'january', 'february', 'march', 'april', 'may', 'june',
+      'july', 'august', 'september', 'october', 'november', 'december'
+    ];
+    const dayNames = [
+      'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
+    ];
+    
+    const monthKey = `public.calendar.months.${monthNames[date.getMonth()]}`;
+    const weekdayKey = `public.calendar.weekdays.full.${dayNames[date.getDay()]}`;
     
     return {
       month: t(monthKey),

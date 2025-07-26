@@ -33,11 +33,20 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
   businessTimezone = 'UTC',
   onBookingClick 
 }) => {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('month');
+
+  // Locale mapping helper
+  const getLocale = (langCode: string) => {
+    switch (langCode) {
+      case 'sq': return 'sq-AL'; // Albanian (Albania)
+      case 'en': return 'en-US'; // English (US)
+      default: return 'en-US';
+    }
+  };
 
   // Navigation helpers
   const navigateDate = (direction: 'prev' | 'next') => {
@@ -110,7 +119,7 @@ const ServiceBookingsCalendar: React.FC<ServiceBookingsCalendarProps> = ({
   };
 
   const formatTime = (dateString: string) => {
-    return formatTimeInTimezone(dateString, businessTimezone, 'en-US');
+    return formatTimeInTimezone(dateString, businessTimezone, getLocale(currentLanguage));
   };
 
   const isToday = (date: Date) => {

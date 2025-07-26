@@ -96,15 +96,42 @@ const PublicBookingSearch: React.FC = () => {
 
   const formatDateTime = (timeString: string) => {
     const date = new Date(timeString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long',
-      month: 'long', 
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
+    
+    if (currentLanguage === 'sq') {
+      // Use Albanian translations for month and day names
+      const monthNames = [
+        'january', 'february', 'march', 'april', 'may', 'june',
+        'july', 'august', 'september', 'october', 'november', 'december'
+      ];
+      const dayNames = [
+        'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
+      ];
+      
+      const monthKey = `public.calendar.months.${monthNames[date.getMonth()]}`;
+      const weekdayKey = `public.calendar.weekdays.full.${dayNames[date.getDay()]}`;
+      
+      const month = t(monthKey);
+      const weekday = t(weekdayKey);
+      const day = date.getDate();
+      const year = date.getFullYear();
+      const hour = date.getHours();
+      const minute = date.getMinutes();
+      const ampm = hour >= 12 ? 'MD' : 'PD'; // Albanian AM/PM
+      const hour12 = hour % 12 || 12;
+      
+      return `${weekday}, ${month} ${day}, ${year} ${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
+    } else {
+      // Use English formatting
+      return date.toLocaleDateString('en-US', { 
+        weekday: 'long',
+        month: 'long', 
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
   };
 
   const getStatusColor = (status: string) => {

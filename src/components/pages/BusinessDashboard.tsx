@@ -40,7 +40,7 @@ import ResourceManagement from './ResourceManagement';
 // Wrapper components that remove headers
 const BookingListWrapper: React.FC = () => {
   const { bizId } = useParams<{ bizId: string }>();
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const { bookings, loading, error, searchBookings, updateBookingStatus, cancelBooking } = useBookings({ bizId: bizId || '' });
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,6 +48,15 @@ const BookingListWrapper: React.FC = () => {
   const [dateFilter, setDateFilter] = useState<'today' | 'tomorrow' | 'week' | 'month' | ''>('');
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [showBookingDetails, setShowBookingDetails] = useState(false);
+
+  // Locale mapping helper
+  const getLocale = (langCode: string) => {
+    switch (langCode) {
+      case 'sq': return 'sq-AL'; // Albanian (Albania)
+      case 'en': return 'en-US'; // English (US)
+      default: return 'en-US';
+    }
+  };
 
   // Load bookings on component mount
   useEffect(() => {
@@ -155,7 +164,7 @@ const BookingListWrapper: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString(getLocale(currentLanguage), { 
       weekday: 'short', 
       year: 'numeric', 
       month: 'short', 

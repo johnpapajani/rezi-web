@@ -36,13 +36,22 @@ const PendingBookingsSection: React.FC<PendingBookingsSectionProps> = ({
   onConfirmAll,
   onViewAllPending,
 }) => {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const [loadingStates, setLoadingStates] = useState<LoadingState>({});
   const [confirmingAll, setConfirmingAll] = useState(false);
   const [successMessages, setSuccessMessages] = useState<{ [key: string]: string }>({});
 
+  // Locale mapping helper
+  const getLocale = (langCode: string) => {
+    switch (langCode) {
+      case 'sq': return 'sq-AL'; // Albanian (Albania)
+      case 'en': return 'en-US'; // English (US)
+      default: return 'en-US';
+    }
+  };
+
   const formatTime = (dateString: string) => {
-    return formatTimeInTimezone(dateString, businessTimezone, 'en-US', {
+    return formatTimeInTimezone(dateString, businessTimezone, getLocale(currentLanguage), {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
@@ -60,7 +69,7 @@ const PendingBookingsSection: React.FC<PendingBookingsSectionProps> = ({
     } else if (date.toDateString() === tomorrow.toDateString()) {
       return t('bookings.upcoming.tomorrow');
     } else {
-      return date.toLocaleDateString('en-US', { 
+      return date.toLocaleDateString(getLocale(currentLanguage), { 
         weekday: 'short', 
         month: 'short', 
         day: 'numeric' 

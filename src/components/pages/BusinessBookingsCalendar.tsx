@@ -29,7 +29,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
   businessTimezone = 'UTC',
   onBookingClick 
 }) => {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -40,6 +40,15 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
     const translation = t(key);
     // Only use fallback if translation returns the key itself (not found)
     return translation === key ? fallback : translation;
+  };
+
+  // Locale mapping helper
+  const getLocale = (langCode: string) => {
+    switch (langCode) {
+      case 'sq': return 'sq-AL'; // Albanian (Albania)
+      case 'en': return 'en-US'; // English (US)
+      default: return 'en-US';
+    }
   };
 
   // Navigation helpers
@@ -87,15 +96,24 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
   };
 
   const formatDate = (date: Date) => {
-    return formatDateInTimezone(date.toISOString(), businessTimezone, 'en-US', {
-      day: 'numeric',
-      month: 'long', 
-      year: 'numeric'
-    });
+    // Use the app's translation system instead of browser locale
+    const day = date.getDate();
+    const month = getMonthName(date.getMonth());
+    const year = date.getFullYear();
+    return `${month} ${day}, ${year}`;
+  };
+
+  const formatDateWithWeekday = (date: Date) => {
+    // Format date with weekday for more detailed displays
+    const weekday = getDayName(date.getDay());
+    const day = date.getDate();
+    const month = getMonthName(date.getMonth());
+    const year = date.getFullYear();
+    return `${weekday} ${month} ${day}, ${year}`;
   };
 
   const formatTime = (dateString: string) => {
-    return formatTimeInTimezone(dateString, businessTimezone, 'en-US', {
+    return formatTimeInTimezone(dateString, businessTimezone, getLocale(currentLanguage), {
       hour: '2-digit',
       minute: '2-digit'
     });
@@ -229,7 +247,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
                   ))}
                   {dayBookings.length > 3 && (
                     <div className="text-xs text-gray-500 text-center">
-                      +{dayBookings.length - 3} more
+                      +{dayBookings.length - 3} {t('calendar.more')}
                     </div>
                   )}
                 </div>
@@ -297,7 +315,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="text-center">
             <h2 className={`text-2xl font-bold ${isToday(currentDate) ? 'text-blue-600' : 'text-gray-900'}`}>
-              {formatDate(currentDate)}
+              {formatDateWithWeekday(currentDate)}
             </h2>
             {isToday(currentDate) && (
               <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mt-2">
@@ -406,7 +424,7 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
               >
                 <div className={`px-4 py-3 border-b border-gray-200 ${isToday(date) ? 'bg-blue-50' : 'bg-gray-50'}`}>
                   <h3 className={`font-medium ${isToday(date) ? 'text-blue-900' : 'text-gray-900'}`}>
-                    {formatDate(date)}
+                    {formatDateWithWeekday(date)}
                     {isToday(date) && (
                       <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         {t('calendar.today')}
@@ -473,8 +491,21 @@ const BusinessBookingsCalendar: React.FC<BusinessBookingsCalendarProps> = ({
           </button>
           <h2 className="text-xl font-semibold text-gray-900">
             {viewMode === 'month' && `${getMonthName(currentDate.getMonth())} ${currentDate.getFullYear()}`}
-            {viewMode === 'week' && `Week of ${formatDate(getWeekDays()[0])}`}
-            {viewMode === 'day' && formatDate(currentDate)}
+            {viewMode === 'week' && (() => {
+              const weekDays = getWeekDays();
+              const startDay = weekDays[0];
+              const endDay = weekDays[6];
+              const startMonth = getMonthName(startDay.getMonth());
+              const endMonth = getMonthName(endDay.getMonth());
+              
+              // If same month, show "Month DD - DD, YYYY"
+              if (startDay.getMonth() === endDay.getMonth()) {
+                return `${startMonth} ${startDay.getDate()} - ${endDay.getDate()}, ${endDay.getFullYear()}`;
+              }
+              // If different months, show "Month DD - Month DD, YYYY"
+              return `${startMonth} ${startDay.getDate()} - ${endMonth} ${endDay.getDate()}, ${endDay.getFullYear()}`;
+            })()}
+            {viewMode === 'day' && formatDateWithWeekday(currentDate)}
             {viewMode === 'agenda' && t('calendar.agenda')}
           </h2>
           <button
