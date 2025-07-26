@@ -50,7 +50,7 @@ const PublicServiceAvailability: React.FC = () => {
     const today = new Date();
     return today.toISOString().split('T')[0];
   });
-  const [partySize, setPartySize] = useState(2);
+  const [partySize, setPartySize] = useState(1);
   const [availability, setAvailability] = useState<AvailabilityMatrix | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());

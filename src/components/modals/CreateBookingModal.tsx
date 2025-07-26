@@ -71,7 +71,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
       phone: '',
       email: '',
     },
-    party_size: 2,
+    party_size: 1,
     table_id: '',
     starts_at: '',
     date: '',
@@ -308,7 +308,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   const resetForm = () => {
     setFormData({
       customer: { name: '', phone: '', email: '' },
-      party_size: 2,
+      party_size: 1,
       table_id: '',
       starts_at: '',
       date: '',
