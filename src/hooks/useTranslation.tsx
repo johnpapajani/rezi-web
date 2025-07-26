@@ -5,6 +5,7 @@ import { Language } from '../types';
 const languages: Language[] = [
   { code: 'sq', name: 'Shqip', flag: '🇦🇱' },
   { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
 ];
 
 interface LanguageContextType {
