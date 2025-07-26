@@ -155,6 +155,11 @@ const PublicServiceAvailability: React.FC = () => {
     const today = new Date();
     // Create today's date at start of day for accurate comparison
     const todayStartOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    // Create max date (3 months from today)
+    const maxDate = new Date(today);
+    maxDate.setMonth(maxDate.getMonth() + 3);
+    const maxDateStartOfDay = new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate());
+    
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startingDayOfWeek = firstDay.getDay();
@@ -171,6 +176,7 @@ const PublicServiceAvailability: React.FC = () => {
       const date = new Date(year, month, day);
       const dateString = formatLocalDateAsYYYYMMDD(date);
       const isPast = date < todayStartOfDay;
+      const isTooFar = date > maxDateStartOfDay;
       const isToday = isSameDay(date, today);
       const isSelected = dateString === selectedDate;
 
@@ -178,6 +184,7 @@ const PublicServiceAvailability: React.FC = () => {
         date: dateString,
         day,
         isPast,
+        isTooFar,
         isToday,
         isSelected
       });
@@ -186,13 +193,48 @@ const PublicServiceAvailability: React.FC = () => {
     return days;
   };
 
+  const canNavigatePrev = () => {
+    const today = new Date();
+    const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const prevMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+    return prevMonth >= currentMonthStart;
+  };
+
+  const canNavigateNext = () => {
+    const today = new Date();
+    const maxMonth = new Date(today);
+    maxMonth.setMonth(maxMonth.getMonth() + 3);
+    const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+    const maxMonthStart = new Date(maxMonth.getFullYear(), maxMonth.getMonth(), 1);
+    return nextMonth <= maxMonthStart;
+  };
+
   const navigateMonth = (direction: 'prev' | 'next') => {
     setCurrentMonth(prev => {
       const newMonth = new Date(prev);
+      const today = new Date();
+      
       if (direction === 'prev') {
-        newMonth.setMonth(prev.getMonth() - 1);
+        // Don't go before current month
+        const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const prevMonth = new Date(prev.getFullYear(), prev.getMonth() - 1, 1);
+        if (prevMonth >= currentMonth) {
+          newMonth.setMonth(prev.getMonth() - 1);
+        } else {
+          return prev; // Don't change if would go to past
+        }
       } else {
-        newMonth.setMonth(prev.getMonth() + 1);
+        // Don't go beyond 3 months from today
+        const maxMonth = new Date(today);
+        maxMonth.setMonth(maxMonth.getMonth() + 3);
+        const nextMonth = new Date(prev.getFullYear(), prev.getMonth() + 1, 1);
+        const maxMonthStart = new Date(maxMonth.getFullYear(), maxMonth.getMonth(), 1);
+        
+        if (nextMonth <= maxMonthStart) {
+          newMonth.setMonth(prev.getMonth() + 1);
+        } else {
+          return prev; // Don't change if would go beyond 3 months
+        }
       }
       return newMonth;
     });
@@ -332,7 +374,8 @@ const PublicServiceAvailability: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => navigateMonth('prev')}
-                      className="p-2 text-gray-600 hover:text-gray-900"
+                      disabled={!canNavigatePrev()}
+                      className={`p-2 ${canNavigatePrev() ? 'text-gray-600 hover:text-gray-900' : 'text-gray-300 cursor-not-allowed'}`}
                     >
                       <ChevronLeftIcon className="h-5 w-5" />
                     </button>
@@ -341,7 +384,8 @@ const PublicServiceAvailability: React.FC = () => {
                     </span>
                     <button
                       onClick={() => navigateMonth('next')}
-                      className="p-2 text-gray-600 hover:text-gray-900"
+                      disabled={!canNavigateNext()}
+                      className={`p-2 ${canNavigateNext() ? 'text-gray-600 hover:text-gray-900' : 'text-gray-300 cursor-not-allowed'}`}
                     >
                       <ChevronRightIcon className="h-5 w-5" />
                     </button>
@@ -381,15 +425,15 @@ const PublicServiceAvailability: React.FC = () => {
                   {calendarDays.map((day, index) => (
                     <button
                       key={index}
-                      onClick={() => day && !day.isPast && setSelectedDate(day.date)}
-                      disabled={!day || day.isPast}
+                      onClick={() => day && !day.isPast && !day.isTooFar && setSelectedDate(day.date)}
+                      disabled={!day || day.isPast || day.isTooFar}
                       className={`
                         h-10 w-10 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center
                         ${!day ? 'invisible' : ''}
-                        ${day?.isPast ? 'text-gray-300 cursor-not-allowed' : ''}
+                        ${day?.isPast || day?.isTooFar ? 'text-gray-300 cursor-not-allowed' : ''}
                         ${day?.isSelected ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-200' : ''}
                         ${day?.isToday && !day?.isSelected ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-300' : ''}
-                        ${day && !day.isPast && !day.isSelected && !day.isToday ? 'text-gray-900 hover:bg-gray-100 hover:shadow-sm' : ''}
+                        ${day && !day.isPast && !day.isTooFar && !day.isSelected && !day.isToday ? 'text-gray-900 hover:bg-gray-100 hover:shadow-sm' : ''}
                       `}
                     >
                       {day?.day}

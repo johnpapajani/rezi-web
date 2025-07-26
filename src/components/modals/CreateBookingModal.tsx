@@ -235,13 +235,17 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
       newErrors['time'] = t('booking.create.errors.timeRequired');
     }
 
-    // Validate booking is not in the past
+    // Validate booking is not in the past and not too far in the future
     if (formData.date && formData.time) {
       const bookingDateTime = new Date(`${formData.date}T${formData.time}`);
       const now = new Date();
+      const maxDate = new Date(now);
+      maxDate.setMonth(maxDate.getMonth() + 3);
       
       if (bookingDateTime <= now) {
         newErrors['datetime'] = t('booking.create.errors.pastDateTime');
+      } else if (bookingDateTime > maxDate) {
+        newErrors['datetime'] = t('booking.create.errors.tooFarInFuture');
       } else {
         // Validate service hours if date/time is valid
         const serviceHoursError = validateServiceHours(formData.date, formData.time);
@@ -325,6 +329,13 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   const getTodayDate = () => {
     const today = new Date();
     return today.toISOString().split('T')[0];
+  };
+
+  const getMaxDate = () => {
+    const today = new Date();
+    const maxDate = new Date(today);
+    maxDate.setMonth(maxDate.getMonth() + 3);
+    return maxDate.toISOString().split('T')[0];
   };
 
   const getCurrentTime = () => {
@@ -521,6 +532,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
                   <input
                     type="date"
                     min={getTodayDate()}
+                    max={getMaxDate()}
                     value={formData.date}
                     onChange={(e) => handleInputChange('date', e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
