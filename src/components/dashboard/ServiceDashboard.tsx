@@ -173,17 +173,23 @@ const ServiceDashboard: React.FC = () => {
 
   // Load calendar bookings for calendar view
   useEffect(() => {
-    if (currentTab === 'bookings' && bookingView === 'calendar' && bizId) {
+    if (currentTab === 'bookings' && bizId) {
+      // Fetch bookings from 3 months ago to 3 months ahead to see past and future bookings
       const today = new Date();
-      const oneMonthFromNow = new Date();
-      oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      const threeMonthsFromNow = new Date();
+      threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
       
-      fetchCalendarBookings(
-        today.toISOString().split('T')[0],
-        oneMonthFromNow.toISOString().split('T')[0]
-      );
+      // Format dates as ISO strings for the API
+      const dateFrom = threeMonthsAgo.toISOString().split('T')[0];
+      const dateTo = threeMonthsFromNow.toISOString().split('T')[0];
+      
+      console.log('Fetching calendar bookings for date range:', dateFrom, 'to', dateTo);
+      
+      fetchCalendarBookings(dateFrom, dateTo);
     }
-  }, [currentTab, bookingView, bizId, fetchCalendarBookings]);
+  }, [currentTab, bizId, fetchCalendarBookings]);
 
   // Apply booking filters
   useEffect(() => {
@@ -1019,12 +1025,12 @@ const ServiceDashboard: React.FC = () => {
                                 ? 'bg-yellow-100 text-yellow-800'
                                 : booking.status === 'confirmed'
                                 ? 'bg-green-100 text-green-800'
-                                : booking.status === 'cancelled'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {t(`bookingStatus.${booking.status}`)}
-                            </span>
+                                :                                booking.status === 'cancelled'
+                               ? 'bg-red-100 text-red-800'
+                               : 'bg-gray-100 text-gray-800'
+                             }`}>
+                               {t(`bookings.list.filters.${booking.status}`)}
+                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                          <button
@@ -1091,7 +1097,7 @@ const ServiceDashboard: React.FC = () => {
              </div>
            ) : (
              <BusinessBookingsCalendar
-               bookings={calendarBookings}
+               bookings={calendarBookings.length > 0 ? calendarBookings : bookings}
                businessTimezone={business?.timezone}
                onBookingClick={(booking: BookingWithService) => setSelectedBooking(booking)}
              />
@@ -1176,13 +1182,27 @@ const ServiceDashboard: React.FC = () => {
                                  {selectedBooking.status === 'pending' && (
                    <div className="flex justify-end space-x-3">
                      <button
-                       onClick={() => updateBookingStatus(selectedBooking.id, { status: BookingStatus.confirmed })}
+                       onClick={async () => {
+                         try {
+                           const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.confirmed });
+                           setSelectedBooking(updatedBooking);
+                         } catch (error) {
+                           console.error('Failed to update booking status:', error);
+                         }
+                       }}
                        className="px-6 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                      >
                        <CheckCircleIcon className="w-4 h-4 mr-2" /> {t('common.confirm')}
                      </button>
                      <button
-                       onClick={() => updateBookingStatus(selectedBooking.id, { status: BookingStatus.cancelled })}
+                       onClick={async () => {
+                         try {
+                           const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.cancelled });
+                           setSelectedBooking(updatedBooking);
+                         } catch (error) {
+                           console.error('Failed to update booking status:', error);
+                         }
+                       }}
                        className="px-6 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                      >
                        <XMarkIcon className="w-4 h-4 mr-2" /> {t('common.cancel')}
@@ -1192,7 +1212,14 @@ const ServiceDashboard: React.FC = () => {
                  {selectedBooking.status === 'confirmed' && (
                    <div className="flex justify-end space-x-3">
                      <button
-                       onClick={() => updateBookingStatus(selectedBooking.id, { status: BookingStatus.completed })}
+                       onClick={async () => {
+                         try {
+                           const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.completed });
+                           setSelectedBooking(updatedBooking);
+                         } catch (error) {
+                           console.error('Failed to update booking status:', error);
+                         }
+                       }}
                        className="px-6 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
                      >
                        <CheckCircleIcon className="w-4 h-4 mr-2" /> {t('common.complete')}
@@ -1202,7 +1229,14 @@ const ServiceDashboard: React.FC = () => {
                  {selectedBooking.status === 'cancelled' && (
                    <div className="flex justify-end space-x-3">
                      <button
-                       onClick={() => updateBookingStatus(selectedBooking.id, { status: BookingStatus.pending })}
+                       onClick={async () => {
+                         try {
+                           const updatedBooking = await updateBookingStatus(selectedBooking.id, { status: BookingStatus.pending });
+                           setSelectedBooking(updatedBooking);
+                         } catch (error) {
+                           console.error('Failed to update booking status:', error);
+                         }
+                       }}
                        className="px-6 py-2 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
                      >
                        <ArrowRightIcon className="w-4 h-4 mr-2" /> {t('common.reopen')}

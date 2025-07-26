@@ -523,6 +523,7 @@ export const translations: Translations = {
     'bookings.list.filters.completed': 'Të përfunduara',
     'bookings.list.filters.cancelled': 'Të anuluara',
     'bookings.list.filters.noShow': 'Pa u paraqitur',
+    'bookings.list.filters.no_show': 'Pa u paraqitur',
     'bookings.list.filters.rescheduled': 'Të riplanifikuara',
     'bookings.list.stats.totalBookings': 'Totali Rezervimeve',
     'bookings.list.stats.confirmed': 'Të Konfirmuara',
@@ -934,6 +935,8 @@ export const translations: Translations = {
     'common.reopen': 'Rihap',
     'common.person': 'person',
     'common.people': 'persona',
+    'common.debug': 'Debug',
+    'common.loaded': 'ngarkuar',
 
     // Business User Guide
     'guide.title': 'Udhëzuesi i Biznesit',
@@ -2432,6 +2435,8 @@ export const translations: Translations = {
     'common.reopen': 'Reopen',
     'common.person': 'person',
     'common.people': 'people',
+    'common.debug': 'Debug',
+    'common.loaded': 'loaded',
 
     // Business User Guide
     'guide.title': 'Business User Guide',
@@ -3185,6 +3190,7 @@ export const translations: Translations = {
     'bookings.list.filters.completed': 'Completed',
     'bookings.list.filters.cancelled': 'Cancelled',
     'bookings.list.filters.noShow': 'No Show',
+    'bookings.list.filters.no_show': 'No Show',
     'bookings.list.filters.rescheduled': 'Rescheduled',
     'bookings.list.stats.totalBookings': 'Total Bookings',
     'bookings.list.stats.confirmed': 'Confirmed',
