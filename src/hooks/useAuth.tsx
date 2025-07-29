@@ -51,6 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       locale: response.locale,
       is_active: response.is_active,
       email_verified: response.email_verified,
+      subscription_tier: response.subscription_tier,
     };
 
     setUser(userData);

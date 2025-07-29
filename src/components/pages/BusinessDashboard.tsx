@@ -36,6 +36,7 @@ import { useServices } from '../../hooks/useServices';
 import UpcomingBookings from '../dashboard/UpcomingBookings';
 import { BookingStatus, Table, TableCreate, TableUpdate, BookingWithService, BusinessUpdate } from '../../types';
 import ResourceManagement from './ResourceManagement';
+import SubscriptionManagement from '../subscription/SubscriptionManagement';
 
 // Wrapper components that remove headers
 const BookingListWrapper: React.FC = () => {
@@ -595,6 +596,11 @@ const SettingsWrapper: React.FC = () => {
           </button>
         </div>
       </form>
+
+      {/* Subscription Management Section */}
+      <div className="mt-8">
+        <SubscriptionManagement />
+      </div>
     </div>
   );
 };

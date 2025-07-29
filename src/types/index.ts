@@ -53,6 +53,7 @@ export interface User {
   locale: string;
   is_active: boolean;
   email_verified: boolean; // Required field to match backend UserResponse
+  subscription_tier?: string;
 }
 
 export interface AuthResponse {
@@ -66,6 +67,7 @@ export interface AuthResponse {
   locale: string;
   is_active: boolean;
   email_verified: boolean; // Required field to match backend UserResponse
+  subscription_tier?: string;
 }
 
 export interface SignUpData {
@@ -469,4 +471,65 @@ export interface ResourceUpdate {
   seats?: number;
   merge_group?: string;
   is_active?: boolean;
+}
+
+// Subscription types
+export enum SubscriptionTier {
+  BASIC = 'basic',
+  STANDARD = 'standard',
+  PREMIUM = 'premium'
+}
+
+export enum SubscriptionStatus {
+  ACTIVE = 'active',
+  PAST_DUE = 'past_due',
+  CANCELED = 'canceled',
+  TRIALING = 'trialing',
+  INCOMPLETE = 'incomplete',
+  INCOMPLETE_EXPIRED = 'incomplete_expired'
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  features: string[];
+  interval: string;
+  trial_days?: number;
+  tier?: string;
+}
+
+export interface SubscriptionPlans {
+  [productId: string]: SubscriptionPlan[];
+}
+
+export interface SubscriptionCreate {
+  plan_id: string;
+  payment_method_id: string;
+}
+
+export interface Subscription {
+  id: number;
+  user_id: number;
+  plan_id: string;
+  status: SubscriptionStatus;
+  tier: string;
+  current_period_start?: Date;
+  current_period_end?: Date;
+  cancel_at_period_end: boolean;
+  created_at: Date;
+}
+
+export interface SubscriptionWithPrice extends Subscription {
+  price?: number;
+  interval?: string;
+  plan_name?: string;
+  features?: string[];
+}
+
+export interface SubscriptionUpdate {
+  plan_id?: string;
+  payment_method_id?: string;
+  cancel_at_period_end?: boolean;
 } 

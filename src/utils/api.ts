@@ -41,7 +41,13 @@ import {
   ServiceOpenIntervalCreate, 
   AvailabilityMatrix, 
   ServiceCategory, 
-  ServiceCategoryLocalized 
+  ServiceCategoryLocalized,
+  SubscriptionPlans,
+  SubscriptionPlan,
+  SubscriptionCreate,
+  Subscription,
+  SubscriptionWithPrice,
+  SubscriptionUpdate
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
@@ -1213,5 +1219,76 @@ export const publicApi = {
     });
     
     return handleResponse<BookingWithService>(response);
+  },
+};
+
+// Subscription API
+export const subscriptionApi = {
+  // Get all available subscription plans
+  getPlans: async (): Promise<SubscriptionPlans> => {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/plans`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<SubscriptionPlans>(response);
+  },
+
+  // Create a new subscription
+  createSubscription: async (subscriptionData: SubscriptionCreate): Promise<Subscription> => {
+    const response = await fetch(`${API_BASE_URL}/subscriptions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${tokenStorage.getAccessToken()}`,
+      },
+      body: JSON.stringify(subscriptionData),
+    });
+    
+    return handleResponse<Subscription>(response);
+  },
+
+  // Get current user's subscription
+  getCurrentSubscription: async (): Promise<SubscriptionWithPrice> => {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${tokenStorage.getAccessToken()}`,
+      },
+    });
+    
+    return handleResponse<SubscriptionWithPrice>(response);
+  },
+
+  // Update current subscription
+  updateSubscription: async (subscriptionUpdate: SubscriptionUpdate): Promise<Subscription> => {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/me`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${tokenStorage.getAccessToken()}`,
+      },
+      body: JSON.stringify(subscriptionUpdate),
+    });
+    
+    return handleResponse<Subscription>(response);
+  },
+
+  // Cancel current subscription
+  cancelSubscription: async (): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/me`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${tokenStorage.getAccessToken()}`,
+      },
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new ApiErrorClass(errorData.detail || 'Failed to cancel subscription', response.status);
+    }
   },
 }; 

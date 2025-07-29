@@ -11,11 +11,14 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useUserBusinesses } from '../../hooks/useUserBusinesses';
+import { BusinessRole } from '../../types';
 import { mapAuthErrorToTranslationKey, ApiErrorInfo } from '../../utils/errorUtils';
 
 const SignUp: React.FC = () => {
-  const { signUp, isLoading, error, clearError, isAuthenticated } = useAuth();
+  const { signUp, isLoading, error, clearError, isAuthenticated, user } = useAuth();
   const { t, currentLanguage } = useTranslation();
+  const { businesses, loading: businessesLoading } = useUserBusinesses();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -29,12 +32,21 @@ const SignUp: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
-  // Redirect if already authenticated
+  // Redirect logic for authenticated users
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
+    if (isAuthenticated && !businessesLoading) {
+      // Check if user is a business owner and needs subscription
+      const isBusinessOwner = businesses.some(business => business.role === BusinessRole.owner);
+      
+      if (isBusinessOwner && !user?.subscription_tier) {
+        // Owner without subscription - redirect to subscription plans
+        navigate('/subscription-plans');
+      } else {
+        // Regular user or owner with subscription - redirect to dashboard
+        navigate('/dashboard');
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, businessesLoading, businesses, user, navigate]);
 
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
@@ -87,6 +99,7 @@ const SignUp: React.FC = () => {
         is_active: true,
       });
       // Redirect will happen automatically due to isAuthenticated effect
+      // The useEffect will handle redirecting to subscription plans if needed
     } catch (err) {
       // Error is handled by the auth context
     }

@@ -34,6 +34,7 @@ import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsOfService from './components/pages/TermsOfService';
 import CookiePolicy from './components/pages/CookiePolicy';
 import HelpPage from './components/pages/HelpPage';
+import SubscriptionPlans from './components/pages/SubscriptionPlans';
 
 function App() {
   return (
@@ -57,6 +58,16 @@ function App() {
                 } 
               />
               <Route path="/guide" element={<BusinessUserGuide />} />
+              
+              {/* Subscription Route */}
+              <Route 
+                path="/subscription-plans" 
+                element={
+                  <ProtectedRoute>
+                    <SubscriptionPlans />
+                  </ProtectedRoute>
+                } 
+              />
               
               {/* Legal Pages */}
               <Route path="/privacy" element={<PrivacyPolicy />} />
