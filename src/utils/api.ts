@@ -1,4 +1,44 @@
-import { AuthResponse, SignUpData, SignInData, ApiError, LogoutResponse, Business, BusinessUpdate, BusinessWithRole, BusinessCreate, QRCodeResponse, Service, ServiceCreate, ServiceUpdate, ServiceWithTables, Booking, BookingWithService, BookingUpdate, BookingFilters, BookingStatusUpdate, BookingReschedule, BookingCreate, DailyBookingSummary, BookingAnalytics, Table, TableCreate, TableUpdate, Resource, ResourceCreate, ResourceUpdate, ServiceWithOpenIntervals, ServiceOpenInterval, ServiceOpenIntervalCreate, AvailabilityMatrix, ServiceCategory, ServiceCategoryLocalized } from '../types';
+import { 
+  User,
+  AuthResponse, 
+  SignUpData, 
+  SignInData, 
+  ApiError, 
+  LogoutResponse,
+  SendVerificationEmailResponse,
+  VerifyEmailRequest,
+  VerifyEmailResponse,
+  Business, 
+  BusinessUpdate, 
+  BusinessWithRole, 
+  BusinessCreate, 
+  QRCodeResponse, 
+  Service, 
+  ServiceCreate, 
+  ServiceUpdate, 
+  ServiceWithTables, 
+  Booking, 
+  BookingWithService, 
+  BookingUpdate, 
+  BookingFilters, 
+  BookingStatusUpdate, 
+  BookingReschedule, 
+  BookingCreate, 
+  DailyBookingSummary, 
+  BookingAnalytics, 
+  Table, 
+  TableCreate, 
+  TableUpdate, 
+  Resource, 
+  ResourceCreate, 
+  ResourceUpdate, 
+  ServiceWithOpenIntervals, 
+  ServiceOpenInterval, 
+  ServiceOpenIntervalCreate, 
+  AvailabilityMatrix, 
+  ServiceCategory, 
+  ServiceCategoryLocalized 
+} from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
 
@@ -104,6 +144,30 @@ export const authApi = {
     });
     
     return handleResponse<LogoutResponse>(response);
+  },
+
+  sendVerificationEmail: async (accessToken: string): Promise<SendVerificationEmailResponse> => {
+    const response = await fetch(`${API_BASE_URL}/auth/send-verification-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+    
+    return handleResponse<SendVerificationEmailResponse>(response);
+  },
+
+  verifyEmail: async (data: VerifyEmailRequest): Promise<VerifyEmailResponse> => {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    return handleResponse<VerifyEmailResponse>(response);
   },
 };
 

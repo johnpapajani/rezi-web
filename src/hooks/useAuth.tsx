@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthResponse, SignUpData, SignInData } from '../types';
+import { User, AuthResponse, SignUpData, SignInData, SendVerificationEmailResponse, VerifyEmailRequest, VerifyEmailResponse } from '../types';
 import { authApi, tokenStorage } from '../utils/api';
 
 interface AuthContextType {
@@ -9,6 +9,8 @@ interface AuthContextType {
   signUp: (data: SignUpData) => Promise<void>;
   signIn: (data: SignInData) => Promise<void>;
   signOut: () => void;
+  sendVerificationEmail: () => Promise<SendVerificationEmailResponse>;
+  verifyEmail: (data: VerifyEmailRequest) => Promise<VerifyEmailResponse>;
   error: string | null;
   clearError: () => void;
 }
@@ -46,6 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       phone: response.phone,
       locale: response.locale,
       is_active: response.is_active,
+      email_verified: response.email_verified,
     };
 
     setUser(userData);
@@ -93,6 +96,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const sendVerificationEmail = async (): Promise<SendVerificationEmailResponse> => {
+    try {
+      setError(null);
+      const accessToken = tokenStorage.getAccessToken();
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
+      return await authApi.sendVerificationEmail(accessToken);
+    } catch (err: any) {
+      const errorInfo = {
+        detail: err.detail || 'Failed to send verification email',
+        status: err.status,
+        endpoint: '/auth/send-verification-email'
+      };
+      setError(JSON.stringify(errorInfo));
+      throw err;
+    }
+  };
+
+  const verifyEmail = async (data: VerifyEmailRequest): Promise<VerifyEmailResponse> => {
+    try {
+      setError(null);
+      const response = await authApi.verifyEmail(data);
+      
+      // Update user's email_verified status
+      if (user) {
+        const updatedUser = { ...user, email_verified: true };
+        setUser(updatedUser);
+        tokenStorage.setUser(updatedUser);
+      }
+      
+      return response;
+    } catch (err: any) {
+      const errorInfo = {
+        detail: err.detail || 'Email verification failed',
+        status: err.status,
+        endpoint: '/auth/verify-email'
+      };
+      setError(JSON.stringify(errorInfo));
+      throw err;
+    }
+  };
+
   const signOut = async () => {
     try {
       const refreshToken = tokenStorage.getRefreshToken();
@@ -128,6 +174,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signUp,
     signIn,
     signOut,
+    sendVerificationEmail,
+    verifyEmail,
     error,
     clearError,
   };

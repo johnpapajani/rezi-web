@@ -5,6 +5,8 @@ import { AuthProvider } from './hooks/useAuth';
 import LandingPage from './components/pages/LandingPage';
 import SignUp from './components/auth/SignUp';
 import SignIn from './components/auth/SignIn';
+import VerifyEmail from './components/auth/VerifyEmail';
+import EmailVerificationRequired from './components/auth/EmailVerificationRequired';
 import Dashboard from './components/dashboard/Dashboard';
 import ServiceDashboard from './components/dashboard/ServiceDashboard';
 import ServiceManagementDashboard from './components/pages/ServiceManagementDashboard';
@@ -17,6 +19,7 @@ import BusinessList from './components/pages/BusinessList';
 import BookingList from './components/pages/BookingList';
 import ServiceSelection from './components/pages/ServiceSelection';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import EmailVerifiedRoute from './components/auth/EmailVerifiedRoute';
 import QRCodeView from './components/business/QRCodeView';
 import PublicBusinessPage from './components/pages/PublicBusinessPage';
 import PublicServiceAvailability from './components/pages/PublicServiceAvailability';
@@ -39,6 +42,15 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/signin" element={<SignIn />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route 
+                path="/verify-email-required" 
+                element={
+                  <ProtectedRoute>
+                    <EmailVerificationRequired />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/guide" element={<BusinessUserGuide />} />
               
               {/* Legal Pages */}
@@ -56,89 +68,89 @@ function App() {
               <Route 
                 path="/onboarding" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <BusinessOnboarding />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               <Route 
                 path="/dashboard" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <Dashboard />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               <Route 
                 path="/business/:bizId" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <ServiceDashboard />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               <Route 
                 path="/service/:serviceId" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <ServiceManagementDashboard />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               <Route 
                 path="/service/:serviceId/open-intervals" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <ServiceOpenIntervalsManagement />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               <Route 
                 path="/businesses" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <BusinessList />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               <Route 
                 path="/business/create" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <BusinessOnboarding />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               <Route 
                 path="/business/:bizId/qr" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <QRCodeView />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               <Route 
                 path="/business/:bizId/select-service" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <ServiceSelection />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               <Route 
                 path="/business/:bizId/services" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <ServiceManagement />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               <Route 
                 path="/business/:bizId/*" 
                 element={
-                  <ProtectedRoute>
+                  <EmailVerifiedRoute>
                     <BusinessDashboard />
-                  </ProtectedRoute>
+                  </EmailVerifiedRoute>
                 } 
               />
               {/* Redirect any unknown routes to home */}

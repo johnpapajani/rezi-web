@@ -52,6 +52,7 @@ export interface User {
   phone?: string;
   locale: string;
   is_active: boolean;
+  email_verified: boolean; // Required field to match backend UserResponse
 }
 
 export interface AuthResponse {
@@ -64,6 +65,7 @@ export interface AuthResponse {
   phone?: string;
   locale: string;
   is_active: boolean;
+  email_verified: boolean; // Required field to match backend UserResponse
 }
 
 export interface SignUpData {
@@ -86,6 +88,21 @@ export interface ApiError {
 
 export interface LogoutResponse {
   message: string;
+}
+
+// Email verification types
+export interface SendVerificationEmailResponse {
+  message: string;
+  email: string;
+}
+
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+export interface VerifyEmailResponse {
+  message: string;
+  email_verified: boolean;
 }
 
 // Business types
