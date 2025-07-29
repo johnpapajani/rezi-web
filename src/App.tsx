@@ -28,6 +28,7 @@ import PublicServiceAvailability from './components/pages/PublicServiceAvailabil
 import PublicBookingForm from './components/pages/PublicBookingForm';
 import PublicBookingConfirmation from './components/pages/PublicBookingConfirmation';
 import PublicBookingSearch from './components/pages/PublicBookingSearch';
+import BookingDetails from './components/pages/BookingDetails';
 import BusinessUserGuide from './components/pages/BusinessUserGuide';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsOfService from './components/pages/TermsOfService';
@@ -69,6 +70,10 @@ function App() {
               <Route path="/book/:slug/service/:serviceId/booking" element={<PublicBookingForm />} />
               <Route path="/book/confirmation/:bookingId" element={<PublicBookingConfirmation />} />
               <Route path="/booking-search" element={<PublicBookingSearch />} />
+              
+              {/* Business Booking Management */}
+              <Route path="/bookings/:bookingId" element={<BookingDetails />} />
+              
               <Route 
                 path="/onboarding" 
                 element={

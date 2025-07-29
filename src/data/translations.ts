@@ -231,6 +231,7 @@ export const translations: Translations = {
     'auth.signUp.submitting': 'Duke u regjistruar...',
 
     // Sign In
+    'auth.signIn': 'Hyr',
     'auth.signIn.title': 'Hyr në Llogari',
     'auth.signIn.subtitle': 'Nuk ke llogari ende?',
     'auth.signIn.signUpLink': 'Regjistrohu këtu',
@@ -636,7 +637,9 @@ export const translations: Translations = {
 
     // Booking Details Modal
     'bookings.details.title': 'Detajet e Rezervimit',
+    'bookings.details.subtitle': 'Rezervimi',
     'bookings.details.customer': 'Klienti',
+    'bookings.details.customerInfo': 'Informacioni i Klientit',
     'bookings.details.phone': 'Telefoni',
     'bookings.details.email': 'Email-i',
     'bookings.details.dateTime': 'Data & Ora',
@@ -645,6 +648,21 @@ export const translations: Translations = {
     'bookings.details.status': 'Statusi',
     'bookings.details.close': 'Mbyll',
     'bookings.details.guests': 'mysafirë',
+    'bookings.details.invalidId': 'ID rezervimi jo e vlefshme',
+    'bookings.details.fetchError': 'Gabim në ngarkimin e detajeve të rezervimit',
+    'bookings.details.updateError': 'Gabim në përditësimin e rezervimit',
+    'bookings.details.errorTitle': 'Gabim në Ngarkimin e Rezervimit',
+    'bookings.details.goToDashboard': 'Shko te Paneli',
+    'bookings.details.viewAllBookings': 'Shiko të Gjitha Rezervimet',
+    'bookings.details.bookingInfo': 'Informacioni i Rezervimit',
+    'bookings.details.duration': 'Kohëzgjatja',
+    'bookings.details.price': 'Çmimi',
+    'bookings.details.notes': 'Shënime',
+    'bookings.details.businessInfo': 'Informacioni i Biznesit',
+    'bookings.details.manageBusiness': 'Menaxho Biznesin',
+    'bookings.details.authRequired': 'Identifikimi i Nevojshëm',
+    'bookings.details.authRequiredDesc': 'Për të menaxhuar këtë rezervim, ju duhet të identifikoheni si pronari i biznesit.',
+    'bookings.details.signInToManage': 'Identifikohuni si pronari i biznesit për të menaxhuar këtë rezervim.',
 
     // Business Onboarding
     'onboarding.title': 'Konfigurimi i Biznesit',
@@ -2094,6 +2112,7 @@ export const translations: Translations = {
     'auth.signUp.submitting': 'Signing up...',
 
     // Sign In
+    'auth.signIn': 'Sign In',
     'auth.signIn.title': 'Sign In',
     'auth.signIn.subtitle': "Don't have an account yet?",
     'auth.signIn.signUpLink': 'Sign up here',
@@ -3342,7 +3361,9 @@ export const translations: Translations = {
 
     // Booking Details Modal
     'bookings.details.title': 'Booking Details',
+    'bookings.details.subtitle': 'Booking',
     'bookings.details.customer': 'Customer',
+    'bookings.details.customerInfo': 'Customer Information',
     'bookings.details.phone': 'Phone',
     'bookings.details.email': 'Email',
     'bookings.details.dateTime': 'Date & Time',
@@ -3351,6 +3372,21 @@ export const translations: Translations = {
     'bookings.details.status': 'Status',
     'bookings.details.close': 'Close',
     'bookings.details.guests': 'guests',
+    'bookings.details.invalidId': 'Invalid booking ID',
+    'bookings.details.fetchError': 'Error loading booking details',
+    'bookings.details.updateError': 'Error updating booking',
+    'bookings.details.errorTitle': 'Error Loading Booking',
+    'bookings.details.goToDashboard': 'Go to Dashboard',
+    'bookings.details.viewAllBookings': 'View All Bookings',
+    'bookings.details.bookingInfo': 'Booking Information',
+    'bookings.details.duration': 'Duration',
+    'bookings.details.price': 'Price',
+    'bookings.details.notes': 'Notes',
+    'bookings.details.businessInfo': 'Business Information',
+    'bookings.details.manageBusiness': 'Manage Business',
+    'bookings.details.authRequired': 'Authentication Required',
+    'bookings.details.authRequiredDesc': 'To manage this booking, you need to sign in as the business owner.',
+    'bookings.details.signInToManage': 'Sign in as the business owner to manage this booking.',
 
     // Resources Dashboard
     'resources.dashboard.title': 'Resources Dashboard',
@@ -3954,6 +3990,7 @@ export const translations: Translations = {
     'auth.signUp.submitting': 'Iscrizione in corso...',
 
     // Sign In
+    'auth.signIn': 'Accedi',
     'auth.signIn.title': 'Accedi',
     'auth.signIn.subtitle': 'Non hai ancora un account?',
     'auth.signIn.signUpLink': 'Iscriviti qui',
@@ -5209,7 +5246,9 @@ export const translations: Translations = {
 
     // Booking Details Modal
     'bookings.details.title': 'Dettagli Prenotazione',
+    'bookings.details.subtitle': 'Prenotazione',
     'bookings.details.customer': 'Cliente',
+    'bookings.details.customerInfo': 'Informazioni Cliente',
     'bookings.details.phone': 'Telefono',
     'bookings.details.email': 'Email',
     'bookings.details.dateTime': 'Data e Ora',
@@ -5218,6 +5257,21 @@ export const translations: Translations = {
     'bookings.details.status': 'Stato',
     'bookings.details.close': 'Chiudi',
     'bookings.details.guests': 'ospiti',
+    'bookings.details.invalidId': 'ID prenotazione non valido',
+    'bookings.details.fetchError': 'Errore nel caricamento dei dettagli della prenotazione',
+    'bookings.details.updateError': 'Errore nell\'aggiornamento della prenotazione',
+    'bookings.details.errorTitle': 'Errore nel Caricamento della Prenotazione',
+    'bookings.details.goToDashboard': 'Vai alla Dashboard',
+    'bookings.details.viewAllBookings': 'Visualizza Tutte le Prenotazioni',
+    'bookings.details.bookingInfo': 'Informazioni Prenotazione',
+    'bookings.details.duration': 'Durata',
+    'bookings.details.price': 'Prezzo',
+    'bookings.details.notes': 'Note',
+    'bookings.details.businessInfo': 'Informazioni Attività',
+    'bookings.details.manageBusiness': 'Gestisci Attività',
+    'bookings.details.authRequired': 'Autenticazione Richiesta',
+    'bookings.details.authRequiredDesc': 'Per gestire questa prenotazione, devi accedere come proprietario dell\'attività.',
+    'bookings.details.signInToManage': 'Accedi come proprietario dell\'attività per gestire questa prenotazione.',
 
     // Resources Dashboard
     'resources.dashboard.title': 'Dashboard Risorse',
