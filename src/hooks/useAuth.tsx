@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthResponse, SignUpData, SignInData, SendVerificationEmailResponse, VerifyEmailRequest, VerifyEmailResponse } from '../types';
+import { User, AuthResponse, SignUpData, SignInData, SendVerificationEmailResponse, VerifyEmailRequest, VerifyEmailResponse, ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse } from '../types';
 import { authApi, tokenStorage } from '../utils/api';
 
 interface AuthContextType {
@@ -11,6 +11,8 @@ interface AuthContextType {
   signOut: () => void;
   sendVerificationEmail: () => Promise<SendVerificationEmailResponse>;
   verifyEmail: (data: VerifyEmailRequest) => Promise<VerifyEmailResponse>;
+  forgotPassword: (data: ForgotPasswordRequest) => Promise<ForgotPasswordResponse>;
+  resetPassword: (data: ResetPasswordRequest) => Promise<ResetPasswordResponse>;
   error: string | null;
   clearError: () => void;
 }
@@ -139,6 +141,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const forgotPassword = async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
+    try {
+      setError(null);
+      return await authApi.forgotPassword(data);
+    } catch (err: any) {
+      const errorInfo = {
+        detail: err.detail || 'Failed to send password reset email',
+        status: err.status,
+        endpoint: '/auth/forgot-password'
+      };
+      setError(JSON.stringify(errorInfo));
+      throw err;
+    }
+  };
+
+  const resetPassword = async (data: ResetPasswordRequest): Promise<ResetPasswordResponse> => {
+    try {
+      setError(null);
+      return await authApi.resetPassword(data);
+    } catch (err: any) {
+      const errorInfo = {
+        detail: err.detail || 'Password reset failed',
+        status: err.status,
+        endpoint: '/auth/reset-password'
+      };
+      setError(JSON.stringify(errorInfo));
+      throw err;
+    }
+  };
+
   const signOut = async () => {
     try {
       const refreshToken = tokenStorage.getRefreshToken();
@@ -176,6 +208,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signOut,
     sendVerificationEmail,
     verifyEmail,
+    forgotPassword,
+    resetPassword,
     error,
     clearError,
   };

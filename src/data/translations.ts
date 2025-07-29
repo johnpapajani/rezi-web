@@ -260,6 +260,26 @@ export const translations: Translations = {
     'auth.emailVerification.redirectingToDashboard': 'Do të ridrejtohesh në dashboard për pak sekonda...',
     'auth.emailVerification.redirectingToSignIn': 'Do të ridrejtohesh në faqen e kyçjes për pak sekonda...',
 
+    // Forgot Password
+    'auth.forgotPassword.title': 'Rivendos Fjalëkalimin',
+    'auth.forgotPassword.subtitle': 'Shkruaj email-in tënd dhe do të të dërgojmë një link për rivendosjen e fjalëkalimit.',
+    'auth.forgotPassword.submit': 'Dërgo Link-un',
+    'auth.forgotPassword.submitting': 'Duke dërguar...',
+    'auth.forgotPassword.success': 'Nëse email-i ekziston, do të dërgohet linku për rivendosjen e fjalëkalimit.',
+    'auth.forgotPassword.backToSignIn': 'Kthehu në Kyçje',
+
+    // Reset Password
+    'auth.resetPassword.title': 'Krijoni Fjalëkalim të Ri',
+    'auth.resetPassword.subtitle': 'Shkruani fjalëkalimin tuaj të ri më poshtë.',
+    'auth.resetPassword.newPassword': 'Fjalëkalimi i Ri',
+    'auth.resetPassword.confirmPassword': 'Konfirmo Fjalëkalimin e Ri',
+    'auth.resetPassword.submit': 'Rivendos Fjalëkalimin',
+    'auth.resetPassword.submitting': 'Duke rivendosur...',
+    'auth.resetPassword.success': 'Fjalëkalimi u rivendos me sukses! Ju lutemi kyçuni me fjalëkalimin e ri.',
+    'auth.resetPassword.backToSignIn': 'Kthehu në Kyçje',
+    'auth.resetPassword.tokenExpired': 'Tokeni për rivendosjen e fjalëkalimit ka skaduar. Ju lutemi kërkoni një të ri.',
+    'auth.resetPassword.tokenInvalid': 'Tokeni për rivendosjen e fjalëkalimit është i pavlefshëm.',
+
     // Errors
     'auth.errors.nameRequired': 'Emri është i detyrueshëm',
     'auth.errors.emailRequired': 'Email-i është i detyrueshëm',
@@ -821,7 +841,7 @@ export const translations: Translations = {
     'serviceManagement.recentBookings.guests': 'mysafirë',
     'serviceManagement.tables.title': 'Njësitë',
     'serviceManagement.tables.manageTables': 'Menaxho Njësitë',
-    'serviceManagement.tables.noTables': 'Ende nuk ka njësi të konfigururara',
+    'serviceManagement.tables.noTables': 'Ende nuk ka njësi të konfigurarara',
     'serviceManagement.tables.seats': 'vende',
     'serviceManagement.bookingsManagement.title': 'Menaxhimi i Rezervimeve për Shërbimin',
     'serviceManagement.bookingsManagement.description': 'Menaxho të gjitha rezervimet për këtë shërbim.',
@@ -2103,6 +2123,26 @@ export const translations: Translations = {
     'auth.emailVerification.redirectingToDashboard': 'You will be redirected to the dashboard in a few seconds...',
     'auth.emailVerification.redirectingToSignIn': 'You will be redirected to the sign-in page in a few seconds...',
 
+    // Forgot Password
+    'auth.forgotPassword.title': 'Reset Password',
+    'auth.forgotPassword.subtitle': 'Enter your email address and we\'ll send you a link to reset your password.',
+    'auth.forgotPassword.submit': 'Send Reset Link',
+    'auth.forgotPassword.submitting': 'Sending...',
+    'auth.forgotPassword.success': 'If the email exists, a password reset link will be sent.',
+    'auth.forgotPassword.backToSignIn': 'Back to Sign In',
+
+    // Reset Password
+    'auth.resetPassword.title': 'Create New Password',
+    'auth.resetPassword.subtitle': 'Enter your new password below.',
+    'auth.resetPassword.newPassword': 'New Password',
+    'auth.resetPassword.confirmPassword': 'Confirm New Password',
+    'auth.resetPassword.submit': 'Reset Password',
+    'auth.resetPassword.submitting': 'Resetting...',
+    'auth.resetPassword.success': 'Password reset successfully! Please sign in with your new password.',
+    'auth.resetPassword.backToSignIn': 'Back to Sign In',
+    'auth.resetPassword.tokenExpired': 'Password reset token has expired. Please request a new one.',
+    'auth.resetPassword.tokenInvalid': 'Password reset token is invalid.',
+
     // Errors
     'auth.errors.nameRequired': 'Name is required',
     'auth.errors.emailRequired': 'Email is required',
@@ -2403,10 +2443,6 @@ export const translations: Translations = {
     'serviceManagement.settings.advanced.category.placeholder': 'Select category...',
     'serviceManagement.loadingCategories': 'Loading categories...',
     'serviceManagement.settings.advanced.status': 'Service Status',
-    'serviceManagement.settings.advanced.active': 'Active',
-    'serviceManagement.settings.advanced.inactive': 'Inactive',
-    'serviceManagement.settings.advanced.active.help': 'Customers can book this service',
-    'serviceManagement.settings.advanced.inactive.help': 'Service is hidden from customers',
     'serviceManagement.settings.save': 'Save Changes',
     'serviceManagement.settings.saving': 'Saving...',
     'serviceManagement.settings.success': 'Service settings updated successfully',
@@ -3946,6 +3982,26 @@ export const translations: Translations = {
     'auth.emailVerification.backToHome': 'Torna alla Home',
     'auth.emailVerification.redirectingToDashboard': 'Sarai reindirizzato alla dashboard in pochi secondi...',
     'auth.emailVerification.redirectingToSignIn': 'Sarai reindirizzato alla pagina di accesso in pochi secondi...',
+
+    // Forgot Password
+    'auth.forgotPassword.title': 'Reimposta Password',
+    'auth.forgotPassword.subtitle': 'Inserisci il tuo indirizzo email e ti invieremo un link per reimpostare la password.',
+    'auth.forgotPassword.submit': 'Invia Link di Reset',
+    'auth.forgotPassword.submitting': 'Invio...',
+    'auth.forgotPassword.success': 'Se l\'email esiste, verrà inviato un link per reimpostare la password.',
+    'auth.forgotPassword.backToSignIn': 'Torna all\'Accesso',
+
+    // Reset Password
+    'auth.resetPassword.title': 'Crea Nuova Password',
+    'auth.resetPassword.subtitle': 'Inserisci la tua nuova password qui sotto.',
+    'auth.resetPassword.newPassword': 'Nuova Password',
+    'auth.resetPassword.confirmPassword': 'Conferma Nuova Password',
+    'auth.resetPassword.submit': 'Reimposta Password',
+    'auth.resetPassword.submitting': 'Reimpostazione...',
+    'auth.resetPassword.success': 'Password reimpostata con successo! Accedi con la tua nuova password.',
+    'auth.resetPassword.backToSignIn': 'Torna all\'Accesso',
+    'auth.resetPassword.tokenExpired': 'Il token per reimpostare la password è scaduto. Richiedine uno nuovo.',
+    'auth.resetPassword.tokenInvalid': 'Il token per reimpostare la password non è valido.',
 
     // Errors
     'auth.errors.nameRequired': 'Emri është i detyrueshëm',

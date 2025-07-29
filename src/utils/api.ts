@@ -8,6 +8,10 @@ import {
   SendVerificationEmailResponse,
   VerifyEmailRequest,
   VerifyEmailResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
   Business, 
   BusinessUpdate, 
   BusinessWithRole, 
@@ -168,6 +172,30 @@ export const authApi = {
     });
     
     return handleResponse<VerifyEmailResponse>(response);
+  },
+
+  forgotPassword: async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
+    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    return handleResponse<ForgotPasswordResponse>(response);
+  },
+
+  resetPassword: async (data: ResetPasswordRequest): Promise<ResetPasswordResponse> => {
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    return handleResponse<ResetPasswordResponse>(response);
   },
 };
 

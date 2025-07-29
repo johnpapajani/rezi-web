@@ -5,6 +5,8 @@ import { AuthProvider } from './hooks/useAuth';
 import LandingPage from './components/pages/LandingPage';
 import SignUp from './components/auth/SignUp';
 import SignIn from './components/auth/SignIn';
+import ForgotPassword from './components/auth/ForgotPassword';
+import ResetPassword from './components/auth/ResetPassword';
 import VerifyEmail from './components/auth/VerifyEmail';
 import EmailVerificationRequired from './components/auth/EmailVerificationRequired';
 import Dashboard from './components/dashboard/Dashboard';
@@ -42,6 +44,8 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/signin" element={<SignIn />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/verify-email" element={<VerifyEmail />} />
               <Route 
                 path="/verify-email-required" 

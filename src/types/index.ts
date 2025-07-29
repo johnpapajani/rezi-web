@@ -105,6 +105,25 @@ export interface VerifyEmailResponse {
   email_verified: boolean;
 }
 
+// Forgot/Reset Password types
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  new_password: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
 // Business types
 export interface Business {
   id: string;
