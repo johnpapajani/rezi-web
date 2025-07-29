@@ -31,6 +31,28 @@ export const mapAuthErrorToTranslationKey = (errorInfo: ApiErrorInfo): string =>
           // For login, 400 typically means invalid credentials
           return 'auth.errors.invalidCredentials';
         }
+        if (endpoint?.includes('/auth/reset-password')) {
+          // For password reset, 400 can mean various things
+          const detailLower = detail.toLowerCase();
+          if (detailLower.includes('skaduar') || detailLower.includes('expired')) {
+            return 'auth.resetPassword.tokenExpired';
+          }
+          if (detailLower.includes('pavlefshëm') || detailLower.includes('invalid')) {
+            return 'auth.resetPassword.tokenInvalid';
+          }
+          if (detailLower.includes('password') || detailLower.includes('fjalëkalim')) {
+            return 'auth.errors.passwordTooShort';
+          }
+          if (detailLower.includes('user') || detailLower.includes('përdorues')) {
+            return 'auth.errors.userNotFound';
+          }
+          // Generic password reset error
+          return 'auth.resetPassword.tokenInvalid';
+        }
+        if (endpoint?.includes('/auth/forgot-password')) {
+          // For forgot password, 400 typically means validation error
+          return 'auth.errors.emailInvalid';
+        }
         return 'auth.errors.invalidCredentials';
         
       case 401:
@@ -99,6 +121,12 @@ export const mapAuthErrorToTranslationKey = (errorInfo: ApiErrorInfo): string =>
   }
   if (endpoint?.includes('/auth/login')) {
     return 'auth.errors.signInFailed';
+  }
+  if (endpoint?.includes('/auth/reset-password')) {
+    return 'auth.resetPassword.tokenInvalid';
+  }
+  if (endpoint?.includes('/auth/forgot-password')) {
+    return 'auth.errors.emailInvalid';
   }
   
   // If all else fails, return a generic error key
