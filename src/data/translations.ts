@@ -1442,10 +1442,10 @@ export const translations: Translations = {
     'cookies.typesOfCookies.title': 'Llojet e Cookies që Përdorim',
     'cookies.typesOfCookies.essential.title': 'Cookies Thelbësore',
     'cookies.typesOfCookies.essential.description': 'Këto cookies janë të nevojshme për funksionimin bazik të platformës:',
-    'cookies.typesOfCookies.essential.authentication': 'Ruajtja e sesionit të hyrjes',
+    'cookies.typesOfCookies.essential.authentication': 'Ruajtja e eventit të hyrjes',
     'cookies.typesOfCookies.essential.security': 'Masat e sigurisë',
     'cookies.typesOfCookies.essential.language': 'Parapëlqimet e gjuhës',
-    'cookies.typesOfCookies.essential.session': 'Menaxhimi i sesionit',
+    'cookies.typesOfCookies.essential.session': 'Menaxhimi i eventit',
     'cookies.typesOfCookies.functional.title': 'Cookies Funksionale',
     'cookies.typesOfCookies.functional.description': 'Këto cookies përmirësojnë funksionalitetin dhe personalizojnë përvojën:',
     'cookies.typesOfCookies.functional.preferences': 'Ruajtja e parapëlqimeve tuaja',
@@ -1467,7 +1467,7 @@ export const translations: Translations = {
     'cookies.specificCookies.table.purpose': 'Qëllimi',
     'cookies.specificCookies.table.duration': 'Kohëzgjatja',
     'cookies.specificCookies.table.type': 'Lloji',
-    'cookies.specificCookies.table.sessionPurpose': 'Ruajtja e sesionit të përdoruesit',
+    'cookies.specificCookies.table.sessionPurpose': 'Ruajtja e eventit të përdoruesit',
     'cookies.specificCookies.table.sessionDuration': 'Deri në mbylljen e shfletuesit',
     'cookies.specificCookies.table.essential': 'Thelbësore',
     'cookies.specificCookies.table.languagePurpose': 'Ruajtja e parapëlqimit të gjuhës',
@@ -1796,6 +1796,35 @@ export const translations: Translations = {
     'public.availability.at': 'në orën',
     'public.availability.localTime': 'ora lokale',
 
+    // Session Selection Page
+    'public.sessions.selectSession': 'Zgjedh Sesionin',
+    'public.sessions.partySize': 'Numri i Personave',
+    'public.sessions.numberOfPeople': 'Numri i personave',
+    'public.sessions.person': 'person',
+    'public.sessions.people': 'persona',
+    'public.sessions.selectDate': 'Zgjedh Datën',
+    'public.sessions.today': 'Sot',
+    'public.sessions.tomorrow': 'Nesër',
+    'public.sessions.availableSessions': 'Sesionet e Disponueshme',
+    'public.sessions.noSessions': 'Nuk ka sesione të disponueshme',
+    'public.sessions.noSessionsDescription': 'Nuk ka sesione të planifikuara për këtë datë. Provoni një datë tjetër.',
+    'public.sessions.available': 'të disponueshme',
+    'public.sessions.bookingSummary': 'Përmbledhja e Rezervimit',
+    'public.sessions.service': 'Shërbimi',
+    'public.sessions.date': 'Data',
+    'public.sessions.time': 'Ora',
+    'public.sessions.location': 'Vendndodhja',
+    'public.sessions.price': 'Çmimi',
+    'public.sessions.continueToBooking': 'Vazhdo me Rezervimin',
+    'public.sessions.selectSessionFirst': 'Zgjidhni një sesion për të vazhduar',
+    'public.sessions.dateNavigation': 'Përdorni shigjetat për të parë më shumë data (deri në 3 muaj përpara)',
+
+    // Session Status
+    'public.sessions.status.available': 'I Disponueshëm',
+    'public.sessions.status.almostFull': 'Pothuajse i Plotë',
+    'public.sessions.status.full': 'I Plotë',
+    'public.sessions.status.past': 'Sesion i Kaluar',
+
     // Booking Form
     'public.booking.completeBooking': 'Plotëso Rezervimin',
     'public.booking.bookingSummary': 'Përmbledhja e Rezervimit',
@@ -1963,11 +1992,94 @@ export const translations: Translations = {
     'services.bookingMode.session': 'Evente',
     'services.bookingMode.appointmentDescription': 'Klientët mund të rezervojnë çdo kohë brenda orarit të shërbimit',
     'services.bookingMode.sessionDescription': 'Ju krijoni evente specifike dhe klientët rezervojnë për ato',
-    'services.bookingMode.sessionInfo.title': 'Shërbim me Sesione',
-    'services.bookingMode.sessionInfo.description': 'Ky shërbim përdor sesione të krijuara manualisht. Në vend të orarit të rregullt:',
-    'services.bookingMode.sessionInfo.point1': 'Ju do të krijoni sesione specifike me data dhe orë',
-    'services.bookingMode.sessionInfo.point2': 'Klientët do të rezervojnë vetëm për sesionet e disponueshme',
+    'services.bookingMode.sessionInfo.title': 'Shërbim me Evente',
+    'services.bookingMode.sessionInfo.description': 'Ky shërbim përdor evente të krijuara manualisht. Në vend të orarit të rregullt:',
+    'services.bookingMode.sessionInfo.point1': 'Ju do të krijoni evente specifike me data dhe orë',
+    'services.bookingMode.sessionInfo.point2': 'Klientët do të rezervojnë vetëm për eventet e disponueshme',
     'services.bookingMode.sessionInfo.point3': 'Ideal për klasa, workshop-e, takime grupore ose evente speciale',
+
+    // Sessions Management
+    'serviceManagement.tabs.sessions': 'Eventet',
+    'sessions.title': 'Menaxhimi i Evente',
+    'sessions.subtitle': 'Menaxho Eventet për {serviceName}',
+    'sessions.loading': 'Duke ngarkuar eventet...',
+    'sessions.create': 'Krijo Event',
+    'sessions.createFirst': 'Krijo Eventin e Parë',
+    'sessions.createSession': 'Krijo Event të Ri',
+    'sessions.editSession': 'Redakto Eventin',
+    'sessions.edit': 'Redakto',
+    'sessions.delete': 'Fshi',
+    'sessions.update': 'Përditëso',
+    'sessions.filters': 'Filtrat',
+    'sessions.showAnalytics': 'Shfaq Analizat',
+    'sessions.hideAnalytics': 'Fshih Analizat',
+
+    // Session Status
+    'sessions.status.scheduled': 'Planifikuar',
+    'sessions.status.cancelled': 'Anuluar',
+    'sessions.status.completed': 'Përfunduar',
+
+    // Session Properties
+    'sessions.available': 'I Disponueshëm',
+    'sessions.unavailable': 'I Padisponueshëm',
+    'sessions.unnamedSession': 'Event pa Emër',
+    'sessions.booked': 'rezervuar',
+    'sessions.confirmed': 'konfirmuar',
+    'sessions.pending': 'në pritje',
+    'sessions.seats': 'ulëse',
+
+    // Session Form
+    'sessions.form.name': 'Emri i Eventit',
+    'sessions.form.namePlaceholder': 'P.sh., Klasa e Jogës së Mëngjesit',
+    'sessions.form.startTime': 'Koha e Fillimit',
+    'sessions.form.endTime': 'Koha e Mbarimit',
+    'sessions.form.capacity': 'Kapaciteti',
+    'sessions.form.table': 'Tavolina',
+    'sessions.form.noTable': 'Pa tavolinë',
+    'sessions.form.status': 'Statusi',
+    'sessions.form.isAvailable': 'I disponueshëm për rezervim',
+    'sessions.form.isAvailableHelp': 'Klientët mund të rezervojnë për këtë event',
+
+    // Session Validation
+    'sessions.validation.nameRequired': 'Emri i eventit është i detyrueshëm',
+    'sessions.validation.timesRequired': 'Koha e fillimit dhe mbarimit janë të detyrueshme',
+    'sessions.validation.endTimeAfterStart': 'Koha e mbarimit duhet të jetë pas kohës së fillimit',
+    'sessions.validation.capacityRequired': 'Kapaciteti duhet të jetë më i madh se 0',
+
+    // Session Filters
+    'sessions.filters.search': 'Kërko',
+    'sessions.filters.searchPlaceholder': 'Kërko sipas emrit ose tavolinës...',
+    'sessions.filters.status': 'Statusi',
+    'sessions.filters.allStatuses': 'Të gjitha Statuset',
+    'sessions.filters.table': 'Tavolina',
+    'sessions.filters.allTables': 'Të gjitha Tavolinat',
+    'sessions.filters.availability': 'Disponueshmëria',
+    'sessions.filters.allAvailability': 'Të gjitha',
+
+    // Session List
+    'sessions.list.title': 'Eventet',
+    'sessions.noSessions.title': 'Nuk ka evente',
+    'sessions.noSessions.description': 'Fillo duke krijuar eventin e parë për këtë shërbim.',
+
+    // Session Analytics
+    'sessions.analytics.title': 'Analizat e Evente',
+    'sessions.analytics.totalSessions': 'Evente Totale',
+    'sessions.analytics.scheduledSessions': 'Evente të Planifikuara',
+    'sessions.analytics.totalBookings': 'Rezervime Totale',
+    'sessions.analytics.utilization': 'Shfrytëzimi',
+
+    // Session Deletion
+    'sessions.deleteConfirm.title': 'Fshi Eventin',
+    'sessions.deleteConfirm.message': 'A jeni të sigurt që doni të fshini eventin "{sessionName}"?',
+    'sessions.deleteConfirm.hasBookings': 'Ky event ka {count} rezervime. Fshirja do të anulojë të gjitha rezervimet.',
+    'sessions.deleteConfirm.delete': 'Fshi Eventin',
+    'sessions.deleteConfirm.forceDelete': 'Fshi me Forcë',
+
+    // Session Errors
+    'sessions.error.loadFailed': 'Dështoi ngarkimi i eventeve',
+    'sessions.error.createFailed': 'Dështoi krijimi i eventit',
+    'sessions.error.updateFailed': 'Dështoi përditësimi i eventit',
+    'sessions.error.deleteFailed': 'Dështoi fshirja e eventit',
   },
   en: {
     // Header & Navigation
@@ -3765,6 +3877,35 @@ export const translations: Translations = {
     'public.availability.at': 'at',
     'public.availability.localTime': 'local time',
 
+    // Session Selection Page
+    'public.sessions.selectSession': 'Select Session',
+    'public.sessions.partySize': 'Party Size',
+    'public.sessions.numberOfPeople': 'Number of people',
+    'public.sessions.person': 'person',
+    'public.sessions.people': 'people',
+    'public.sessions.selectDate': 'Select Date',
+    'public.sessions.today': 'Today',
+    'public.sessions.tomorrow': 'Tomorrow',
+    'public.sessions.availableSessions': 'Available Sessions',
+    'public.sessions.noSessions': 'No sessions available',
+    'public.sessions.noSessionsDescription': 'There are no sessions scheduled for this date. Please try a different date.',
+    'public.sessions.available': 'available',
+    'public.sessions.bookingSummary': 'Booking Summary',
+    'public.sessions.service': 'Service',
+    'public.sessions.date': 'Date',
+    'public.sessions.time': 'Time',
+    'public.sessions.location': 'Location',
+    'public.sessions.price': 'Price',
+    'public.sessions.continueToBooking': 'Continue to Booking',
+    'public.sessions.selectSessionFirst': 'Please select a session to continue',
+    'public.sessions.dateNavigation': 'Use arrows to view more dates (up to 3 months ahead)',
+
+    // Session Status
+    'public.sessions.status.available': 'Available',
+    'public.sessions.status.almostFull': 'Almost Full',
+    'public.sessions.status.full': 'Full',
+    'public.sessions.status.past': 'Past Session',
+
     // Booking Form
     'public.booking.completeBooking': 'Complete Your Booking',
     'public.booking.bookingSummary': 'Booking Summary',
@@ -3937,6 +4078,89 @@ export const translations: Translations = {
     'services.bookingMode.sessionInfo.point1': 'You will create specific sessions with dates and times',
     'services.bookingMode.sessionInfo.point2': 'Customers will only book for available sessions',
     'services.bookingMode.sessionInfo.point3': 'Ideal for classes, workshops, group meetings, or special events',
+
+    // Sessions Management
+    'serviceManagement.tabs.sessions': 'Sessions',
+    'sessions.title': 'Sessions Management',
+    'sessions.subtitle': 'Manage sessions for {serviceName}',
+    'sessions.loading': 'Loading sessions...',
+    'sessions.create': 'Create Session',
+    'sessions.createFirst': 'Create First Session',
+    'sessions.createSession': 'Create New Session',
+    'sessions.editSession': 'Edit Session',
+    'sessions.edit': 'Edit',
+    'sessions.delete': 'Delete',
+    'sessions.update': 'Update',
+    'sessions.filters': 'Filters',
+    'sessions.showAnalytics': 'Show Analytics',
+    'sessions.hideAnalytics': 'Hide Analytics',
+
+    // Session Status
+    'sessions.status.scheduled': 'Scheduled',
+    'sessions.status.cancelled': 'Cancelled',
+    'sessions.status.completed': 'Completed',
+
+    // Session Properties
+    'sessions.available': 'Available',
+    'sessions.unavailable': 'Unavailable',
+    'sessions.unnamedSession': 'Unnamed Session',
+    'sessions.booked': 'booked',
+    'sessions.confirmed': 'confirmed',
+    'sessions.pending': 'pending',
+    'sessions.seats': 'seats',
+
+    // Session Form
+    'sessions.form.name': 'Session Name',
+    'sessions.form.namePlaceholder': 'e.g., Morning Yoga Class',
+    'sessions.form.startTime': 'Start Time',
+    'sessions.form.endTime': 'End Time',
+    'sessions.form.capacity': 'Capacity',
+    'sessions.form.table': 'Table',
+    'sessions.form.noTable': 'No table',
+    'sessions.form.status': 'Status',
+    'sessions.form.isAvailable': 'Available for booking',
+    'sessions.form.isAvailableHelp': 'Customers can book this session',
+
+    // Session Validation
+    'sessions.validation.nameRequired': 'Session name is required',
+    'sessions.validation.timesRequired': 'Start and end times are required',
+    'sessions.validation.endTimeAfterStart': 'End time must be after start time',
+    'sessions.validation.capacityRequired': 'Capacity must be greater than 0',
+
+    // Session Filters
+    'sessions.filters.search': 'Search',
+    'sessions.filters.searchPlaceholder': 'Search by name or table...',
+    'sessions.filters.status': 'Status',
+    'sessions.filters.allStatuses': 'All Statuses',
+    'sessions.filters.table': 'Table',
+    'sessions.filters.allTables': 'All Tables',
+    'sessions.filters.availability': 'Availability',
+    'sessions.filters.allAvailability': 'All',
+
+    // Session List
+    'sessions.list.title': 'Sessions',
+    'sessions.noSessions.title': 'No sessions',
+    'sessions.noSessions.description': 'Get started by creating the first session for this service.',
+
+    // Session Analytics
+    'sessions.analytics.title': 'Session Analytics',
+    'sessions.analytics.totalSessions': 'Total Sessions',
+    'sessions.analytics.scheduledSessions': 'Scheduled Sessions',
+    'sessions.analytics.totalBookings': 'Total Bookings',
+    'sessions.analytics.utilization': 'Utilization',
+
+    // Session Deletion
+    'sessions.deleteConfirm.title': 'Delete Session',
+    'sessions.deleteConfirm.message': 'Are you sure you want to delete the session "{sessionName}"?',
+    'sessions.deleteConfirm.hasBookings': 'This session has {count} bookings. Deleting will cancel all bookings.',
+    'sessions.deleteConfirm.delete': 'Delete Session',
+    'sessions.deleteConfirm.forceDelete': 'Force Delete',
+
+    // Session Errors
+    'sessions.error.loadFailed': 'Failed to load sessions',
+    'sessions.error.createFailed': 'Failed to create session',
+    'sessions.error.updateFailed': 'Failed to update session',
+    'sessions.error.deleteFailed': 'Failed to delete session',
   },
   it: {
     // Header & Navigation
@@ -4312,7 +4536,7 @@ export const translations: Translations = {
     'auth.errors.signInFailed': 'Hyrja dështoi. Provo përsëri.',
     'auth.errors.networkError': 'Gabim në rrjet. Kontrollo lidhjen tuaj interneti.',
     'auth.errors.serverError': 'Gabim në server. Provo më vonë.',
-    'auth.errors.sessionExpired': 'Sesioni skadua. Hyni përsëri.',
+    'auth.errors.sessionExpired': 'Eventi skadua. Hyni përsëri.',
     'auth.errors.tooManyAttempts': 'Shumë përpjekje dështuara. Provo më vonë.',
 
     // Dashboard
@@ -5739,6 +5963,35 @@ export const translations: Translations = {
     'public.availability.at': 'alle',
     'public.availability.localTime': 'ora locale',
 
+    // Session Selection Page
+    'public.sessions.selectSession': 'Seleziona Sessione',
+    'public.sessions.partySize': 'Numero di Persone',
+    'public.sessions.numberOfPeople': 'Numero di persone',
+    'public.sessions.person': 'persona',
+    'public.sessions.people': 'persone',
+    'public.sessions.selectDate': 'Seleziona Data',
+    'public.sessions.today': 'Oggi',
+    'public.sessions.tomorrow': 'Domani',
+    'public.sessions.availableSessions': 'Sessioni Disponibili',
+    'public.sessions.noSessions': 'Nessuna sessione disponibile',
+    'public.sessions.noSessionsDescription': 'Non ci sono sessioni programmate per questa data. Prova una data diversa.',
+    'public.sessions.available': 'disponibili',
+    'public.sessions.bookingSummary': 'Riepilogo Prenotazione',
+    'public.sessions.service': 'Servizio',
+    'public.sessions.date': 'Data',
+    'public.sessions.time': 'Ora',
+    'public.sessions.location': 'Posizione',
+    'public.sessions.price': 'Prezzo',
+    'public.sessions.continueToBooking': 'Continua con la Prenotazione',
+    'public.sessions.selectSessionFirst': 'Seleziona una sessione per continuare',
+    'public.sessions.dateNavigation': 'Usa le frecce per vedere più date (fino a 3 mesi avanti)',
+
+    // Session Status
+    'public.sessions.status.available': 'Disponibile',
+    'public.sessions.status.almostFull': 'Quasi Pieno',
+    'public.sessions.status.full': 'Pieno',
+    'public.sessions.status.past': 'Sessione Passata',
+
     // Booking Form
     'public.booking.completeBooking': 'Completa la Tua Prenotazione',
     'public.booking.bookingSummary': 'Riepilogo Prenotazione',
@@ -5911,5 +6164,88 @@ export const translations: Translations = {
     'services.bookingMode.sessionInfo.point1': 'Creerai sessioni specifiche con date e orari',
     'services.bookingMode.sessionInfo.point2': 'I clienti potranno prenotare solo per le sessioni disponibili',
     'services.bookingMode.sessionInfo.point3': 'Ideale per lezioni, workshop, riunioni di gruppo o eventi speciali',
+
+    // Sessions Management
+    'serviceManagement.tabs.sessions': 'Sessioni',
+    'sessions.title': 'Gestione Sessioni',
+    'sessions.subtitle': 'Gestisci sessioni per {serviceName}',
+    'sessions.loading': 'Caricamento sessioni...',
+    'sessions.create': 'Crea Sessione',
+    'sessions.createFirst': 'Crea Prima Sessione',
+    'sessions.createSession': 'Crea Nuova Sessione',
+    'sessions.editSession': 'Modifica Sessione',
+    'sessions.edit': 'Modifica',
+    'sessions.delete': 'Elimina',
+    'sessions.update': 'Aggiorna',
+    'sessions.filters': 'Filtri',
+    'sessions.showAnalytics': 'Mostra Analisi',
+    'sessions.hideAnalytics': 'Nascondi Analisi',
+
+    // Session Status
+    'sessions.status.scheduled': 'Programmata',
+    'sessions.status.cancelled': 'Annullata',
+    'sessions.status.completed': 'Completata',
+
+    // Session Properties
+    'sessions.available': 'Disponibile',
+    'sessions.unavailable': 'Non Disponibile',
+    'sessions.unnamedSession': 'Sessione Senza Nome',
+    'sessions.booked': 'prenotato',
+    'sessions.confirmed': 'confermato',
+    'sessions.pending': 'in attesa',
+    'sessions.seats': 'posti',
+
+    // Session Form
+    'sessions.form.name': 'Nome Sessione',
+    'sessions.form.namePlaceholder': 'es., Lezione di Yoga Mattutina',
+    'sessions.form.startTime': 'Ora di Inizio',
+    'sessions.form.endTime': 'Ora di Fine',
+    'sessions.form.capacity': 'Capacità',
+    'sessions.form.table': 'Tavolo',
+    'sessions.form.noTable': 'Nessun tavolo',
+    'sessions.form.status': 'Stato',
+    'sessions.form.isAvailable': 'Disponibile per prenotazione',
+    'sessions.form.isAvailableHelp': 'I clienti possono prenotare questa sessione',
+
+    // Session Validation
+    'sessions.validation.nameRequired': 'Il nome della sessione è obbligatorio',
+    'sessions.validation.timesRequired': 'Gli orari di inizio e fine sono obbligatori',
+    'sessions.validation.endTimeAfterStart': 'L\'ora di fine deve essere dopo l\'ora di inizio',
+    'sessions.validation.capacityRequired': 'La capacità deve essere maggiore di 0',
+
+    // Session Filters
+    'sessions.filters.search': 'Cerca',
+    'sessions.filters.searchPlaceholder': 'Cerca per nome o tavolo...',
+    'sessions.filters.status': 'Stato',
+    'sessions.filters.allStatuses': 'Tutti gli Stati',
+    'sessions.filters.table': 'Tavolo',
+    'sessions.filters.allTables': 'Tutti i Tavoli',
+    'sessions.filters.availability': 'Disponibilità',
+    'sessions.filters.allAvailability': 'Tutti',
+
+    // Session List
+    'sessions.list.title': 'Sessioni',
+    'sessions.noSessions.title': 'Nessuna sessione',
+    'sessions.noSessions.description': 'Inizia creando la prima sessione per questo servizio.',
+
+    // Session Analytics
+    'sessions.analytics.title': 'Analisi Sessioni',
+    'sessions.analytics.totalSessions': 'Sessioni Totali',
+    'sessions.analytics.scheduledSessions': 'Sessioni Programmate',
+    'sessions.analytics.totalBookings': 'Prenotazioni Totali',
+    'sessions.analytics.utilization': 'Utilizzo',
+
+    // Session Deletion
+    'sessions.deleteConfirm.title': 'Elimina Sessione',
+    'sessions.deleteConfirm.message': 'Sei sicuro di voler eliminare la sessione "{sessionName}"?',
+    'sessions.deleteConfirm.hasBookings': 'Questa sessione ha {count} prenotazioni. L\'eliminazione cancellerà tutte le prenotazioni.',
+    'sessions.deleteConfirm.delete': 'Elimina Sessione',
+    'sessions.deleteConfirm.forceDelete': 'Forza Eliminazione',
+
+    // Session Errors
+    'sessions.error.loadFailed': 'Impossibile caricare le sessioni',
+    'sessions.error.createFailed': 'Impossibile creare la sessione',
+    'sessions.error.updateFailed': 'Impossibile aggiornare la sessione',
+    'sessions.error.deleteFailed': 'Impossibile eliminare la sessione',
 }
 }; 

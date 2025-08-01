@@ -25,6 +25,7 @@ interface BookingData {
   startTime: string;
   endTime: string;
   partySize: number;
+  sessionId?: string; // For session-based bookings
 }
 
 const PublicBookingForm: React.FC = () => {
@@ -179,7 +180,8 @@ const PublicBookingForm: React.FC = () => {
           name: customerData.name.trim(),
           phone: customerData.phone.trim(),
           email: customerData.email.trim() || undefined
-        }
+        },
+        ...(bookingData.sessionId && { session_id: bookingData.sessionId })
       };
 
       console.log('🚀 DEBUG - Booking Request:', bookingRequest);
