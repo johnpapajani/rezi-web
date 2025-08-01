@@ -164,10 +164,12 @@ const ServiceManagementDashboard: React.FC = () => {
     fetchBookings(filters);
   }, [searchTerm, statusFilter, dateFilter, serviceId, fetchBookings]);
 
-  // Redirect from availability tab if service is session-based
+  // Redirect from availability and bookings tabs if service is session-based
   useEffect(() => {
-    if (service && currentTab === 'availability' && service.booking_mode === BookingMode.session) {
-      setCurrentTab('dashboard');
+    if (service && service.booking_mode === BookingMode.session) {
+      if (currentTab === 'availability' || currentTab === 'bookings') {
+        setCurrentTab('dashboard');
+      }
     }
   }, [service, currentTab]);
 
@@ -544,12 +546,13 @@ const ServiceManagementDashboard: React.FC = () => {
             isActive: currentTab === 'dashboard',
             onClick: () => handleTabChange('dashboard')
           },
-          {
+          // Only show bookings tab for appointment-based services
+          ...(service.booking_mode !== BookingMode.session ? [{
             id: 'bookings',
             label: t('serviceManagement.tabs.bookings'),
             isActive: currentTab === 'bookings',
             onClick: () => handleTabChange('bookings')
-          },
+          }] : []),
           {
             id: 'tables',
             label: t('serviceManagement.tabs.tables'),
@@ -741,7 +744,7 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
 
-        {currentTab === 'bookings' && (
+        {currentTab === 'bookings' && service && service.booking_mode !== BookingMode.session && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
