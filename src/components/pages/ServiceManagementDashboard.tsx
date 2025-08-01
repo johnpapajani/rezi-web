@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { serviceApi, businessApi } from '../../utils/api';
 import { useServiceBookings } from '../../hooks/useServiceBookings';
-import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate, ServiceWithOpenIntervals, ServiceUpdate } from '../../types';
+import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate, ServiceWithOpenIntervals, ServiceUpdate, BookingMode } from '../../types';
 import CreateBookingModal from '../modals/CreateBookingModal';
 import PendingBookingsSection from './PendingBookingsSection';
 import ServiceSettingsSection from './ServiceSettingsSection';
@@ -163,6 +163,13 @@ const ServiceManagementDashboard: React.FC = () => {
 
     fetchBookings(filters);
   }, [searchTerm, statusFilter, dateFilter, serviceId, fetchBookings]);
+
+  // Redirect from availability tab if service is session-based
+  useEffect(() => {
+    if (service && currentTab === 'availability' && service.booking_mode === BookingMode.session) {
+      setCurrentTab('dashboard');
+    }
+  }, [service, currentTab]);
 
   const fetchServiceData = async () => {
     try {
@@ -549,12 +556,13 @@ const ServiceManagementDashboard: React.FC = () => {
             isActive: currentTab === 'tables',
             onClick: () => handleTabChange('tables')
           },
-          {
+          // Only show availability tab for appointment-based services
+          ...(service.booking_mode !== BookingMode.session ? [{
             id: 'availability',
             label: t('serviceManagement.tabs.availability'),
             isActive: currentTab === 'availability',
             onClick: () => handleTabChange('availability')
-          },
+          }] : []),
           {
             id: 'settings',
             label: t('common.settings'),
@@ -1170,7 +1178,7 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
 
-        {currentTab === 'availability' && service && (
+        {currentTab === 'availability' && service && service.booking_mode !== BookingMode.session && (
           <ServiceAvailabilityManagement 
             serviceId={serviceId!}
             serviceName={service.name}

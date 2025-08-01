@@ -6,7 +6,7 @@ import { useServices } from '../../hooks/useServices';
 import { useTables } from '../../hooks/useTables';
 import { useServiceCategories } from '../../hooks/useServiceCategories';
 import { useTranslation } from '../../hooks/useTranslation';
-import { BusinessCreate, ServiceCreate, TableCreate, ServiceOpenIntervalCreate } from '../../types';
+import { BusinessCreate, ServiceCreate, TableCreate, ServiceOpenIntervalCreate, Weekday, BookingMode } from '../../types';
 import { serviceApi } from '../../utils/api';
 import {
   BuildingStorefrontIcon,
@@ -26,7 +26,6 @@ import {
   XMarkIcon,
   PlusIcon,
 } from '@heroicons/react/24/outline';
-import { Weekday } from '../../types';
 
 // Albanian cities list
 const ALBANIAN_CITIES = [
@@ -347,6 +346,7 @@ const BusinessOnboarding: React.FC = () => {
       price_minor: 0,
       category_id: '',
       is_active: true,
+      booking_mode: BookingMode.appointment,
       open_intervals: defaultServiceIntervals,
     }]);
   };
@@ -447,6 +447,11 @@ const BusinessOnboarding: React.FC = () => {
                 // If no "Other" category found, omit the field (fallback to previous behavior)
                 delete cleanServiceData.category_id;
               }
+            }
+
+            // For session-based services, clear open intervals
+            if (cleanServiceData.booking_mode === BookingMode.session) {
+              cleanServiceData.open_intervals = [];
             }
             
             const service = await serviceApi.createService(createdBusinessId, cleanServiceData);
@@ -1214,6 +1219,31 @@ const BusinessOnboarding: React.FC = () => {
 
                       <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
+                          {t('services.bookingMode.title')} *
+                        </label>
+                        <select
+                          value={service.booking_mode || BookingMode.appointment}
+                          onChange={(e) => handleServiceChange(index, 'booking_mode', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          required
+                        >
+                          <option value={BookingMode.appointment}>
+                            {t('services.bookingMode.appointment')}
+                          </option>
+                          <option value={BookingMode.session}>
+                            {t('services.bookingMode.session')}
+                          </option>
+                        </select>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {(service.booking_mode || BookingMode.appointment) === BookingMode.appointment 
+                            ? t('services.bookingMode.appointmentDescription')
+                            : t('services.bookingMode.sessionDescription')
+                          }
+                        </p>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           {t('onboarding.serviceDescription')}
                         </label>
                         <textarea
@@ -1225,7 +1255,8 @@ const BusinessOnboarding: React.FC = () => {
                         />
                       </div>
 
-                      {/* Operating Hours */}
+                      {/* Operating Hours - Only for appointment-based services */}
+                      {(service.booking_mode || BookingMode.appointment) === BookingMode.appointment && (
                       <div>
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="text-sm font-medium text-gray-700">{t('onboarding.operatingHours')}</h4>
@@ -1332,6 +1363,25 @@ const BusinessOnboarding: React.FC = () => {
                           </div>
                         )}
                       </div>
+                      )}
+
+                      {/* Session Mode Information */}
+                      {(service.booking_mode || BookingMode.appointment) === BookingMode.session && (
+                      <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <InformationCircleIcon className="w-5 h-5 text-yellow-600" />
+                          <h5 className="text-sm font-medium text-gray-900">{t('services.bookingMode.sessionInfo.title')}</h5>
+                        </div>
+                        <div className="text-xs text-gray-700 space-y-1">
+                          <p>{t('services.bookingMode.sessionInfo.description')}</p>
+                          <ul className="list-disc list-inside space-y-1 ml-3">
+                            <li>{t('services.bookingMode.sessionInfo.point1')}</li>
+                            <li>{t('services.bookingMode.sessionInfo.point2')}</li>
+                            <li>{t('services.bookingMode.sessionInfo.point3')}</li>
+                          </ul>
+                        </div>
+                      </div>
+                      )}
                     </div>
                   ))}
                 </div>

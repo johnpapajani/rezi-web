@@ -1686,7 +1686,7 @@ export const translations: Translations = {
 
     // Week View Specific
     'calendar.weekView.allDay': 'Gjithë ditën',
-    'calendar.weekView.noEventsForHour': 'Nuk ka ngjarje për këtë orë',
+    'calendar.weekView.noEventsForHour': 'Nuk ka evente për këtë orë',
     
     // Month View Specific  
     'calendar.monthView.weekNumber': 'Java nr.',
@@ -1956,6 +1956,18 @@ export const translations: Translations = {
     'public.error.loadingAvailabilityFailed': 'Dështoi ngarkimi i disponueshmërisë',
     'public.error.createBookingFailed': 'Dështoi krijimi i rezervimit',
     'public.error.cancelBookingFailed': 'Dështoi anulimi i rezervimit',
+
+    // Booking Modes
+    'services.bookingMode.title': 'Mënyra e Rezervimit',
+    'services.bookingMode.appointment': 'Rezervime me Afat',
+    'services.bookingMode.session': 'Evente',
+    'services.bookingMode.appointmentDescription': 'Klientët mund të rezervojnë çdo kohë brenda orarit të shërbimit',
+    'services.bookingMode.sessionDescription': 'Ju krijoni evente specifike dhe klientët rezervojnë për ato',
+    'services.bookingMode.sessionInfo.title': 'Shërbim me Sesione',
+    'services.bookingMode.sessionInfo.description': 'Ky shërbim përdor sesione të krijuara manualisht. Në vend të orarit të rregullt:',
+    'services.bookingMode.sessionInfo.point1': 'Ju do të krijoni sesione specifike me data dhe orë',
+    'services.bookingMode.sessionInfo.point2': 'Klientët do të rezervojnë vetëm për sesionet e disponueshme',
+    'services.bookingMode.sessionInfo.point3': 'Ideal për klasa, workshop-e, takime grupore ose evente speciale',
   },
   en: {
     // Header & Navigation
@@ -2537,6 +2549,10 @@ export const translations: Translations = {
     'serviceManagement.settings.advanced.category.placeholder': 'Select category...',
     'serviceManagement.loadingCategories': 'Loading categories...',
     'serviceManagement.settings.advanced.status': 'Service Status',
+    'serviceManagement.settings.advanced.active': 'Active',
+    'serviceManagement.settings.advanced.inactive': 'Inactive',
+    'serviceManagement.settings.advanced.active.help': 'Customers can book this service',
+    'serviceManagement.settings.advanced.inactive.help': 'Service is hidden from customers',
     'serviceManagement.settings.save': 'Save Changes',
     'serviceManagement.settings.saving': 'Saving...',
     'serviceManagement.settings.success': 'Service settings updated successfully',
@@ -3909,6 +3925,18 @@ export const translations: Translations = {
     'public.error.loadingAvailabilityFailed': 'Failed to load availability',
     'public.error.createBookingFailed': 'Failed to create booking',
     'public.error.cancelBookingFailed': 'Failed to cancel booking',
+
+    // Booking Modes
+    'services.bookingMode.title': 'Booking Mode',
+    'services.bookingMode.appointment': 'Appointment Booking',
+    'services.bookingMode.session': 'Session/Event Booking',
+    'services.bookingMode.appointmentDescription': 'Customers can book any available time within service hours',
+    'services.bookingMode.sessionDescription': 'You create specific sessions/events and customers book for those',
+    'services.bookingMode.sessionInfo.title': 'Session-Based Service',
+    'services.bookingMode.sessionInfo.description': 'This service uses manually created sessions. Instead of regular hours:',
+    'services.bookingMode.sessionInfo.point1': 'You will create specific sessions with dates and times',
+    'services.bookingMode.sessionInfo.point2': 'Customers will only book for available sessions',
+    'services.bookingMode.sessionInfo.point3': 'Ideal for classes, workshops, group meetings, or special events',
   },
   it: {
     // Header & Navigation
@@ -5871,5 +5899,17 @@ export const translations: Translations = {
     'public.error.loadingAvailabilityFailed': 'Impossibile caricare la disponibilità',
     'public.error.createBookingFailed': 'Impossibile creare la prenotazione',
     'public.error.cancelBookingFailed': 'Impossibile annullare la prenotazione',
+
+    // Booking Modes
+    'services.bookingMode.title': 'Modalità di Prenotazione',
+    'services.bookingMode.appointment': 'Prenotazione Appuntamenti',
+    'services.bookingMode.session': 'Prenotazione Sessioni/Eventi',
+    'services.bookingMode.appointmentDescription': 'I clienti possono prenotare qualsiasi orario disponibile durante le ore di servizio',
+    'services.bookingMode.sessionDescription': 'Tu crei sessioni/eventi specifici e i clienti prenotano per quelli',
+    'services.bookingMode.sessionInfo.title': 'Servizio Basato su Sessioni',
+    'services.bookingMode.sessionInfo.description': 'Questo servizio utilizza sessioni create manualmente. Invece degli orari regolari:',
+    'services.bookingMode.sessionInfo.point1': 'Creerai sessioni specifiche con date e orari',
+    'services.bookingMode.sessionInfo.point2': 'I clienti potranno prenotare solo per le sessioni disponibili',
+    'services.bookingMode.sessionInfo.point3': 'Ideale per lezioni, workshop, riunioni di gruppo o eventi speciali',
 }
 }; 

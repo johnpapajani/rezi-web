@@ -192,6 +192,11 @@ export interface QRCodeResponse {
 }
 
 // Service types
+export enum BookingMode {
+  session = 'session',
+  appointment = 'appointment'
+}
+
 export interface ServiceCategory {
   id: string;
   name: string;
@@ -216,6 +221,7 @@ export interface Service {
   category_id?: string;
   capacity?: number;
   is_active: boolean;
+  booking_mode: BookingMode;
   created_at: string;
   updated_at: string;
 }
@@ -269,6 +275,7 @@ export interface ServiceCreate {
   price_minor: number;
   category_id?: string;
   is_active?: boolean;
+  booking_mode?: BookingMode;
   open_intervals?: ServiceOpenIntervalCreate[];
 }
 
@@ -281,6 +288,7 @@ export interface ServiceUpdate {
   is_active?: boolean;
   category_id?: string;
   capacity?: number;
+  booking_mode?: BookingMode;
 }
 
 export interface ServiceWithTables extends ServiceWithOpenIntervals {

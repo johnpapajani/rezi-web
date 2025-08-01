@@ -7,7 +7,7 @@ import { useServices } from '../../hooks/useServices';
 import { useBusiness } from '../../hooks/useBusiness';
 import { useServiceCategories } from '../../hooks/useServiceCategories';
 import { useBookings, useCalendarBookings } from '../../hooks/useBookings';
-import { BusinessUpdate, Service, ServiceUpdate, ServiceCreate, Weekday, BookingWithService, BookingFilters, BookingStatus } from '../../types';
+import { BusinessUpdate, Service, ServiceUpdate, ServiceCreate, Weekday, BookingMode, BookingWithService, BookingFilters, BookingStatus } from '../../types';
 import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import BusinessBookingsCalendar from '../pages/BusinessBookingsCalendar';
 import { 
@@ -408,6 +408,7 @@ const ServiceDashboard: React.FC = () => {
           price_minor: serviceFormData.price_minor || 0,
           category_id: serviceFormData.category_id || undefined,
           is_active: serviceFormData.is_active ?? true,
+          booking_mode: serviceFormData.booking_mode || BookingMode.appointment,
           open_intervals: [
             { weekday: Weekday.monday, start_time: '09:00', end_time: '17:00' },
             { weekday: Weekday.tuesday, start_time: '09:00', end_time: '17:00' },
@@ -433,6 +434,11 @@ const ServiceDashboard: React.FC = () => {
             // If no "Other" category found, omit the field
             delete createData.category_id;
           }
+        }
+
+        // For session-based services, clear open intervals
+        if (createData.booking_mode === BookingMode.session) {
+          createData.open_intervals = [];
         }
         
         await createService(createData);

@@ -14,7 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useServiceCategories } from '../../hooks/useServiceCategories';
-import { ServiceWithOpenIntervals, ServiceUpdate } from '../../types';
+import { ServiceWithOpenIntervals, ServiceUpdate, BookingMode } from '../../types';
 
 interface ServiceSettingsSectionProps {
   service: ServiceWithOpenIntervals;
@@ -46,6 +46,7 @@ const ServiceSettingsSection: React.FC<ServiceSettingsSectionProps> = ({
         is_active: service.is_active,
         category_id: service.category_id || '',
         capacity: service.capacity || undefined,
+        booking_mode: service.booking_mode || BookingMode.appointment,
       });
     }
   }, [service]);
@@ -275,6 +276,33 @@ const ServiceSettingsSection: React.FC<ServiceSettingsSectionProps> = ({
                 placeholder={t('serviceManagement.settings.basicInfo.description.placeholder')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+            </div>
+
+            <div className="md:col-span-2">
+              <label htmlFor="booking_mode" className="block text-sm font-medium text-gray-700 mb-2">
+                {t('services.bookingMode.title')} *
+              </label>
+              <select
+                id="booking_mode"
+                name="booking_mode"
+                value={formData.booking_mode || BookingMode.appointment}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value={BookingMode.appointment}>
+                  {t('services.bookingMode.appointment')}
+                </option>
+                <option value={BookingMode.session}>
+                  {t('services.bookingMode.session')}
+                </option>
+              </select>
+              <p className="mt-1 text-xs text-gray-500">
+                {(formData.booking_mode || BookingMode.appointment) === BookingMode.appointment 
+                  ? t('services.bookingMode.appointmentDescription')
+                  : t('services.bookingMode.sessionDescription')
+                }
+              </p>
             </div>
           </div>
         </div>
