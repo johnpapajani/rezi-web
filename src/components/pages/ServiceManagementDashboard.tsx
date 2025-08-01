@@ -1,44 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { serviceApi, businessApi } from '../../utils/api';
 import { useServiceBookings } from '../../hooks/useServiceBookings';
-import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate, ServiceWithOpenIntervals, ServiceUpdate } from '../../types';
+import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate, ServiceWithOpenIntervals, ServiceUpdate, BookingMode } from '../../types';
 import CreateBookingModal from '../modals/CreateBookingModal';
 import PendingBookingsSection from './PendingBookingsSection';
 import ServiceSettingsSection from './ServiceSettingsSection';
 import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
-  ArrowLeftIcon,
   CalendarDaysIcon,
   ChartBarIcon,
-  CurrencyDollarIcon,
   ClockIcon,
   RectangleGroupIcon,
-  CogIcon,
   PlusIcon,
   ExclamationTriangleIcon,
   UserIcon,
-  BuildingStorefrontIcon,
-  EyeIcon,
   PencilIcon,
   TrashIcon,
   GlobeAltIcon,
-  ChevronDownIcon,
   XMarkIcon,
   MagnifyingGlassIcon,
-  AdjustmentsHorizontalIcon,
   CheckIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  CurrencyEuroIcon,
   ListBulletIcon,
 } from '@heroicons/react/24/outline';
 import ServiceBookingsCalendar from './ServiceBookingsCalendar';
 import ServiceAvailabilityManagement from './ServiceAvailabilityManagement';
+import ServiceSessionsManagement from './ServiceSessionsManagement';
 
-type TabType = 'dashboard' | 'bookings' | 'tables' | 'availability' | 'settings';
+type TabType = 'dashboard' | 'bookings' | 'tables' | 'availability' | 'sessions' | 'settings';
 
 const ServiceManagementDashboard: React.FC = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
@@ -90,12 +81,6 @@ const ServiceManagementDashboard: React.FC = () => {
   // Booking creation state
   const [isCreateBookingModalOpen, setIsCreateBookingModalOpen] = useState(false);
   const [bookingCreationSuccess, setBookingCreationSuccess] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (serviceId) {
-      fetchServiceData();
-    }
-  }, [serviceId]);
 
   // Load service bookings when component mounts or serviceId changes
   useEffect(() => {
@@ -164,7 +149,24 @@ const ServiceManagementDashboard: React.FC = () => {
     fetchBookings(filters);
   }, [searchTerm, statusFilter, dateFilter, serviceId, fetchBookings]);
 
-  const fetchServiceData = async () => {
+  // Redirect from inappropriate tabs based on service booking mode
+  useEffect(() => {
+    if (service) {
+      if (service.booking_mode === BookingMode.session) {
+        // Session-based services can't access availability or bookings tabs
+        if (currentTab === 'availability' || currentTab === 'bookings') {
+          setCurrentTab('dashboard');
+        }
+      } else {
+        // Appointment-based services can't access sessions tab
+        if (currentTab === 'sessions') {
+          setCurrentTab('dashboard');
+        }
+      }
+    }
+  }, [service, currentTab]);
+
+  const fetchServiceData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -188,7 +190,13 @@ const ServiceManagementDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [serviceId]);
+
+  useEffect(() => {
+    if (serviceId) {
+      fetchServiceData();
+    }
+  }, [serviceId, fetchServiceData]);
 
   const formatPrice = (priceMinor: number): string => {
     const price = priceMinor / 100;
@@ -537,24 +545,33 @@ const ServiceManagementDashboard: React.FC = () => {
             isActive: currentTab === 'dashboard',
             onClick: () => handleTabChange('dashboard')
           },
-          {
+          // Only show bookings tab for appointment-based services
+          ...(service.booking_mode !== BookingMode.session ? [{
             id: 'bookings',
             label: t('serviceManagement.tabs.bookings'),
             isActive: currentTab === 'bookings',
             onClick: () => handleTabChange('bookings')
-          },
+          }] : []),
           {
             id: 'tables',
             label: t('serviceManagement.tabs.tables'),
             isActive: currentTab === 'tables',
             onClick: () => handleTabChange('tables')
           },
-          {
+          // Only show availability tab for appointment-based services
+          ...(service.booking_mode !== BookingMode.session ? [{
             id: 'availability',
             label: t('serviceManagement.tabs.availability'),
             isActive: currentTab === 'availability',
             onClick: () => handleTabChange('availability')
-          },
+          }] : []),
+          // Only show sessions tab for session-based services
+          ...(service.booking_mode === BookingMode.session ? [{
+            id: 'sessions',
+            label: t('serviceManagement.tabs.sessions'),
+            isActive: currentTab === 'sessions',
+            onClick: () => handleTabChange('sessions')
+          }] : []),
           {
             id: 'settings',
             label: t('common.settings'),
@@ -733,7 +750,7 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
 
-        {currentTab === 'bookings' && (
+        {currentTab === 'bookings' && service && service.booking_mode !== BookingMode.session && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1170,11 +1187,26 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
 
-        {currentTab === 'availability' && service && (
+        {currentTab === 'availability' && service && service.booking_mode !== BookingMode.session && (
           <ServiceAvailabilityManagement 
             serviceId={serviceId!}
             serviceName={service.name}
           />
+        )}
+
+        {currentTab === 'sessions' && service && service.booking_mode === BookingMode.session && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <ServiceSessionsManagement 
+              serviceId={serviceId!}
+              serviceName={service.name}
+              tables={tables}
+              businessTimezone={business?.timezone || 'UTC'}
+            />
+          </motion.div>
         )}
 
         {currentTab === 'settings' && service && (

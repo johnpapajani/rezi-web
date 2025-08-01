@@ -6,7 +6,7 @@ import { useServices } from '../../hooks/useServices';
 import { useBusiness } from '../../hooks/useBusiness';
 import { useAuth } from '../../hooks/useAuth';
 import { useServiceCategories } from '../../hooks/useServiceCategories';
-import { Service, ServiceCreate, ServiceUpdate, ServiceOpenIntervalCreate, Weekday } from '../../types';
+import { Service, ServiceCreate, ServiceUpdate, ServiceOpenIntervalCreate, Weekday, BookingMode } from '../../types';
 import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import { 
   PlusIcon,
@@ -59,6 +59,7 @@ const ServiceManagement: React.FC = () => {
     price_minor: 0,
     category_id: '',
     is_active: true,
+    booking_mode: BookingMode.appointment,
     open_intervals: [
       { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
       { weekday: Weekday.tuesday, start_time: '09:00', end_time: '22:00' },
@@ -155,6 +156,11 @@ const ServiceManagement: React.FC = () => {
         }
       }
 
+      // For session-based services, clear open intervals
+      if (cleanServiceData.booking_mode === BookingMode.session) {
+        cleanServiceData.open_intervals = [];
+      }
+
       await createService(cleanServiceData);
       setIsCreateModalOpen(false);
       resetForm();
@@ -201,6 +207,7 @@ const ServiceManagement: React.FC = () => {
         price_minor: formData.price_minor,
         category_id: formData.category_id || undefined,
         is_active: formData.is_active,
+        booking_mode: formData.booking_mode,
       };
       await updateService(editingService.id, updateData);
       setEditingService(null);
@@ -236,6 +243,7 @@ const ServiceManagement: React.FC = () => {
       price_minor: service.price_minor,
       category_id: service.category_id || '',
       is_active: service.is_active,
+      booking_mode: service.booking_mode || BookingMode.appointment,
       open_intervals: [
         { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
         { weekday: Weekday.tuesday, start_time: '09:00', end_time: '22:00' },
@@ -257,6 +265,7 @@ const ServiceManagement: React.FC = () => {
       price_minor: 0,
       category_id: '',
       is_active: true,
+      booking_mode: BookingMode.appointment,
       open_intervals: [
         { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
         { weekday: Weekday.tuesday, start_time: '09:00', end_time: '22:00' },
@@ -702,6 +711,32 @@ const ServiceManagement: React.FC = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('services.bookingMode.title')} *
+                      </label>
+                      <select
+                        name="booking_mode"
+                        value={formData.booking_mode}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      >
+                        <option value={BookingMode.appointment}>
+                          {t('services.bookingMode.appointment')}
+                        </option>
+                        <option value={BookingMode.session}>
+                          {t('services.bookingMode.session')}
+                        </option>
+                      </select>
+                      <p className="mt-1 text-xs text-gray-500">
+                        {formData.booking_mode === BookingMode.appointment 
+                          ? t('services.bookingMode.appointmentDescription')
+                          : t('services.bookingMode.sessionDescription')
+                        }
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         <ClockIcon className="w-4 h-4 inline mr-1" />
                         {t('services.duration')} *
                       </label>
@@ -794,7 +829,8 @@ const ServiceManagement: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Operating Hours Section */}
+                {/* Operating Hours Section - Only for appointment-based services */}
+                {formData.booking_mode === BookingMode.appointment && (
                 <div className="bg-gray-50 rounded-lg border border-gray-200 p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-3">
@@ -939,6 +975,25 @@ const ServiceManagement: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                )}
+
+                {/* Session Mode Information */}
+                {formData.booking_mode === BookingMode.session && (
+                <div className="bg-yellow-50 rounded-lg border border-yellow-200 p-6">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <InformationCircleIcon className="w-6 h-6 text-yellow-600" />
+                    <h4 className="text-lg font-semibold text-gray-900">{t('services.bookingMode.sessionInfo.title')}</h4>
+                  </div>
+                  <div className="text-sm text-gray-700 space-y-2">
+                    <p>{t('services.bookingMode.sessionInfo.description')}</p>
+                    <ul className="list-disc list-inside space-y-1 ml-4">
+                      <li>{t('services.bookingMode.sessionInfo.point1')}</li>
+                      <li>{t('services.bookingMode.sessionInfo.point2')}</li>
+                      <li>{t('services.bookingMode.sessionInfo.point3')}</li>
+                    </ul>
+                  </div>
+                </div>
+                )}
 
                 {/* Form Actions */}
                 <div className="flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 pt-6 border-t border-gray-200">

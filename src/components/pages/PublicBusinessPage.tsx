@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { publicApi } from '../../utils/api';
-import { Business, ServiceWithOpenIntervals } from '../../types';
+import { Business, ServiceWithOpenIntervals, BookingMode } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
 import { 
   ClockIcon,
@@ -207,7 +207,13 @@ const PublicBusinessPage: React.FC = () => {
                     </div>
                   </div>
                   <button
-                    onClick={() => navigate(`/book/${slug}/service/${service.id}`)}
+                    onClick={() => {
+                      if (service.booking_mode === BookingMode.session) {
+                        navigate(`/book/${slug}/service/${service.id}/sessions`);
+                      } else {
+                        navigate(`/book/${slug}/service/${service.id}`);
+                      }
+                    }}
                     className="ml-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-md hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg"
                   >
                     {t('public.service.book')}

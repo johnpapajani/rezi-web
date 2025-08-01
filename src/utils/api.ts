@@ -1,5 +1,4 @@
 import { 
-  User,
   AuthResponse, 
   SignUpData, 
   SignInData, 
@@ -21,15 +20,12 @@ import {
   ServiceCreate, 
   ServiceUpdate, 
   ServiceWithTables, 
-  Booking, 
   BookingWithService, 
   BookingUpdate, 
   BookingFilters, 
   BookingStatusUpdate, 
   BookingReschedule, 
   BookingCreate, 
-  DailyBookingSummary, 
-  BookingAnalytics, 
   Table, 
   TableCreate, 
   TableUpdate, 
@@ -40,14 +36,19 @@ import {
   ServiceOpenInterval, 
   ServiceOpenIntervalCreate, 
   AvailabilityMatrix, 
-  ServiceCategory, 
   ServiceCategoryLocalized,
   SubscriptionPlans,
-  SubscriptionPlan,
   SubscriptionCreate,
   Subscription,
   SubscriptionWithPrice,
-  SubscriptionUpdate
+  SubscriptionUpdate,
+  SessionCreate,
+  SessionUpdate,
+  SessionWithBookings,
+  SessionListFilters,
+  SessionConflictCheck,
+  SessionAvailabilityCheck,
+  SessionAnalytics
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://0.0.0.0:8001';
@@ -716,6 +717,191 @@ export const serviceApi = {
     
     return handleResponse<AvailabilityMatrix>(response);
   },
+
+  // Sessions Management
+  getServiceSessions: async (
+    serviceId: string, 
+    filters?: SessionListFilters
+  ): Promise<SessionWithBookings[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const url = new URL(`${API_BASE_URL}/services/${serviceId}/sessions`);
+    
+    if (filters) {
+      if (filters.date_from) url.searchParams.set('date_from', filters.date_from);
+      if (filters.date_to) url.searchParams.set('date_to', filters.date_to);
+      if (filters.status) url.searchParams.set('status', filters.status);
+      if (filters.table_id) url.searchParams.set('table_id', filters.table_id);
+      if (filters.is_available !== undefined) url.searchParams.set('is_available', filters.is_available.toString());
+      if (filters.is_recurring !== undefined) url.searchParams.set('is_recurring', filters.is_recurring.toString());
+    }
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<SessionWithBookings[]>(response);
+  },
+
+  createServiceSession: async (serviceId: string, sessionData: SessionCreate): Promise<SessionWithBookings> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/sessions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sessionData),
+    });
+    
+    return handleResponse<SessionWithBookings>(response);
+  },
+
+  getServiceSession: async (serviceId: string, sessionId: string): Promise<SessionWithBookings> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<SessionWithBookings>(response);
+  },
+
+  updateServiceSession: async (
+    serviceId: string, 
+    sessionId: string, 
+    sessionUpdate: SessionUpdate
+  ): Promise<SessionWithBookings> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sessionUpdate),
+    });
+    
+    return handleResponse<SessionWithBookings>(response);
+  },
+
+  deleteServiceSession: async (serviceId: string, sessionId: string, force: boolean = false): Promise<void> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const url = new URL(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}`);
+    if (force) {
+      url.searchParams.set('force', 'true');
+    }
+
+    const response = await fetch(url.toString(), {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new ApiErrorClass(errorData.detail || 'Failed to delete session', response.status);
+    }
+  },
+
+  checkSessionConflicts: async (
+    serviceId: string, 
+    sessionId: string, 
+    sessionUpdate: SessionUpdate
+  ): Promise<SessionConflictCheck> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}/check-conflicts`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sessionUpdate),
+    });
+    
+    return handleResponse<SessionConflictCheck>(response);
+  },
+
+  checkSessionAvailability: async (
+    serviceId: string, 
+    sessionId: string, 
+    partySize: number
+  ): Promise<SessionAvailabilityCheck> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const url = new URL(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}/availability`);
+    url.searchParams.set('party_size', partySize.toString());
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<SessionAvailabilityCheck>(response);
+  },
+
+  getServiceSessionAnalytics: async (
+    serviceId: string, 
+    dateFrom?: string, 
+    dateTo?: string
+  ): Promise<SessionAnalytics> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const url = new URL(`${API_BASE_URL}/services/${serviceId}/sessions/analytics`);
+    if (dateFrom) url.searchParams.set('date_from', dateFrom);
+    if (dateTo) url.searchParams.set('date_to', dateTo);
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<SessionAnalytics>(response);
+  },
 };
 
 // Booking API functions
@@ -1219,6 +1405,51 @@ export const publicApi = {
     });
     
     return handleResponse<BookingWithService>(response);
+  },
+
+  // Get available sessions for a service
+  getServiceSessions: async (
+    slug: string, 
+    serviceId: string, 
+    dateFrom?: string, 
+    dateTo?: string,
+    status?: string
+  ): Promise<SessionWithBookings[]> => {
+    const url = new URL(`${API_BASE_URL}/public/businesses/${slug}/services/${serviceId}/sessions`);
+    
+    if (dateFrom) url.searchParams.append('date_from', dateFrom);
+    if (dateTo) url.searchParams.append('date_to', dateTo);
+    if (status) url.searchParams.append('status', status);
+    url.searchParams.append('is_available', 'true'); // Only show available sessions
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<SessionWithBookings[]>(response);
+  },
+
+  // Check session availability
+  checkSessionAvailability: async (
+    slug: string, 
+    serviceId: string, 
+    sessionId: string, 
+    partySize: number
+  ): Promise<SessionAvailabilityCheck> => {
+    const url = new URL(`${API_BASE_URL}/public/businesses/${slug}/services/${serviceId}/sessions/${sessionId}/availability`);
+    url.searchParams.append('party_size', partySize.toString());
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return handleResponse<SessionAvailabilityCheck>(response);
   },
 };
 

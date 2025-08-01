@@ -25,6 +25,7 @@ import EmailVerifiedRoute from './components/auth/EmailVerifiedRoute';
 import QRCodeView from './components/business/QRCodeView';
 import PublicBusinessPage from './components/pages/PublicBusinessPage';
 import PublicServiceAvailability from './components/pages/PublicServiceAvailability';
+import PublicSessionSelection from './components/pages/PublicSessionSelection';
 import PublicBookingForm from './components/pages/PublicBookingForm';
 import PublicBookingConfirmation from './components/pages/PublicBookingConfirmation';
 import PublicBookingSearch from './components/pages/PublicBookingSearch';
@@ -78,7 +79,9 @@ function App() {
               {/* Public Booking Routes */}
               <Route path="/book/:slug" element={<PublicBusinessPage />} />
               <Route path="/book/:slug/service/:serviceId" element={<PublicServiceAvailability />} />
+              <Route path="/book/:slug/service/:serviceId/sessions" element={<PublicSessionSelection />} />
               <Route path="/book/:slug/service/:serviceId/booking" element={<PublicBookingForm />} />
+              <Route path="/book/:slug/service/:serviceId/form" element={<PublicBookingForm />} />
               <Route path="/book/confirmation/:bookingId" element={<PublicBookingConfirmation />} />
               <Route path="/booking-search" element={<PublicBookingSearch />} />
               

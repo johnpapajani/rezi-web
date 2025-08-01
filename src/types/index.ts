@@ -192,6 +192,11 @@ export interface QRCodeResponse {
 }
 
 // Service types
+export enum BookingMode {
+  session = 'session',
+  appointment = 'appointment'
+}
+
 export interface ServiceCategory {
   id: string;
   name: string;
@@ -216,6 +221,7 @@ export interface Service {
   category_id?: string;
   capacity?: number;
   is_active: boolean;
+  booking_mode: BookingMode;
   created_at: string;
   updated_at: string;
 }
@@ -269,6 +275,7 @@ export interface ServiceCreate {
   price_minor: number;
   category_id?: string;
   is_active?: boolean;
+  booking_mode?: BookingMode;
   open_intervals?: ServiceOpenIntervalCreate[];
 }
 
@@ -281,6 +288,7 @@ export interface ServiceUpdate {
   is_active?: boolean;
   category_id?: string;
   capacity?: number;
+  booking_mode?: BookingMode;
 }
 
 export interface ServiceWithTables extends ServiceWithOpenIntervals {
@@ -392,6 +400,7 @@ export interface BookingCreate {
   ends_at: string;
   party_size: number;
   customer: BookingCreateCustomer;
+  session_id?: string; // For session-based bookings
 }
 
 export interface DailyBookingSummary {
@@ -532,4 +541,116 @@ export interface SubscriptionUpdate {
   plan_id?: string;
   payment_method_id?: string;
   cancel_at_period_end?: boolean;
+} 
+
+// Session types
+export enum SessionStatus {
+  scheduled = 'scheduled',
+  cancelled = 'cancelled',
+  completed = 'completed'
+}
+
+export interface SessionBase {
+  name?: string;
+  start_time: string; // ISO datetime string
+  end_time: string;   // ISO datetime string
+  capacity: number;
+  table_id?: string;
+  is_available: boolean;
+  is_recurring: boolean;
+  recurrence_rule?: any;
+  status: SessionStatus;
+}
+
+export interface SessionCreate extends SessionBase {
+  service_id: string;
+}
+
+export interface SessionUpdate {
+  name?: string;
+  start_time?: string;
+  end_time?: string;
+  capacity?: number;
+  table_id?: string;
+  is_available?: boolean;
+  is_recurring?: boolean;
+  recurrence_rule?: any;
+  status?: SessionStatus;
+}
+
+export interface Session extends SessionBase {
+  id: string;
+  business_id: string;
+  service_id: string;
+  created_at: string;
+  updated_at: string;
+  seats_left: number;
+}
+
+export interface SessionWithService extends Session {
+  service_name?: string;
+  service_price_minor?: number;
+  service_duration_min?: number;
+  service_booking_mode?: BookingMode;
+  table_code?: string;
+}
+
+export interface SessionWithBookings extends Session {
+  service_name?: string;
+  service_price_minor?: number;
+  service_duration_min?: number;
+  table_code?: string;
+  table_seats?: number;
+  confirmed_bookings: number;
+  pending_bookings: number;
+  total_bookings: number;
+}
+
+export interface SessionListFilters {
+  date_from?: string;
+  date_to?: string;
+  status?: SessionStatus;
+  table_id?: string;
+  is_available?: boolean;
+  is_recurring?: boolean;
+}
+
+export interface SessionConflictCheck {
+  has_conflicts: boolean;
+  conflicting_sessions: string[];
+  conflicting_bookings: string[];
+  message?: string;
+}
+
+export interface SessionBookingCounts {
+  confirmed_bookings: number;
+  pending_bookings: number;
+  total_bookings: number;
+  confirmed_occupancy: number;
+  pending_occupancy: number;
+}
+
+export interface SessionAvailabilityCheck {
+  session_id: string;
+  session_name?: string;
+  session_capacity: number;
+  current_occupancy: number;
+  available_spots: number;
+  requested_party_size: number;
+  can_book: boolean;
+  is_session_available: boolean;
+  session_status: string;
+  booking_counts: SessionBookingCounts;
+  message: string;
+}
+
+export interface SessionAnalytics {
+  total_sessions: number;
+  scheduled_sessions: number;
+  cancelled_sessions: number;
+  completed_sessions: number;
+  total_capacity: number;
+  total_bookings: number;
+  average_utilization: number;
+  revenue_minor: number;
 } 
