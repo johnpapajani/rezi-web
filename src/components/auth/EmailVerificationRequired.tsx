@@ -21,8 +21,8 @@ const EmailVerificationRequired: React.FC = () => {
       clearError();
       setSuccessMessage(null);
       
-      const response = await sendVerificationEmail();
-      setSuccessMessage(response.message);
+      await sendVerificationEmail();
+      setSuccessMessage('Verification email sent successfully!');
     } catch (err) {
       // Error is handled by the auth context
     } finally {

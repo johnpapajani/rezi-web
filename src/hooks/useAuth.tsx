@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthResponse, SignUpData, SignInData, SendVerificationEmailResponse, VerifyEmailRequest, VerifyEmailResponse, ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse } from '../types';
 import { authApi, tokenStorage } from '../utils/api';
+import { User, SignUpData, SignInData, AuthResponse, VerifyEmailRequest, VerifyEmailResponse, ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse } from '../types';
 
 interface AuthContextType {
   user: User | null;
@@ -8,13 +8,14 @@ interface AuthContextType {
   isAuthenticated: boolean;
   signUp: (data: SignUpData) => Promise<void>;
   signIn: (data: SignInData) => Promise<void>;
-  signOut: () => void;
-  sendVerificationEmail: () => Promise<SendVerificationEmailResponse>;
+  signOut: () => Promise<void>;
+  sendVerificationEmail: () => Promise<void>;
   verifyEmail: (data: VerifyEmailRequest) => Promise<VerifyEmailResponse>;
   forgotPassword: (data: ForgotPasswordRequest) => Promise<ForgotPasswordResponse>;
   resetPassword: (data: ResetPasswordRequest) => Promise<ResetPasswordResponse>;
   error: string | null;
   clearError: () => void;
+  refreshUserAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,22 +25,77 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const isAuthenticated = !!user && !!tokenStorage.getAccessToken();
+  // Enhanced authentication check
+  const isAuthenticated = !!user && tokenStorage.isAccessTokenValid();
+
+  // Auto-authentication function
+  const refreshUserAuth = async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+      
+      // Check if we have valid tokens
+      if (tokenStorage.isAccessTokenValid()) {
+        // Access token is valid, restore user from storage
+        const savedUser = tokenStorage.getUser();
+        if (savedUser) {
+          setUser(savedUser);
+          return;
+        }
+      }
+
+      // If access token is expired but refresh token is valid, try to refresh
+      if (tokenStorage.isRefreshTokenValid()) {
+        const refreshToken = tokenStorage.getRefreshToken();
+        if (refreshToken) {
+          try {
+            const refreshResponse = await authApi.refreshToken(refreshToken);
+            
+            // Update tokens
+            tokenStorage.setTokens(refreshResponse.access_token, refreshResponse.refresh_token);
+            
+            // Restore user from storage
+            const savedUser = tokenStorage.getUser();
+            if (savedUser) {
+              setUser(savedUser);
+              return;
+            }
+          } catch (refreshError) {
+            console.warn('Token refresh failed during initialization:', refreshError);
+            // Continue to clear tokens below
+          }
+        }
+      }
+
+      // If we get here, tokens are invalid or missing
+      tokenStorage.clearTokens();
+      setUser(null);
+    } catch (err) {
+      console.error('Auto-authentication failed:', err);
+      tokenStorage.clearTokens();
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Initialize auth state on mount
   useEffect(() => {
-    const initializeAuth = () => {
-      const savedUser = tokenStorage.getUser();
-      const accessToken = tokenStorage.getAccessToken();
-      
-      if (savedUser && accessToken) {
-        setUser(savedUser);
-      }
-      
-      setIsLoading(false);
+    refreshUserAuth();
+  }, []);
+
+  // Listen for token expiration events
+  useEffect(() => {
+    const handleTokenExpired = () => {
+      console.log('Token expired event received, logging out user');
+      setUser(null);
+      tokenStorage.clearTokens();
+      setError('Your session has expired. Please log in again.');
     };
 
-    initializeAuth();
+    window.addEventListener('auth:token-expired', handleTokenExpired);
+    return () => {
+      window.removeEventListener('auth:token-expired', handleTokenExpired);
+    };
   }, []);
 
   const handleAuthResponse = (response: AuthResponse) => {
@@ -86,7 +142,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await authApi.signIn(data);
       handleAuthResponse(response);
     } catch (err: any) {
-      // Store the full error information for proper error mapping
       const errorInfo = {
         detail: err.detail || 'Sign in failed',
         status: err.status,
@@ -99,14 +154,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const sendVerificationEmail = async (): Promise<SendVerificationEmailResponse> => {
+  const sendVerificationEmail = async (): Promise<void> => {
     try {
       setError(null);
-      const accessToken = tokenStorage.getAccessToken();
-      if (!accessToken) {
-        throw new Error('No access token available');
-      }
-      return await authApi.sendVerificationEmail(accessToken);
+      await authApi.sendVerificationEmail();
     } catch (err: any) {
       const errorInfo = {
         detail: err.detail || 'Failed to send verification email',
@@ -121,16 +172,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const verifyEmail = async (data: VerifyEmailRequest): Promise<VerifyEmailResponse> => {
     try {
       setError(null);
-      const response = await authApi.verifyEmail(data);
-      
-      // Update user's email_verified status
-      if (user) {
-        const updatedUser = { ...user, email_verified: true };
-        setUser(updatedUser);
-        tokenStorage.setUser(updatedUser);
-      }
-      
-      return response;
+      return await authApi.verifyEmail(data);
     } catch (err: any) {
       const errorInfo = {
         detail: err.detail || 'Email verification failed',
@@ -213,6 +255,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     resetPassword,
     error,
     clearError,
+    refreshUserAuth,
   };
 
   return (
