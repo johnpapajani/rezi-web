@@ -185,7 +185,7 @@ const ServiceDashboard: React.FC = () => {
       const dateFrom = formatDateForAPI(threeMonthsAgo);
       const dateTo = formatDateForAPI(threeMonthsFromNow);
       
-      console.log('Fetching calendar bookings for date range:', dateFrom, 'to', dateTo);
+
       
       fetchCalendarBookings(dateFrom, dateTo);
     }

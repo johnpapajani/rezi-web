@@ -103,13 +103,7 @@ const MobileOptimizedHeader: React.FC<MobileOptimizedHeaderProps> = ({
   const primaryAction = actions.find(action => action.variant === 'primary');
   const secondaryActions = actions.filter(action => action.variant !== 'primary');
   
-  // Debug logging
-  console.log('🎯 MOBILE HEADER DEBUG:', {
-    actionsReceived: actions.length,
-    primaryAction: !!primaryAction,
-    primaryActionLabel: primaryAction?.label,
-    secondaryActions: secondaryActions.length
-  });
+
 
   return (
     <header className={`${headerVariants[variant]} ${className}`}>

@@ -96,16 +96,7 @@ const ServiceManagementDashboard: React.FC = () => {
   const [loadingEventBookings, setLoadingEventBookings] = useState(false);
   const [eventBookingsError, setEventBookingsError] = useState<string | null>(null);
 
-  // Debug logging for header button
-  useEffect(() => {
-    console.log('Debug - Service Management Dashboard:', {
-      business: !!business,
-      businessSlug: business?.slug,
-      service: !!service,
-      serviceId,
-      loading
-    });
-  }, [business, service, serviceId, loading]);
+
 
   // Load service bookings when component mounts or serviceId changes
   useEffect(() => {

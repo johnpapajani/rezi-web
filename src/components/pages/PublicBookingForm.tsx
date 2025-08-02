@@ -164,12 +164,7 @@ const PublicBookingForm: React.FC = () => {
       setError(null);
 
       // Debug: Log the booking data to see what's actually being sent
-      console.log('🔍 DEBUG - Booking Data:');
-      console.log('Display startTime:', formatTime(bookingData.startTime));
-      console.log('Display endTime:', formatTime(bookingData.endTime));
-      console.log('Raw startTime:', bookingData.startTime);
-      console.log('Raw endTime:', bookingData.endTime);
-      console.log('Selected date:', bookingData.date);
+      
 
       const bookingRequest: BookingCreate = {
         service_id: bookingData.serviceId,
@@ -184,7 +179,7 @@ const PublicBookingForm: React.FC = () => {
         ...(bookingData.sessionId && { session_id: bookingData.sessionId })
       };
 
-      console.log('🚀 DEBUG - Booking Request:', bookingRequest);
+  
 
       const booking = await publicApi.createBooking(slug!, bookingRequest);
       
