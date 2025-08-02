@@ -953,6 +953,8 @@ const ServiceDashboard: React.FC = () => {
     </motion.div>
   );
 
+
+
   const renderBookingsTab = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -1426,6 +1428,8 @@ const ServiceDashboard: React.FC = () => {
           </motion.div>
         </AnimatePresence>
       )}
+
+
     </motion.div>
   );
 
@@ -1439,7 +1443,7 @@ const ServiceDashboard: React.FC = () => {
         logoUrl={business?.logo_url}
         icon={!business?.logo_url ? BuildingStorefrontIcon : undefined}
         variant="business"
-        tabs={[
+                  tabs={[
           {
             id: 'services',
             label: t('business.dashboard.tabs.services'),

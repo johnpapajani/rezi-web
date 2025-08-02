@@ -2014,6 +2014,7 @@ export const translations: Translations = {
     'sessions.showAnalytics': 'Shfaq Analizat',
     'sessions.hideAnalytics': 'Fshih Analizat',
 
+
     // Session Status
     'sessions.status.scheduled': 'Planifikuar',
     'sessions.status.cancelled': 'Anuluar',
@@ -4080,14 +4081,14 @@ export const translations: Translations = {
     'services.bookingMode.sessionInfo.point3': 'Ideal for classes, workshops, group meetings, or special events',
 
     // Sessions Management
-    'serviceManagement.tabs.sessions': 'Sessions',
-    'sessions.title': 'Sessions Management',
-    'sessions.subtitle': 'Manage sessions for {serviceName}',
-    'sessions.loading': 'Loading sessions...',
-    'sessions.create': 'Create Session',
-    'sessions.createFirst': 'Create First Session',
-    'sessions.createSession': 'Create New Session',
-    'sessions.editSession': 'Edit Session',
+    'serviceManagement.tabs.sessions': 'Events',
+    'sessions.title': 'Event Management',
+    'sessions.subtitle': 'Manage events for {serviceName}',
+    'sessions.loading': 'Loading events...',
+    'sessions.create': 'Create Event',
+    'sessions.createFirst': 'Create First Event',
+    'sessions.createSession': 'Create New Event',
+    'sessions.editSession': 'Edit Event',
     'sessions.edit': 'Edit',
     'sessions.delete': 'Delete',
     'sessions.update': 'Update',
@@ -4095,22 +4096,23 @@ export const translations: Translations = {
     'sessions.showAnalytics': 'Show Analytics',
     'sessions.hideAnalytics': 'Hide Analytics',
 
+
     // Session Status
     'sessions.status.scheduled': 'Scheduled',
     'sessions.status.cancelled': 'Cancelled',
     'sessions.status.completed': 'Completed',
 
-    // Session Properties
+    // Event Properties
     'sessions.available': 'Available',
     'sessions.unavailable': 'Unavailable',
-    'sessions.unnamedSession': 'Unnamed Session',
+    'sessions.unnamedSession': 'Unnamed Event',
     'sessions.booked': 'booked',
     'sessions.confirmed': 'confirmed',
     'sessions.pending': 'pending',
     'sessions.seats': 'seats',
 
     // Session Form
-    'sessions.form.name': 'Session Name',
+    'sessions.form.name': 'Event Name',
     'sessions.form.namePlaceholder': 'e.g., Morning Yoga Class',
     'sessions.form.startTime': 'Start Time',
     'sessions.form.endTime': 'End Time',
@@ -4119,15 +4121,15 @@ export const translations: Translations = {
     'sessions.form.noTable': 'No table',
     'sessions.form.status': 'Status',
     'sessions.form.isAvailable': 'Available for booking',
-    'sessions.form.isAvailableHelp': 'Customers can book this session',
+    'sessions.form.isAvailableHelp': 'Customers can book this event',
 
-    // Session Validation
-    'sessions.validation.nameRequired': 'Session name is required',
+    // Event Validation
+    'sessions.validation.nameRequired': 'Event name is required',
     'sessions.validation.timesRequired': 'Start and end times are required',
     'sessions.validation.endTimeAfterStart': 'End time must be after start time',
     'sessions.validation.capacityRequired': 'Capacity must be greater than 0',
 
-    // Session Filters
+    // Event Filters
     'sessions.filters.search': 'Search',
     'sessions.filters.searchPlaceholder': 'Search by name or table...',
     'sessions.filters.status': 'Status',
@@ -4137,30 +4139,30 @@ export const translations: Translations = {
     'sessions.filters.availability': 'Availability',
     'sessions.filters.allAvailability': 'All',
 
-    // Session List
-    'sessions.list.title': 'Sessions',
-    'sessions.noSessions.title': 'No sessions',
-    'sessions.noSessions.description': 'Get started by creating the first session for this service.',
+    // Event List
+    'sessions.list.title': 'Events',
+    'sessions.noSessions.title': 'No events',
+    'sessions.noSessions.description': 'Get started by creating the first event for this service.',
 
-    // Session Analytics
-    'sessions.analytics.title': 'Session Analytics',
-    'sessions.analytics.totalSessions': 'Total Sessions',
-    'sessions.analytics.scheduledSessions': 'Scheduled Sessions',
+    // Event Analytics
+    'sessions.analytics.title': 'Event Analytics',
+    'sessions.analytics.totalSessions': 'Total Events',
+    'sessions.analytics.scheduledSessions': 'Scheduled Events',
     'sessions.analytics.totalBookings': 'Total Bookings',
     'sessions.analytics.utilization': 'Utilization',
 
-    // Session Deletion
-    'sessions.deleteConfirm.title': 'Delete Session',
-    'sessions.deleteConfirm.message': 'Are you sure you want to delete the session "{sessionName}"?',
-    'sessions.deleteConfirm.hasBookings': 'This session has {count} bookings. Deleting will cancel all bookings.',
-    'sessions.deleteConfirm.delete': 'Delete Session',
+    // Event Deletion
+    'sessions.deleteConfirm.title': 'Delete Event',
+    'sessions.deleteConfirm.message': 'Are you sure you want to delete the event "{sessionName}"?',
+    'sessions.deleteConfirm.hasBookings': 'This event has {count} bookings. Deleting will cancel all bookings.',
+    'sessions.deleteConfirm.delete': 'Delete Event',
     'sessions.deleteConfirm.forceDelete': 'Force Delete',
 
-    // Session Errors
-    'sessions.error.loadFailed': 'Failed to load sessions',
-    'sessions.error.createFailed': 'Failed to create session',
-    'sessions.error.updateFailed': 'Failed to update session',
-    'sessions.error.deleteFailed': 'Failed to delete session',
+    // Event Errors
+    'sessions.error.loadFailed': 'Failed to load events',
+    'sessions.error.createFailed': 'Failed to create event',
+    'sessions.error.updateFailed': 'Failed to update event',
+    'sessions.error.deleteFailed': 'Failed to delete event',
   },
   it: {
     // Header & Navigation

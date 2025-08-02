@@ -334,6 +334,7 @@ export interface Booking {
   party_size: number;
   status: BookingStatus;
   service_id?: string;
+  session_id?: string;
   customer_name: string;
   customer_phone?: string;
   customer_email?: string;
@@ -365,6 +366,7 @@ export interface BookingFilters {
   date_to?: string;
   status?: BookingStatus;
   service_id?: string;
+  session_id?: string;
   customer_name?: string;
   customer_phone?: string;
   customer_email?: string;

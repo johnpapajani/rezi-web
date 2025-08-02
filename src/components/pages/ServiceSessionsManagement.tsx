@@ -34,6 +34,7 @@ interface ServiceSessionsManagementProps {
   serviceName: string;
   tables: Table[];
   businessTimezone: string;
+  onEventSelect?: (event: SessionWithBookings) => void;
 }
 
 const ServiceSessionsManagement: React.FC<ServiceSessionsManagementProps> = ({
@@ -41,6 +42,7 @@ const ServiceSessionsManagement: React.FC<ServiceSessionsManagementProps> = ({
   serviceName,
   tables,
   businessTimezone,
+  onEventSelect,
 }) => {
   const { t } = useTranslation();
   
@@ -480,7 +482,8 @@ const ServiceSessionsManagement: React.FC<ServiceSessionsManagementProps> = ({
                   key={session.id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="p-6 hover:bg-gray-50 transition-colors"
+                  className={`p-6 hover:bg-gray-50 transition-colors ${onEventSelect ? 'cursor-pointer' : ''}`}
+                  onClick={() => onEventSelect && onEventSelect(session)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
