@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { User, AuthResponse, SignUpData, SignInData, SendVerificationEmailResponse, VerifyEmailRequest, VerifyEmailResponse, ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse } from '../types';
 import { authApi, tokenStorage } from '../utils/api';
+import { isTokenExpired, getRefreshTimeout } from '../utils/tokenUtils';
 
 interface AuthContextType {
   user: User | null;
@@ -24,22 +25,78 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const refreshTimeout = useRef<NodeJS.Timeout | null>(null);
+
   const isAuthenticated = !!user && !!tokenStorage.getAccessToken();
+
+  const refreshAccessToken = async () => {
+    const refreshToken = tokenStorage.getRefreshToken();
+    if (!refreshToken) {
+      tokenStorage.clearTokens();
+      setUser(null);
+      return;
+    }
+    try {
+      const response = await authApi.refreshToken(refreshToken);
+      tokenStorage.setTokens(response.access_token, response.refresh_token);
+      scheduleTokenRefresh(response.access_token);
+    } catch {
+      tokenStorage.clearTokens();
+      setUser(null);
+    }
+  };
+
+  const scheduleTokenRefresh = (token: string) => {
+    if (refreshTimeout.current) {
+      clearTimeout(refreshTimeout.current);
+    }
+    const timeout = getRefreshTimeout(token);
+    if (timeout > 0) {
+      refreshTimeout.current = setTimeout(() => {
+        refreshAccessToken();
+      }, timeout);
+    }
+  };
 
   // Initialize auth state on mount
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       const savedUser = tokenStorage.getUser();
       const accessToken = tokenStorage.getAccessToken();
-      
-      if (savedUser && accessToken) {
-        setUser(savedUser);
+      const refreshToken = tokenStorage.getRefreshToken();
+
+      if (savedUser && (accessToken || refreshToken)) {
+        let tokenToUse = accessToken;
+        if (!accessToken || isTokenExpired(accessToken)) {
+          if (refreshToken) {
+            try {
+              const response = await authApi.refreshToken(refreshToken);
+              tokenStorage.setTokens(response.access_token, response.refresh_token);
+              tokenToUse = response.access_token;
+            } catch {
+              tokenStorage.clearTokens();
+              setUser(null);
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+        if (tokenToUse) {
+          setUser(savedUser);
+          scheduleTokenRefresh(tokenToUse);
+        }
       }
-      
+
       setIsLoading(false);
     };
 
     initializeAuth();
+    return () => {
+      if (refreshTimeout.current) {
+        clearTimeout(refreshTimeout.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAuthResponse = (response: AuthResponse) => {
@@ -57,6 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(userData);
     tokenStorage.setTokens(response.access_token, response.refresh_token);
     tokenStorage.setUser(userData);
+    scheduleTokenRefresh(response.access_token);
   };
 
   const signUp = async (data: SignUpData) => {
@@ -193,6 +251,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
       tokenStorage.clearTokens();
       setError(null);
+      if (refreshTimeout.current) {
+        clearTimeout(refreshTimeout.current);
+        refreshTimeout.current = null;
+      }
     }
   };
 
