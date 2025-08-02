@@ -96,6 +96,17 @@ const ServiceManagementDashboard: React.FC = () => {
   const [loadingEventBookings, setLoadingEventBookings] = useState(false);
   const [eventBookingsError, setEventBookingsError] = useState<string | null>(null);
 
+  // Debug logging for header button
+  useEffect(() => {
+    console.log('Debug - Service Management Dashboard:', {
+      business: !!business,
+      businessSlug: business?.slug,
+      service: !!service,
+      serviceId,
+      loading
+    });
+  }, [business, service, serviceId, loading]);
+
   // Load service bookings when component mounts or serviceId changes
   useEffect(() => {
     if (serviceId) {
@@ -221,10 +232,15 @@ const ServiceManagementDashboard: React.FC = () => {
       setService(serviceData);
       setTables(tablesData);
 
-      // Fetch business details to get slug for public URL
+      // Optionally fetch business details for additional context (not required for public URL)
       if (serviceData.business_id) {
-        const businessData = await businessApi.getBusiness(serviceData.business_id);
-        setBusiness(businessData);
+        try {
+          const businessData = await businessApi.getBusiness(serviceData.business_id);
+          setBusiness(businessData);
+        } catch (businessError) {
+          console.warn('Failed to fetch business data:', businessError);
+          // Still allow the component to work without business data since we have business_slug in service
+        }
       }
     } catch (err: any) {
       setError(err.detail || 'Failed to fetch service data');
@@ -675,6 +691,7 @@ const ServiceManagementDashboard: React.FC = () => {
             onClick: () => handleTabChange('settings')
           }
         ]}
+        actions={[]}
       />
 
       {/* Main Content */}
@@ -707,6 +724,33 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
 
+        {/* View Public Page Button */}
+        {service && (
+          <div className="mb-6 flex justify-center sm:justify-end">
+            <button
+              onClick={() => {
+                // Use business_slug directly from service data
+                const businessSlug = service.business_slug || business?.slug;
+                
+                if (!businessSlug) {
+                  alert('Unable to open public page - business information not available');
+                  return;
+                }
+                
+                const baseUrl = `/book/${businessSlug}/service/${serviceId}`;
+                const publicUrl = service.booking_mode === BookingMode.session 
+                  ? `${baseUrl}/sessions` 
+                  : baseUrl;
+                window.open(publicUrl, '_blank');
+              }}
+              className="inline-flex items-center px-4 py-2 sm:px-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm hover:shadow-md text-sm"
+            >
+              <GlobeAltIcon className="w-4 h-4 mr-2" />
+              {t('serviceManagement.viewPublicPage')}
+            </button>
+          </div>
+        )}
+
         {currentTab === 'dashboard' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -726,17 +770,8 @@ const ServiceManagementDashboard: React.FC = () => {
 
             {/* Reservation Statistics */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 mb-2">
+              <div className="mb-2">
                 <h2 className="text-lg font-medium text-gray-900">{t('serviceManagement.dashboard.title')}</h2>
-                {business && (
-                  <button
-                    onClick={() => window.open(`/book/${business.slug}/service/${serviceId}`, '_blank')}
-                    className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-colors touch-manipulation"
-                  >
-                    <GlobeAltIcon className="w-4 h-4 mr-2" />
-                    {t('serviceManagement.viewPublicPage')}
-                  </button>
-                )}
               </div>
               <p className="text-sm text-gray-500 mb-6">{t('serviceManagement.dashboard.subtitle')}</p>
               {/* Mobile-optimized 2x2 grid, desktop 1x4 grid */}

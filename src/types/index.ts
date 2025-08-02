@@ -213,6 +213,7 @@ export interface ServiceCategoryLocalized {
 export interface Service {
   id: string;
   business_id: string;
+  business_slug?: string;
   name: string;
   slug: string;
   description?: string;

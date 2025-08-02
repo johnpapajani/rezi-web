@@ -102,6 +102,14 @@ const MobileOptimizedHeader: React.FC<MobileOptimizedHeaderProps> = ({
 
   const primaryAction = actions.find(action => action.variant === 'primary');
   const secondaryActions = actions.filter(action => action.variant !== 'primary');
+  
+  // Debug logging
+  console.log('🎯 MOBILE HEADER DEBUG:', {
+    actionsReceived: actions.length,
+    primaryAction: !!primaryAction,
+    primaryActionLabel: primaryAction?.label,
+    secondaryActions: secondaryActions.length
+  });
 
   return (
     <header className={`${headerVariants[variant]} ${className}`}>
@@ -170,11 +178,11 @@ const MobileOptimizedHeader: React.FC<MobileOptimizedHeaderProps> = ({
                 <button
                   onClick={primaryAction.onClick}
                   disabled={primaryAction.disabled}
-                  className="hidden sm:flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation font-medium"
+                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation font-medium"
                   style={{ minHeight: '44px' }}
                 >
                   {primaryAction.icon && <primaryAction.icon className="w-4 h-4" />}
-                  <span>{primaryAction.label}</span>
+                  <span className="hidden sm:inline">{primaryAction.label}</span>
                 </button>
               )}
 
