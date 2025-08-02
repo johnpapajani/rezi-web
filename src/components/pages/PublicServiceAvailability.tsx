@@ -255,12 +255,7 @@ const PublicServiceAvailability: React.FC = () => {
     if (!selectedSlot || !service) return;
     
     // Debug: Log the selected slot information
-    console.log('🕐 DEBUG - Selected Slot:');
-    console.log('Display startTime:', formatTime(selectedSlot.starts_at));
-    console.log('Display endTime:', formatTime(selectedSlot.ends_at));
-    console.log('Raw starts_at:', selectedSlot.starts_at);
-    console.log('Raw ends_at:', selectedSlot.ends_at);
-    console.log('Selected date:', selectedDate);
+    
     
     const bookingData = {
       serviceId: service.id,
@@ -270,7 +265,7 @@ const PublicServiceAvailability: React.FC = () => {
       partySize
     };
 
-    console.log('📋 DEBUG - Booking Data being passed:', bookingData);
+    
 
     navigate(`/book/${slug}/service/${serviceId}/booking`, { 
       state: { bookingData, service, business } 

@@ -90,10 +90,19 @@ const ServiceOpenIntervalsManagement: React.FC = () => {
     ));
   };
 
+  const getBackUrl = () => {
+    // If we have business slug, prefer business-centric navigation
+    if (service?.business_slug) {
+      return `/business/${service.business_id}/services`;
+    }
+    // Otherwise, fall back to service dashboard
+    return `/service/${serviceId}`;
+  };
+
   const handleSave = async () => {
     try {
       await updateIntervals(formIntervals);
-      navigate(`/service/${serviceId}`);
+      navigate(getBackUrl());
     } catch (error) {
       // Error is handled by the hook
     }
@@ -152,7 +161,7 @@ const ServiceOpenIntervalsManagement: React.FC = () => {
       <MobileOptimizedHeader
         title={t('serviceOpenIntervals.title')}
         subtitle={service?.name}
-        backUrl={`/service/${serviceId}`}
+        backUrl={getBackUrl()}
         icon={ClockIcon}
         variant="business"
         actions={[

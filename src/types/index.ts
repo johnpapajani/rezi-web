@@ -213,6 +213,7 @@ export interface ServiceCategoryLocalized {
 export interface Service {
   id: string;
   business_id: string;
+  business_slug?: string;
   name: string;
   slug: string;
   description?: string;
@@ -334,6 +335,7 @@ export interface Booking {
   party_size: number;
   status: BookingStatus;
   service_id?: string;
+  session_id?: string;
   customer_name: string;
   customer_phone?: string;
   customer_email?: string;
@@ -365,6 +367,7 @@ export interface BookingFilters {
   date_to?: string;
   status?: BookingStatus;
   service_id?: string;
+  session_id?: string;
   customer_name?: string;
   customer_phone?: string;
   customer_email?: string;
@@ -555,7 +558,7 @@ export interface SessionBase {
   start_time: string; // ISO datetime string
   end_time: string;   // ISO datetime string
   capacity: number;
-  table_id?: string;
+  table_id?: string | null;
   is_available: boolean;
   is_recurring: boolean;
   recurrence_rule?: any;
@@ -571,7 +574,7 @@ export interface SessionUpdate {
   start_time?: string;
   end_time?: string;
   capacity?: number;
-  table_id?: string;
+  table_id?: string | null;
   is_available?: boolean;
   is_recurring?: boolean;
   recurrence_rule?: any;

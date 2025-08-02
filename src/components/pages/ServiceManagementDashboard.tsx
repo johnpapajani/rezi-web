@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { serviceApi, businessApi } from '../../utils/api';
 import { useServiceBookings } from '../../hooks/useServiceBookings';
-import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate, ServiceWithOpenIntervals, ServiceUpdate, BookingMode } from '../../types';
+import { Table, TableCreate, TableUpdate, BookingWithService, BookingStatus, BookingCreate, ServiceWithOpenIntervals, ServiceUpdate, BookingMode, SessionWithBookings, BookingFilters } from '../../types';
 import CreateBookingModal from '../modals/CreateBookingModal';
 import PendingBookingsSection from './PendingBookingsSection';
 import ServiceSettingsSection from './ServiceSettingsSection';
@@ -24,6 +24,9 @@ import {
   MagnifyingGlassIcon,
   CheckIcon,
   ListBulletIcon,
+  UserGroupIcon,
+  PhoneIcon,
+  EnvelopeIcon,
 } from '@heroicons/react/24/outline';
 import ServiceBookingsCalendar from './ServiceBookingsCalendar';
 import ServiceAvailabilityManagement from './ServiceAvailabilityManagement';
@@ -60,9 +63,14 @@ const ServiceManagementDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus | ''>('');
   const [dateFilter, setDateFilter] = useState<'today' | 'tomorrow' | 'week' | 'month' | ''>('');
+  const [sessionFilter, setSessionFilter] = useState<string>('');
   const [selectedBooking, setSelectedBooking] = useState<BookingWithService | null>(null);
   const [showBookingDetails, setShowBookingDetails] = useState(false);
   const [bookingsViewMode, setBookingsViewMode] = useState<'list' | 'calendar'>('list');
+  
+  // Sessions state for filtering
+  const [sessions, setSessions] = useState<SessionWithBookings[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
   
   // Table management state
   const [isCreateTableModalOpen, setIsCreateTableModalOpen] = useState(false);
@@ -82,12 +90,43 @@ const ServiceManagementDashboard: React.FC = () => {
   const [isCreateBookingModalOpen, setIsCreateBookingModalOpen] = useState(false);
   const [bookingCreationSuccess, setBookingCreationSuccess] = useState<string | null>(null);
 
+  // Event bookings state
+  const [selectedEvent, setSelectedEvent] = useState<SessionWithBookings | null>(null);
+  const [eventBookings, setEventBookings] = useState<BookingWithService[]>([]);
+  const [loadingEventBookings, setLoadingEventBookings] = useState(false);
+  const [eventBookingsError, setEventBookingsError] = useState<string | null>(null);
+
+
+
   // Load service bookings when component mounts or serviceId changes
   useEffect(() => {
     if (serviceId) {
       fetchBookings();
     }
   }, [serviceId, fetchBookings]);
+
+  // Load sessions for session-based services (for filtering)
+  useEffect(() => {
+    const fetchSessions = async () => {
+      if (serviceId && service?.booking_mode === BookingMode.session) {
+        try {
+          setSessionsLoading(true);
+          const sessionsData = await serviceApi.getServiceSessions(serviceId);
+          setSessions(sessionsData);
+        } catch (error) {
+          console.error('Failed to fetch sessions for filtering:', error);
+        } finally {
+          setSessionsLoading(false);
+        }
+      } else {
+        // Clear sessions and session filter for non-session services
+        setSessions([]);
+        setSessionFilter('');
+      }
+    };
+
+    fetchSessions();
+  }, [serviceId, service?.booking_mode]);
 
   // Apply booking filters
   useEffect(() => {
@@ -146,15 +185,19 @@ const ServiceManagementDashboard: React.FC = () => {
       }
     }
 
+    if (sessionFilter) {
+      filters.session_id = sessionFilter;
+    }
+
     fetchBookings(filters);
-  }, [searchTerm, statusFilter, dateFilter, serviceId, fetchBookings]);
+  }, [searchTerm, statusFilter, dateFilter, sessionFilter, serviceId, fetchBookings]);
 
   // Redirect from inappropriate tabs based on service booking mode
   useEffect(() => {
     if (service) {
       if (service.booking_mode === BookingMode.session) {
-        // Session-based services can't access availability or bookings tabs
-        if (currentTab === 'availability' || currentTab === 'bookings') {
+        // Session-based services can't access availability tab
+        if (currentTab === 'availability') {
           setCurrentTab('dashboard');
         }
       } else {
@@ -180,10 +223,15 @@ const ServiceManagementDashboard: React.FC = () => {
       setService(serviceData);
       setTables(tablesData);
 
-      // Fetch business details to get slug for public URL
+      // Optionally fetch business details for additional context (not required for public URL)
       if (serviceData.business_id) {
-        const businessData = await businessApi.getBusiness(serviceData.business_id);
-        setBusiness(businessData);
+        try {
+          const businessData = await businessApi.getBusiness(serviceData.business_id);
+          setBusiness(businessData);
+        } catch (businessError) {
+          console.warn('Failed to fetch business data:', businessError);
+          // Still allow the component to work without business data since we have business_slug in service
+        }
       }
     } catch (err: any) {
       setError(err.detail || 'Failed to fetch service data');
@@ -265,6 +313,9 @@ const ServiceManagementDashboard: React.FC = () => {
 
   const handleViewAllPending = () => {
     setStatusFilter(BookingStatus.pending);
+    setSearchTerm('');
+    setDateFilter('');
+    setSessionFilter('');
     handleTabChange('bookings');
   };
 
@@ -406,6 +457,59 @@ const ServiceManagementDashboard: React.FC = () => {
     setBookingCreationSuccess(null);
   };
 
+  // Handle event selection and load its bookings
+  const handleEventSelect = async (event: SessionWithBookings) => {
+    setSelectedEvent(event);
+    setLoadingEventBookings(true);
+    setEventBookingsError(null);
+    setEventBookings([]);
+    
+    try {
+      // Fetch bookings directly for this session using the bookings API
+      const filters: BookingFilters = {
+        session_id: event.id
+      };
+      
+      // Use service bookings API directly to get session-specific bookings
+      const sessionBookings = await serviceApi.getServiceBookings(serviceId!, filters);
+      setEventBookings(sessionBookings);
+    } catch (error: any) {
+      setEventBookingsError(error.detail || error.message || t('bookings.error.loadFailed'));
+    } finally {
+      setLoadingEventBookings(false);
+    }
+  };
+
+  const handleCloseEventDetails = () => {
+    setSelectedEvent(null);
+    setEventBookings([]);
+    setEventBookingsError(null);
+  };
+
+  const formatDateTimeInBusinessTimezone = (dateTimeString: string): { date: string; time: string } => {
+    const date = new Date(dateTimeString);
+    const timezone = business?.timezone || 'UTC';
+    
+    const dateFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+    
+    const timeFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    
+    return {
+      date: dateFormatter.format(date),
+      time: timeFormatter.format(date)
+    };
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -545,13 +649,12 @@ const ServiceManagementDashboard: React.FC = () => {
             isActive: currentTab === 'dashboard',
             onClick: () => handleTabChange('dashboard')
           },
-          // Only show bookings tab for appointment-based services
-          ...(service.booking_mode !== BookingMode.session ? [{
+          {
             id: 'bookings',
             label: t('serviceManagement.tabs.bookings'),
             isActive: currentTab === 'bookings',
             onClick: () => handleTabChange('bookings')
-          }] : []),
+          },
           {
             id: 'tables',
             label: t('serviceManagement.tabs.tables'),
@@ -579,6 +682,7 @@ const ServiceManagementDashboard: React.FC = () => {
             onClick: () => handleTabChange('settings')
           }
         ]}
+        actions={[]}
       />
 
       {/* Main Content */}
@@ -611,6 +715,33 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
 
+        {/* View Public Page Button */}
+        {service && (
+          <div className="mb-6 flex justify-center sm:justify-end">
+            <button
+              onClick={() => {
+                // Use business_slug directly from service data
+                const businessSlug = service.business_slug || business?.slug;
+                
+                if (!businessSlug) {
+                  alert('Unable to open public page - business information not available');
+                  return;
+                }
+                
+                const baseUrl = `/book/${businessSlug}/service/${serviceId}`;
+                const publicUrl = service.booking_mode === BookingMode.session 
+                  ? `${baseUrl}/sessions` 
+                  : baseUrl;
+                window.open(publicUrl, '_blank');
+              }}
+              className="inline-flex items-center px-4 py-2 sm:px-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm hover:shadow-md text-sm"
+            >
+              <GlobeAltIcon className="w-4 h-4 mr-2" />
+              {t('serviceManagement.viewPublicPage')}
+            </button>
+          </div>
+        )}
+
         {currentTab === 'dashboard' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -630,17 +761,8 @@ const ServiceManagementDashboard: React.FC = () => {
 
             {/* Reservation Statistics */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 mb-2">
+              <div className="mb-2">
                 <h2 className="text-lg font-medium text-gray-900">{t('serviceManagement.dashboard.title')}</h2>
-                {business && (
-                  <button
-                    onClick={() => window.open(`/book/${business.slug}/service/${serviceId}`, '_blank')}
-                    className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-colors touch-manipulation"
-                  >
-                    <GlobeAltIcon className="w-4 h-4 mr-2" />
-                    {t('serviceManagement.viewPublicPage')}
-                  </button>
-                )}
               </div>
               <p className="text-sm text-gray-500 mb-6">{t('serviceManagement.dashboard.subtitle')}</p>
               {/* Mobile-optimized 2x2 grid, desktop 1x4 grid */}
@@ -750,7 +872,7 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
 
-        {currentTab === 'bookings' && service && service.booking_mode !== BookingMode.session && (
+        {currentTab === 'bookings' && service && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -895,6 +1017,25 @@ const ServiceManagementDashboard: React.FC = () => {
                           <option value="month">{t('calendar.filter.thisMonth')}</option>
                         </select>
                       </div>
+
+                      {/* Session Filter - Only show for session-based services */}
+                      {service?.booking_mode === BookingMode.session && (
+                        <div className="sm:min-w-[140px]">
+                          <select
+                            value={sessionFilter}
+                            onChange={(e) => setSessionFilter(e.target.value)}
+                            className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm touch-manipulation"
+                            disabled={sessionsLoading}
+                          >
+                            <option value="">{t('calendar.filter.allEvents')}</option>
+                            {sessions.map((session) => (
+                              <option key={session.id} value={session.id}>
+                                {session.name || t('sessions.unnamedSession')}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -921,7 +1062,7 @@ const ServiceManagementDashboard: React.FC = () => {
                         <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
                         <h3 className="mt-2 text-sm font-medium text-gray-900">No bookings found</h3>
                         <p className="mt-1 text-sm text-gray-500 max-w-md mx-auto">
-                          {searchTerm || statusFilter || dateFilter 
+                          {searchTerm || statusFilter || dateFilter || sessionFilter
                             ? 'Try adjusting your filters to see more bookings.'
                             : 'Get started by creating your first booking.'
                           }
@@ -1205,6 +1346,7 @@ const ServiceManagementDashboard: React.FC = () => {
               serviceName={service.name}
               tables={tables}
               businessTimezone={business?.timezone || 'UTC'}
+              onEventSelect={handleEventSelect}
             />
           </motion.div>
         )}
@@ -1434,6 +1576,150 @@ const ServiceManagementDashboard: React.FC = () => {
           tables={tables}
           loading={bookingsLoading}
         />
+      )}
+
+      {/* Event Bookings Modal */}
+      {selectedEvent && (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: '100%', scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: '100%', scale: 0.95 }}
+              className="bg-white rounded-t-lg sm:rounded-lg shadow-xl w-full sm:max-w-4xl max-h-[90vh] overflow-y-auto"
+            >
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-white px-4 sm:px-6 py-4 border-b border-gray-200 rounded-t-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      {selectedEvent.name || t('sessions.unnamedSession')}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {t('sessions.eventBookings')} ({eventBookings.length})
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleCloseEventDetails}
+                    className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors touch-manipulation"
+                  >
+                    <XMarkIcon className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-4 sm:p-6">
+                {/* Event Details */}
+                <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-700">{t('sessions.form.startTime')}:</span>
+                      <p className="text-gray-900">{(() => {
+                        const { date, time } = formatDateTimeInBusinessTimezone(selectedEvent.start_time);
+                        return `${date} ${time}`;
+                      })()}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">{t('sessions.form.endTime')}:</span>
+                      <p className="text-gray-900">{formatDateTimeInBusinessTimezone(selectedEvent.end_time).time}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">{t('sessions.form.capacity')}:</span>
+                      <p className="text-gray-900">{selectedEvent.capacity}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">{t('sessions.booked')}:</span>
+                      <p className="text-gray-900">{selectedEvent.total_bookings}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bookings List */}
+                {loadingEventBookings ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">{t('common.loading')}</p>
+                  </div>
+                ) : eventBookingsError ? (
+                  <div className="text-center py-8">
+                    <ExclamationTriangleIcon className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                    <p className="text-red-600 font-medium">{eventBookingsError}</p>
+                  </div>
+                ) : eventBookings.length === 0 ? (
+                  <div className="text-center py-12">
+                    <UserGroupIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{t('sessions.noBookings.title')}</h3>
+                    <p className="text-gray-600">{t('sessions.noBookings.description')}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {eventBookings.map((booking) => (
+                      <motion.div
+                        key={booking.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-gray-50 border border-gray-200 rounded-lg p-4"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-lg font-semibold text-gray-900 truncate">
+                              {booking.customer_name}
+                            </h4>
+                            <div className="grid grid-cols-2 gap-4 mt-2 text-sm text-gray-600">
+                              <div className="flex items-center">
+                                <UserGroupIcon className="w-4 h-4 mr-2 text-gray-400" />
+                                <span>{booking.party_size} {booking.party_size === 1 ? t('bookings.list.person') : t('bookings.list.people')}</span>
+                              </div>
+                              {booking.customer_phone && (
+                                <div className="flex items-center">
+                                  <PhoneIcon className="w-4 h-4 mr-2 text-gray-400" />
+                                  <span className="truncate">{booking.customer_phone}</span>
+                                </div>
+                              )}
+                              {booking.customer_email && (
+                                <div className="flex items-center col-span-2">
+                                  <EnvelopeIcon className="w-4 h-4 mr-2 text-gray-400" />
+                                  <span className="truncate">{booking.customer_email}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <span className={`ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
+                            booking.status === 'pending'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : booking.status === 'confirmed'
+                              ? 'bg-green-100 text-green-800'
+                              : booking.status === 'cancelled'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {t(`bookings.list.filters.${booking.status}`)}
+                          </span>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Close Button */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={handleCloseEventDetails}
+                    className="w-full sm:w-auto px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors touch-manipulation"
+                  >
+                    {t('common.close')}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
       )}
     </div>
   );

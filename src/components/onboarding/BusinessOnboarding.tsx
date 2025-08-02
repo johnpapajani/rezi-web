@@ -194,19 +194,7 @@ const BusinessOnboarding: React.FC = () => {
   const validateTablesConfiguration = (): boolean => {
     // Check if any tables are configured
     const totalTables = tables.length;
-    console.log('Validating tables configuration:', {
-      totalTables,
-      tablesState: tables,
-      servicesCount: services.length
-    });
-    
     // Tables are optional - if no tables are configured, that's fine
-    // Just log for debugging purposes
-    if (totalTables === 0) {
-      console.log('No tables configured - this is optional');
-    } else {
-      console.log(`Found ${totalTables} tables configured for the business`);
-    }
     
     return true; // Tables are optional, so always return true
   };
