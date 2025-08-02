@@ -63,9 +63,14 @@ const ServiceManagementDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus | ''>('');
   const [dateFilter, setDateFilter] = useState<'today' | 'tomorrow' | 'week' | 'month' | ''>('');
+  const [sessionFilter, setSessionFilter] = useState<string>('');
   const [selectedBooking, setSelectedBooking] = useState<BookingWithService | null>(null);
   const [showBookingDetails, setShowBookingDetails] = useState(false);
   const [bookingsViewMode, setBookingsViewMode] = useState<'list' | 'calendar'>('list');
+  
+  // Sessions state for filtering
+  const [sessions, setSessions] = useState<SessionWithBookings[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
   
   // Table management state
   const [isCreateTableModalOpen, setIsCreateTableModalOpen] = useState(false);
@@ -97,6 +102,29 @@ const ServiceManagementDashboard: React.FC = () => {
       fetchBookings();
     }
   }, [serviceId, fetchBookings]);
+
+  // Load sessions for session-based services (for filtering)
+  useEffect(() => {
+    const fetchSessions = async () => {
+      if (serviceId && service?.booking_mode === BookingMode.session) {
+        try {
+          setSessionsLoading(true);
+          const sessionsData = await serviceApi.getServiceSessions(serviceId);
+          setSessions(sessionsData);
+        } catch (error) {
+          console.error('Failed to fetch sessions for filtering:', error);
+        } finally {
+          setSessionsLoading(false);
+        }
+      } else {
+        // Clear sessions and session filter for non-session services
+        setSessions([]);
+        setSessionFilter('');
+      }
+    };
+
+    fetchSessions();
+  }, [serviceId, service?.booking_mode]);
 
   // Apply booking filters
   useEffect(() => {
@@ -155,15 +183,19 @@ const ServiceManagementDashboard: React.FC = () => {
       }
     }
 
+    if (sessionFilter) {
+      filters.session_id = sessionFilter;
+    }
+
     fetchBookings(filters);
-  }, [searchTerm, statusFilter, dateFilter, serviceId, fetchBookings]);
+  }, [searchTerm, statusFilter, dateFilter, sessionFilter, serviceId, fetchBookings]);
 
   // Redirect from inappropriate tabs based on service booking mode
   useEffect(() => {
     if (service) {
       if (service.booking_mode === BookingMode.session) {
-        // Session-based services can't access availability or bookings tabs
-        if (currentTab === 'availability' || currentTab === 'bookings') {
+        // Session-based services can't access availability tab
+        if (currentTab === 'availability') {
           setCurrentTab('dashboard');
         }
       } else {
@@ -274,6 +306,9 @@ const ServiceManagementDashboard: React.FC = () => {
 
   const handleViewAllPending = () => {
     setStatusFilter(BookingStatus.pending);
+    setSearchTerm('');
+    setDateFilter('');
+    setSessionFilter('');
     handleTabChange('bookings');
   };
 
@@ -607,13 +642,12 @@ const ServiceManagementDashboard: React.FC = () => {
             isActive: currentTab === 'dashboard',
             onClick: () => handleTabChange('dashboard')
           },
-          // Only show bookings tab for appointment-based services
-          ...(service.booking_mode !== BookingMode.session ? [{
+          {
             id: 'bookings',
             label: t('serviceManagement.tabs.bookings'),
             isActive: currentTab === 'bookings',
             onClick: () => handleTabChange('bookings')
-          }] : []),
+          },
           {
             id: 'tables',
             label: t('serviceManagement.tabs.tables'),
@@ -812,7 +846,7 @@ const ServiceManagementDashboard: React.FC = () => {
           </motion.div>
         )}
 
-        {currentTab === 'bookings' && service && service.booking_mode !== BookingMode.session && (
+        {currentTab === 'bookings' && service && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -957,6 +991,25 @@ const ServiceManagementDashboard: React.FC = () => {
                           <option value="month">{t('calendar.filter.thisMonth')}</option>
                         </select>
                       </div>
+
+                      {/* Session Filter - Only show for session-based services */}
+                      {service?.booking_mode === BookingMode.session && (
+                        <div className="sm:min-w-[140px]">
+                          <select
+                            value={sessionFilter}
+                            onChange={(e) => setSessionFilter(e.target.value)}
+                            className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm touch-manipulation"
+                            disabled={sessionsLoading}
+                          >
+                            <option value="">{t('calendar.filter.allEvents')}</option>
+                            {sessions.map((session) => (
+                              <option key={session.id} value={session.id}>
+                                {session.name || t('sessions.unnamedSession')}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -983,7 +1036,7 @@ const ServiceManagementDashboard: React.FC = () => {
                         <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-400" />
                         <h3 className="mt-2 text-sm font-medium text-gray-900">No bookings found</h3>
                         <p className="mt-1 text-sm text-gray-500 max-w-md mx-auto">
-                          {searchTerm || statusFilter || dateFilter 
+                          {searchTerm || statusFilter || dateFilter || sessionFilter
                             ? 'Try adjusting your filters to see more bookings.'
                             : 'Get started by creating your first booking.'
                           }

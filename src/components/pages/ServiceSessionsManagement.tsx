@@ -65,7 +65,7 @@ const ServiceSessionsManagement: React.FC<ServiceSessionsManagementProps> = ({
     start_time: '',
     end_time: '',
     capacity: 1,
-    table_id: '',
+    table_id: undefined,
     is_available: true,
     is_recurring: false,
     status: SessionStatus.scheduled,
@@ -139,7 +139,14 @@ const ServiceSessionsManagement: React.FC<ServiceSessionsManagementProps> = ({
 
     try {
       setCreating(true);
-      const newSession = await serviceApi.createServiceSession(serviceId, formData);
+      
+      // Clean the form data - convert undefined table_id to null for the API
+      const cleanFormData = {
+        ...formData,
+        table_id: formData.table_id || null
+      };
+      
+      const newSession = await serviceApi.createServiceSession(serviceId, cleanFormData);
       setSessions(prev => [...prev, newSession]);
       setIsCreateModalOpen(false);
       resetForm();
@@ -164,7 +171,7 @@ const ServiceSessionsManagement: React.FC<ServiceSessionsManagementProps> = ({
     if (formData.start_time !== editingSession.start_time) updateData.start_time = formData.start_time;
     if (formData.end_time !== editingSession.end_time) updateData.end_time = formData.end_time;
     if (formData.capacity !== editingSession.capacity) updateData.capacity = formData.capacity;
-    if (formData.table_id !== editingSession.table_id) updateData.table_id = formData.table_id || undefined;
+    if (formData.table_id !== editingSession.table_id) updateData.table_id = formData.table_id || null;
     if (formData.is_available !== editingSession.is_available) updateData.is_available = formData.is_available;
     if (formData.status !== editingSession.status) updateData.status = formData.status;
     
@@ -216,7 +223,7 @@ const ServiceSessionsManagement: React.FC<ServiceSessionsManagementProps> = ({
       start_time: '',
       end_time: '',
       capacity: 1,
-      table_id: '',
+      table_id: undefined,
       is_available: true,
       is_recurring: false,
       status: SessionStatus.scheduled,
@@ -236,7 +243,7 @@ const ServiceSessionsManagement: React.FC<ServiceSessionsManagementProps> = ({
       start_time: session.start_time,
       end_time: session.end_time,
       capacity: session.capacity,
-      table_id: session.table_id || '',
+      table_id: session.table_id || undefined,
       is_available: session.is_available,
       is_recurring: session.is_recurring,
       status: session.status,
@@ -666,8 +673,8 @@ const ServiceSessionsManagement: React.FC<ServiceSessionsManagementProps> = ({
                       {t('sessions.form.table')}
                     </label>
                     <select
-                      value={formData.table_id}
-                      onChange={(e) => setFormData(prev => ({ ...prev, table_id: e.target.value }))}
+                      value={formData.table_id || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, table_id: e.target.value || undefined }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="">{t('sessions.form.noTable')}</option>

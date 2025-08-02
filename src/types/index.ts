@@ -557,7 +557,7 @@ export interface SessionBase {
   start_time: string; // ISO datetime string
   end_time: string;   // ISO datetime string
   capacity: number;
-  table_id?: string;
+  table_id?: string | null;
   is_available: boolean;
   is_recurring: boolean;
   recurrence_rule?: any;
@@ -573,7 +573,7 @@ export interface SessionUpdate {
   start_time?: string;
   end_time?: string;
   capacity?: number;
-  table_id?: string;
+  table_id?: string | null;
   is_available?: boolean;
   is_recurring?: boolean;
   recurrence_rule?: any;

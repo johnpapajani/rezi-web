@@ -1714,6 +1714,7 @@ export const translations: Translations = {
     // Filter Options
     'calendar.filter.allStatuses': 'Të gjitha statuset',
     'calendar.filter.allDates': 'Të gjitha datat',
+    'calendar.filter.allEvents': 'Të gjitha eventet',
     'calendar.filter.today': 'Sot',
     'calendar.filter.tomorrow': 'Nesër',
     'calendar.filter.thisWeek': 'Këtë javë',
@@ -2013,6 +2014,9 @@ export const translations: Translations = {
     'sessions.filters': 'Filtrat',
     'sessions.showAnalytics': 'Shfaq Analizat',
     'sessions.hideAnalytics': 'Fshih Analizat',
+    'sessions.eventBookings': 'Rezervimet e Eventit',
+    'sessions.noBookings.title': 'Nuk ka rezervime',
+    'sessions.noBookings.description': 'Ky event nuk ka rezervime ende.',
 
 
     // Session Status
@@ -3806,6 +3810,7 @@ export const translations: Translations = {
     // Filter Options
     'calendar.filter.allStatuses': 'All statuses',
     'calendar.filter.allDates': 'All dates',
+    'calendar.filter.allEvents': 'All events',
     'calendar.filter.today': 'Today',
     'calendar.filter.tomorrow': 'Tomorrow',
     'calendar.filter.thisWeek': 'This week',
@@ -4095,6 +4100,9 @@ export const translations: Translations = {
     'sessions.filters': 'Filters',
     'sessions.showAnalytics': 'Show Analytics',
     'sessions.hideAnalytics': 'Hide Analytics',
+    'sessions.eventBookings': 'Event Bookings',
+    'sessions.noBookings.title': 'No bookings',
+    'sessions.noBookings.description': 'This event has no bookings yet.',
 
 
     // Session Status
@@ -5893,6 +5901,7 @@ export const translations: Translations = {
     // Filter Options
     'calendar.filter.allStatuses': 'Tutti gli stati',
     'calendar.filter.allDates': 'Tutte le date',
+    'calendar.filter.allEvents': 'Tutti gli eventi',
     'calendar.filter.today': 'Oggi',
     'calendar.filter.tomorrow': 'Domani',
     'calendar.filter.thisWeek': 'Questa settimana',
