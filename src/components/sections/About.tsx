@@ -33,7 +33,7 @@ const About: React.FC = () => {
 
   const stats = [
     {
-      number: '2025',
+      number: '2014',
       label: t('about.stats.founded'),
     },
     {

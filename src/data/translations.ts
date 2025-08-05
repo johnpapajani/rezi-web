@@ -1281,7 +1281,7 @@ export const translations: Translations = {
     // Privacy Policy
     'privacy.title': 'Politika e Privatësisë',
     'privacy.lastUpdated': 'Përditësuar për herë të fundit',
-    'privacy.updateDate': '15 Janar 2025',
+    'privacy.updateDate': '15 Janar 2014',
     'privacy.introduction.title': 'Hyrje',
     'privacy.introduction.description': 'Rezi ("ne", "na", "nën") respekton privatësinë tuaj dhe është i përkushtuar të mbrojë të dhënat tuaja personale.',
     'privacy.introduction.commitment': 'Kjo Politikë Privatësie shpjegon se si ne mbledhim, përdorim, ruajmë dhe mbrojmë informacionin tuaj personal.',
@@ -1346,7 +1346,7 @@ export const translations: Translations = {
     // Terms of Service
     'terms.title': 'Kushtet e Shërbimit',
     'terms.lastUpdated': 'Përditësuar për herë të fundit',
-    'terms.updateDate': '15 Janar 2025',
+    'terms.updateDate': '15 Janar 2014',
     'terms.introduction.title': 'Mirësevini në Rezi',
     'terms.introduction.description': 'Këto Kushte Shërbimi ("Kushtet") rregullojnë përdorimin tuaj të platformës Rezi.',
     'terms.introduction.agreement': 'Duke përdorur shërbimet tona, ju pranoni këto kushte në tërësi.',
@@ -1432,7 +1432,7 @@ export const translations: Translations = {
     // Cookie Policy
     'cookies.title': 'Politika e Cookies',
     'cookies.lastUpdated': 'Përditësuar për herë të fundit',
-    'cookies.updateDate': '15 Janar 2025',
+    'cookies.updateDate': '15 Janar 2014',
     'cookies.introduction.title': 'Rreth Cookies',
     'cookies.introduction.description': 'Ky dokument shpjegon se si Rezi përdor cookies dhe teknologji të ngjashme në platformën tonë.',
     'cookies.introduction.commitment': 'Ne jemi të përkushtuar ndaj transparencës në mënyrën se si i mbledhim dhe përdorim të dhënat tuaja.',
@@ -3010,7 +3010,7 @@ export const translations: Translations = {
     // Privacy Policy
     'privacy.title': 'Privacy Policy',
     'privacy.lastUpdated': 'Last updated',
-    'privacy.updateDate': 'January 15, 2025',
+    'privacy.updateDate': 'January 15, 2014',
     'privacy.introduction.title': 'Introduction',
     'privacy.introduction.description': 'Rezi ("we", "us", "our") respects your privacy and is committed to protecting your personal data.',
     'privacy.introduction.commitment': 'This Privacy Policy explains how we collect, use, store, and protect your personal information.',
@@ -3075,7 +3075,7 @@ export const translations: Translations = {
     // Terms of Service
     'terms.title': 'Terms of Service',
     'terms.lastUpdated': 'Last updated',
-    'terms.updateDate': 'January 15, 2025',
+    'terms.updateDate': 'January 15, 2014',
     'terms.introduction.title': 'Welcome to Rezi',
     'terms.introduction.description': 'These Terms of Service ("Terms") govern your use of the Rezi platform.',
     'terms.introduction.agreement': 'By using our services, you agree to these terms in full.',
@@ -3157,7 +3157,7 @@ export const translations: Translations = {
     // Cookie Policy
     'cookies.title': 'Cookie Policy',
     'cookies.lastUpdated': 'Last updated',
-    'cookies.updateDate': 'January 15, 2025',
+    'cookies.updateDate': 'January 15, 2014',
     'cookies.introduction.title': 'About Cookies',
     'cookies.introduction.description': 'This document explains how Rezi uses cookies and similar technologies on our platform.',
     'cookies.introduction.commitment': 'We are committed to transparency in how we collect and use your data.',
@@ -5097,7 +5097,7 @@ export const translations: Translations = {
     // Privacy Policy
     'privacy.title': 'Informativa sulla Privacy',
     'privacy.lastUpdated': 'Ultimo aggiornamento',
-    'privacy.updateDate': '15 gennaio 2025',
+    'privacy.updateDate': '15 gennaio 2014',
     'privacy.introduction.title': 'Introduzione',
     'privacy.introduction.description': 'Rezi ("noi", "ci", "nostro") rispetta la tua privacy e si impegna a proteggere i tuoi dati personali.',
     'privacy.introduction.commitment': 'Questa Informativa sulla Privacy spiega come raccogliamo, utilizziamo, conserviamo e proteggiamo le tue informazioni personali.',
@@ -5162,7 +5162,7 @@ export const translations: Translations = {
     // Terms of Service
     'terms.title': 'Termini di Servizio',
     'terms.lastUpdated': 'Ultimo aggiornamento',
-    'terms.updateDate': '15 gennaio 2025',
+    'terms.updateDate': '15 gennaio 2014',
     'terms.introduction.title': 'Benvenuto in Rezi',
     'terms.introduction.description': 'Questi Termini di Servizio ("Termini") regolano l\'uso della piattaforma Rezi.',
     'terms.introduction.agreement': 'Utilizzando i nostri servizi, accetti integralmente questi termini.',
@@ -5248,7 +5248,7 @@ export const translations: Translations = {
     // Cookie Policy
     'cookies.title': 'Informativa sui Cookie',
     'cookies.lastUpdated': 'Ultimo aggiornamento',
-    'cookies.updateDate': '15 gennaio 2025',
+    'cookies.updateDate': '15 gennaio 2014',
     'cookies.introduction.title': 'Informazioni sui Cookie',
     'cookies.introduction.description': 'Questo documento spiega come Rezi utilizza i cookie e tecnologie simili sulla nostra piattaforma.',
     'cookies.introduction.commitment': 'Ci impegniamo per la trasparenza su come raccogliamo e utilizziamo i tuoi dati.',
