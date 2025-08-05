@@ -202,7 +202,7 @@ const Footer: React.FC = () => {
         >
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-gray-400 text-sm">
-              © 2025 Rezi. {t('footer.rights')}
+              © 2014 Rezi. {t('footer.rights')}
             </div>
             
             {/* Social Links */}

@@ -57,13 +57,24 @@ const ServiceOpenIntervalsManagement: React.FC = () => {
     }
   }, [intervals]);
 
-  const fetchServiceData = async () => {
+  const fetchServiceData = async (retryCount = 0) => {
     try {
       setLoading(true);
       setError(null);
       const serviceData = await serviceApi.getServiceDetails(serviceId!);
       setService(serviceData);
     } catch (err: any) {
+      // If it's a 401 error and we haven't retried yet, wait a moment and retry
+      // This handles the case where tokens are being refreshed
+      if (err.status === 401 && retryCount < 2) {
+        console.log(`Authentication error, retrying in ${(retryCount + 1) * 1000}ms...`);
+        setTimeout(() => {
+          fetchServiceData(retryCount + 1);
+        }, (retryCount + 1) * 1000);
+        return;
+      }
+      
+      // For other errors or after exhausting retries, show the error
       setError(err.detail || 'Failed to fetch service data');
     } finally {
       setLoading(false);

@@ -787,15 +787,20 @@ export const serviceApi = {
   },
 
   getServiceSession: async (serviceId: string, sessionId: string): Promise<SessionWithBookings> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}`, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
-    return handleResponse<SessionWithBookings>(response, originalRequest);
+    
+    return handleResponse<SessionWithBookings>(response);
   },
 
   updateServiceSession: async (
@@ -803,32 +808,41 @@ export const serviceApi = {
     sessionId: string, 
     sessionUpdate: SessionUpdate
   ): Promise<SessionWithBookings> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}`, {
       method: 'PATCH',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(sessionUpdate),
     });
-
-    const response = await originalRequest();
-    return handleResponse<SessionWithBookings>(response, originalRequest);
+    
+    return handleResponse<SessionWithBookings>(response);
   },
 
   deleteServiceSession: async (serviceId: string, sessionId: string, force: boolean = false): Promise<void> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
     const url = new URL(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}`);
     if (force) {
       url.searchParams.set('force', 'true');
     }
 
-    const originalRequest = () => makeAuthenticatedRequest(url.toString(), {
+    const response = await fetch(url.toString(), {
       method: 'DELETE',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
     
     if (!response.ok) {
       const errorData = await response.json();
@@ -841,16 +855,21 @@ export const serviceApi = {
     sessionId: string, 
     sessionUpdate: SessionUpdate
   ): Promise<SessionConflictCheck> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}/check-conflicts`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}/check-conflicts`, {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(sessionUpdate),
     });
-
-    const response = await originalRequest();
-    return handleResponse<SessionConflictCheck>(response, originalRequest);
+    
+    return handleResponse<SessionConflictCheck>(response);
   },
 
   checkSessionAvailability: async (
@@ -858,18 +877,23 @@ export const serviceApi = {
     sessionId: string, 
     partySize: number
   ): Promise<SessionAvailabilityCheck> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
     const url = new URL(`${API_BASE_URL}/services/${serviceId}/sessions/${sessionId}/availability`);
     url.searchParams.set('party_size', partySize.toString());
 
-    const originalRequest = () => makeAuthenticatedRequest(url.toString(), {
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
-    return handleResponse<SessionAvailabilityCheck>(response, originalRequest);
+    
+    return handleResponse<SessionAvailabilityCheck>(response);
   },
 
   getServiceSessionAnalytics: async (
@@ -877,25 +901,35 @@ export const serviceApi = {
     dateFrom?: string, 
     dateTo?: string
   ): Promise<SessionAnalytics> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
     const url = new URL(`${API_BASE_URL}/services/${serviceId}/sessions/analytics`);
     if (dateFrom) url.searchParams.set('date_from', dateFrom);
     if (dateTo) url.searchParams.set('date_to', dateTo);
 
-    const originalRequest = () => makeAuthenticatedRequest(url.toString(), {
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
-    return handleResponse<SessionAnalytics>(response, originalRequest);
+    
+    return handleResponse<SessionAnalytics>(response);
   },
 };
 
 // Booking API functions
 export const bookingApi = {
   searchBookings: async (bizId: string, filters?: BookingFilters): Promise<BookingWithService[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
     const searchParams = new URLSearchParams();
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
@@ -907,111 +941,145 @@ export const bookingApi = {
 
     const url = `${API_BASE_URL}/business/${bizId}/bookings/search${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     
-    const originalRequest = () => makeAuthenticatedRequest(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
-    return handleResponse<BookingWithService[]>(response, originalRequest);
+    
+    return handleResponse<BookingWithService[]>(response);
   },
 
   getCalendarBookings: async (bizId: string, dateFrom?: string, dateTo?: string): Promise<BookingWithService[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
     const searchParams = new URLSearchParams();
     if (dateFrom) searchParams.append('date_from', dateFrom);
     if (dateTo) searchParams.append('date_to', dateTo);
 
     const url = `${API_BASE_URL}/business/${bizId}/bookings/calendar${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     
-    const originalRequest = () => makeAuthenticatedRequest(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
-    return handleResponse<BookingWithService[]>(response, originalRequest);
+    
+    return handleResponse<BookingWithService[]>(response);
   },
 
   getUpcomingBookings: async (bizId: string, daysAhead: number = 7, limit: number = 20): Promise<BookingWithService[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
     const searchParams = new URLSearchParams();
     searchParams.append('days_ahead', daysAhead.toString());
     searchParams.append('limit', limit.toString());
 
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/bookings/upcoming?${searchParams.toString()}`, {
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/upcoming?${searchParams.toString()}`, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
-    return handleResponse<BookingWithService[]>(response, originalRequest);
+    
+    return handleResponse<BookingWithService[]>(response);
   },
 
   getBookingDetails: async (bizId: string, bookingId: string): Promise<BookingWithService> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}`, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
-    return handleResponse<BookingWithService>(response, originalRequest);
+    
+    return handleResponse<BookingWithService>(response);
   },
 
   updateBooking: async (bizId: string, bookingId: string, bookingUpdate: BookingUpdate): Promise<BookingWithService> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}`, {
       method: 'PATCH',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(bookingUpdate),
     });
-
-    const response = await originalRequest();
-    return handleResponse<BookingWithService>(response, originalRequest);
+    
+    return handleResponse<BookingWithService>(response);
   },
 
   updateBookingStatus: async (bizId: string, bookingId: string, statusUpdate: BookingStatusUpdate): Promise<BookingWithService> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}/status`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}/status`, {
       method: 'PATCH',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(statusUpdate),
     });
-
-    const response = await originalRequest();
-    return handleResponse<BookingWithService>(response, originalRequest);
+    
+    return handleResponse<BookingWithService>(response);
   },
 
   rescheduleBooking: async (bizId: string, bookingId: string, rescheduleData: BookingReschedule): Promise<BookingWithService> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}/reschedule`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}/reschedule`, {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(rescheduleData),
     });
-
-    const response = await originalRequest();
-    return handleResponse<BookingWithService>(response, originalRequest);
+    
+    return handleResponse<BookingWithService>(response);
   },
 
   cancelBooking: async (bizId: string, bookingId: string): Promise<void> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/bookings/${bookingId}`, {
       method: 'DELETE',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
     
     if (!response.ok) {
       const errorData = await response.json();
@@ -1023,68 +1091,92 @@ export const bookingApi = {
 // Table API functions
 export const tableApi = {
   getTables: async (bizId: string, serviceId?: string): Promise<Table[]> => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
     const url = serviceId 
       ? `${API_BASE_URL}/business/${bizId}/services/${serviceId}/tables`
       : `${API_BASE_URL}/business/${bizId}/tables`;
 
-    const originalRequest = () => makeAuthenticatedRequest(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
-    return handleResponse<Table[]>(response, originalRequest);
+    
+    return handleResponse<Table[]>(response);
   },
 
   getTable: async (bizId: string, tableId: string): Promise<Table> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/tables/${tableId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/tables/${tableId}`, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
-    return handleResponse<Table>(response, originalRequest);
+    
+    return handleResponse<Table>(response);
   },
 
   createTable: async (bizId: string, tableData: TableCreate): Promise<Table> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/services/${tableData.service_id}/tables`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/services/${tableData.service_id}/tables`, {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(tableData),
     });
-
-    const response = await originalRequest();
-    return handleResponse<Table>(response, originalRequest);
+    
+    return handleResponse<Table>(response);
   },
 
   updateTable: async (bizId: string, tableId: string, tableUpdate: TableUpdate): Promise<Table> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/tables/${tableId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/tables/${tableId}`, {
       method: 'PATCH',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(tableUpdate),
     });
-
-    const response = await originalRequest();
-    return handleResponse<Table>(response, originalRequest);
+    
+    return handleResponse<Table>(response);
   },
 
   deleteTable: async (bizId: string, tableId: string): Promise<void> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/tables/${tableId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/tables/${tableId}`, {
       method: 'DELETE',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
     
     if (!response.ok) {
       const errorData = await response.json();
@@ -1108,52 +1200,71 @@ export const resourceApi = {
   },
 
   getResource: async (bizId: string, resourceId: string): Promise<Resource> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/resources/${resourceId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/resources/${resourceId}`, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
-    return handleResponse<Resource>(response, originalRequest);
+    
+    return handleResponse<Resource>(response);
   },
 
   createResource: async (bizId: string, resourceData: ResourceCreate): Promise<Resource> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/resources`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/resources`, {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(resourceData),
     });
-
-    const response = await originalRequest();
-    return handleResponse<Resource>(response, originalRequest);
+    
+    return handleResponse<Resource>(response);
   },
 
   updateResource: async (bizId: string, resourceId: string, resourceUpdate: ResourceUpdate): Promise<Resource> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/resources/${resourceId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/resources/${resourceId}`, {
       method: 'PATCH',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(resourceUpdate),
     });
-
-    const response = await originalRequest();
-    return handleResponse<Resource>(response, originalRequest);
+    
+    return handleResponse<Resource>(response);
   },
 
   deleteResource: async (bizId: string, resourceId: string): Promise<void> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/business/${bizId}/resources/${resourceId}`, {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new ApiErrorClass('No access token available', 401);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/${bizId}/resources/${resourceId}`, {
       method: 'DELETE',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
-
-    const response = await originalRequest();
     
     if (!response.ok) {
       const errorData = await response.json();
@@ -1412,14 +1523,12 @@ export const subscriptionApi = {
 
   // Cancel current subscription
   cancelSubscription: async (): Promise<void> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/subscriptions/me`, {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/me`, {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${tokenStorage.getAccessToken()}`,
       },
     });
-
-    const response = await originalRequest();
     
     if (!response.ok) {
       const errorData = await response.json();

@@ -4,7 +4,7 @@
 
 /**
  * Converts a UTC datetime string to a specific timezone and formats it as time
- * @param utcTimeString - ISO datetime string in UTC (e.g., "2025-07-24T07:00:00Z")
+ * @param utcTimeString - ISO datetime string in UTC (e.g., "2014-07-24T07:00:00Z")
  * @param timezone - Target timezone (e.g., "Europe/Tirane")
  * @param locale - Locale for formatting (default: "en-US")
  * @param options - Additional Intl.DateTimeFormat options
