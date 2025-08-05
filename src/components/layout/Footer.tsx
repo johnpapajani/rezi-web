@@ -45,12 +45,6 @@ const Footer: React.FC = () => {
     ],
   };
 
-  const socialLinks = [
-    { name: 'Facebook', href: '#', icon: '📘' },
-    { name: 'Instagram', href: '#', icon: '📷' },
-    { name: 'LinkedIn', href: '#', icon: '💼' },
-    { name: 'Twitter', href: '#', icon: '🐦' },
-  ];
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -204,20 +198,7 @@ const Footer: React.FC = () => {
             <div className="text-gray-400 text-sm">
               © 2014 Rezi. {t('footer.rights')}
             </div>
-            
-            {/* Social Links */}
-            <div className="flex space-x-6">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.href}
-                  className="text-gray-400 hover:text-white transition-colors duration-200 text-xl"
-                  aria-label={social.name}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
+          
           </div>
         </motion.div>
       </div>
