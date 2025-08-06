@@ -35,18 +35,10 @@ const SignUp: React.FC = () => {
   // Redirect logic for authenticated users
   useEffect(() => {
     if (isAuthenticated && !businessesLoading) {
-      // Check if user is a business owner and needs subscription
-      const isBusinessOwner = businesses.some(business => business.role === BusinessRole.owner);
-      
-      if (isBusinessOwner && !user?.subscription_tier) {
-        // Owner without subscription - redirect to subscription plans
-        navigate('/subscription-plans');
-      } else {
-        // Regular user or owner with subscription - redirect to dashboard
-        navigate('/dashboard');
-      }
+      // Simply redirect to dashboard - subscription is now per business
+      navigate('/dashboard');
     }
-  }, [isAuthenticated, businessesLoading, businesses, user, navigate]);
+  }, [isAuthenticated, businessesLoading, navigate]);
 
   const validateForm = () => {
     const errors: { [key: string]: string } = {};

@@ -1369,7 +1369,7 @@ export const subscriptionApi = {
     return handleResponse<SubscriptionPlans>(response);
   },
 
-  // Create a new subscription
+  // Create a new subscription for a business
   createSubscription: async (subscriptionData: SubscriptionCreate): Promise<Subscription> => {
     const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/subscriptions`, {
       method: 'POST',
@@ -1383,9 +1383,9 @@ export const subscriptionApi = {
     return handleResponse<Subscription>(response, originalRequest);
   },
 
-  // Get current user's subscription
-  getCurrentSubscription: async (): Promise<SubscriptionWithPrice> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/subscriptions/me`, {
+  // Get subscription for a specific business
+  getBusinessSubscription: async (businessId: string): Promise<SubscriptionWithPrice> => {
+    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/subscriptions/business/${businessId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -1396,9 +1396,9 @@ export const subscriptionApi = {
     return handleResponse<SubscriptionWithPrice>(response, originalRequest);
   },
 
-  // Update current subscription
-  updateSubscription: async (subscriptionUpdate: SubscriptionUpdate): Promise<Subscription> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/subscriptions/me`, {
+  // Update subscription for a specific business
+  updateBusinessSubscription: async (businessId: string, subscriptionUpdate: SubscriptionUpdate): Promise<Subscription> => {
+    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/subscriptions/business/${businessId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -1410,9 +1410,9 @@ export const subscriptionApi = {
     return handleResponse<Subscription>(response, originalRequest);
   },
 
-  // Cancel current subscription
-  cancelSubscription: async (): Promise<void> => {
-    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/subscriptions/me`, {
+  // Cancel subscription for a specific business
+  cancelBusinessSubscription: async (businessId: string): Promise<void> => {
+    const originalRequest = () => makeAuthenticatedRequest(`${API_BASE_URL}/subscriptions/business/${businessId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -1425,5 +1425,21 @@ export const subscriptionApi = {
       const errorData = await response.json();
       throw new ApiErrorClass(errorData.detail || 'Failed to cancel subscription', response.status);
     }
+  },
+
+  // Legacy methods for backward compatibility (deprecated)
+  // @deprecated Use getBusinessSubscription instead
+  getCurrentSubscription: async (): Promise<SubscriptionWithPrice> => {
+    throw new Error('getCurrentSubscription is deprecated. Use getBusinessSubscription with a business ID instead.');
+  },
+
+  // @deprecated Use updateBusinessSubscription instead
+  updateSubscription: async (subscriptionUpdate: SubscriptionUpdate): Promise<Subscription> => {
+    throw new Error('updateSubscription is deprecated. Use updateBusinessSubscription with a business ID instead.');
+  },
+
+  // @deprecated Use cancelBusinessSubscription instead
+  cancelSubscription: async (): Promise<void> => {
+    throw new Error('cancelSubscription is deprecated. Use cancelBusinessSubscription with a business ID instead.');
   },
 }; 
