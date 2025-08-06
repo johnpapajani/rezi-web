@@ -331,10 +331,43 @@ const SubscriptionPlans: React.FC = () => {
                    {billingPeriod === 'year' && (
                      <div className="mt-2 text-sm text-gray-600 text-center">
                        {(() => {
-                         // Find corresponding monthly plan
-                         const monthlyPlan = allPlans.find(p => 
-                           p.tier === plan.tier && p.interval === 'month'
-                         );
+                         // Find corresponding monthly plan - try multiple matching strategies
+                         let monthlyPlan = null;
+                         
+                         // Strategy 1: Match by tier (if available and not empty)
+                         if (plan.tier && plan.tier.trim()) {
+                           monthlyPlan = allPlans.find(p => 
+                             p.tier === plan.tier && p.interval === 'month'
+                           );
+                         }
+                         
+                         // Strategy 2: If tier matching fails, try name-based matching
+                         if (!monthlyPlan && plan.name) {
+                           // Extract the base name (remove words like "Annual", "Yearly", "Monthly")
+                           const baseName = plan.name
+                             .replace(/\b(annual|yearly|monthly|month|year)\b/gi, '')
+                             .trim();
+                           
+                           monthlyPlan = allPlans.find(p => 
+                             p.interval === 'month' && 
+                             p.name && 
+                             p.name.replace(/\b(annual|yearly|monthly|month|year)\b/gi, '').trim() === baseName
+                           );
+                         }
+                         
+                         // Strategy 3: If still no match, try finding by plan ID pattern
+                         if (!monthlyPlan && plan.id) {
+                           // Try to find corresponding plan by ID pattern (replace yearly/annual with monthly)
+                           const monthlyId = plan.id
+                             .replace(/yearly|annual/gi, 'monthly')
+                             .replace(/year/gi, 'month');
+                           
+                           monthlyPlan = allPlans.find(p => 
+                             p.id === monthlyId || 
+                             (p.interval === 'month' && p.id.includes(monthlyId.split('_')[0]))
+                           );
+                         }
+                         
                          if (monthlyPlan) {
                            const monthlyYearlyPrice = monthlyPlan.price * 12;
                            const savings = monthlyYearlyPrice - plan.price;

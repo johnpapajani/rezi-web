@@ -19,7 +19,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { SubscriptionPlan } from '../../types';
 
 // Initialize Stripe with your public key
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY || 'pk_test_51R6O3ELcZ6WdFWSfSDs0ZlBp9xT9jm946Tfo1vmeApqbGIBL1Z1Eoyppde6lKf53dG9CqzMAD8KYIZtKlvG3ajcj00QJkUCZar');
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY || 'pk_test_51Rsw00EkMihgMfuACqVMBMzF4Z7nYQkedsWbmrT2PUIM7mtuWsbHSOmEYQMs2T5uZmo0dF5NAREPaRPo64cx0WsC00m0ecpEAc');
 
 interface PaymentModalProps {
   isOpen: boolean;
