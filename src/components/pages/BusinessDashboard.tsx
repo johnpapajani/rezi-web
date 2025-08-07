@@ -599,7 +599,7 @@ const SettingsWrapper: React.FC = () => {
 
       {/* Subscription Management Section */}
       <div className="mt-8">
-        <SubscriptionManagement />
+        <SubscriptionManagement businessId={bizId || ''} />
       </div>
     </div>
   );

@@ -13,18 +13,22 @@ import {
 } from '@heroicons/react/24/outline';
 import { useSubscription } from '../../hooks/useSubscription';
 import { useTranslation } from '../../hooks/useTranslation';
-import { SubscriptionPlan } from '../../types';
-import PaymentModal from '../subscription/PaymentModal';
+import { useUserBusinesses } from '../../hooks/useUserBusinesses';
+import { SubscriptionPlan, BusinessRole } from '../../types';
 
 const SubscriptionPlans: React.FC = () => {
   const navigate = useNavigate();
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
   const { plans, plansLoading, error } = useSubscription();
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const { businesses, loading: businessesLoading } = useUserBusinesses();
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const languageDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Check if user has any businesses they own/manage
+  const ownedBusinesses = businesses.filter(business => 
+    business.role === BusinessRole.owner || business.role === BusinessRole.manager
+  );
 
   // Get all plans as a flat array
   const allPlans = Object.values(plans).flat();
@@ -57,18 +61,28 @@ const SubscriptionPlans: React.FC = () => {
   };
 
   const handleSelectPlan = (plan: SubscriptionPlan) => {
-    if (plan.price === 0) {
-      // For free plan, navigate directly to dashboard
-      navigate('/dashboard');
+    if (ownedBusinesses.length === 0) {
+      // No businesses - redirect to create one
+      navigate('/business/create');
       return;
     }
     
-    setSelectedPlan(plan);
-    setShowPaymentModal(true);
+    if (ownedBusinesses.length === 1) {
+      // Single business - redirect to its subscription page
+      navigate(`/business/${ownedBusinesses[0].id}/subscription/plans?plan=${plan.tier?.toLowerCase()}`);
+      return;
+    }
+    
+    // Multiple businesses - let user choose or go to first one
+    navigate(`/business/${ownedBusinesses[0].id}/subscription/plans?plan=${plan.tier?.toLowerCase()}`);
   };
 
   const handleSkipForNow = () => {
-    navigate('/dashboard');
+    if (ownedBusinesses.length > 0) {
+      navigate(`/business/${ownedBusinesses[0].id}`);
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   // Handle clicks outside language dropdown
@@ -445,21 +459,47 @@ const SubscriptionPlans: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Payment Modal */}
-      {selectedPlan && (
-        <PaymentModal
-          isOpen={showPaymentModal}
-          onClose={() => {
-            setShowPaymentModal(false);
-            setSelectedPlan(null);
-          }}
-          plan={selectedPlan}
-          onSuccess={() => {
-            setShowPaymentModal(false);
-            setSelectedPlan(null);
-            navigate('/dashboard');
-          }}
-        />
+      {/* Information about new business-based subscriptions */}
+      {businessesLoading ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-600 mt-2">Loading your businesses...</p>
+        </div>
+      ) : ownedBusinesses.length === 0 ? (
+        <div className="text-center py-8 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="max-w-md mx-auto">
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">Create Your First Business</h3>
+            <p className="text-blue-700 mb-4">
+              Subscriptions are now managed per business. Create your first business to get started with a subscription plan.
+            </p>
+            <button
+              onClick={() => navigate('/business/create')}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Create Business
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="text-center py-8 bg-green-50 rounded-lg border border-green-200">
+          <div className="max-w-md mx-auto">
+            <h3 className="text-lg font-semibold text-green-900 mb-2">Manage Business Subscriptions</h3>
+            <p className="text-green-700 mb-4">
+              You have {ownedBusinesses.length} business{ownedBusinesses.length > 1 ? 'es' : ''}. Each business can have its own subscription plan.
+            </p>
+            <div className="space-y-2">
+              {ownedBusinesses.map((business) => (
+                <button
+                  key={business.id}
+                  onClick={() => navigate(`/business/${business.id}/subscription/plans`)}
+                  className="block w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  Manage {business.name} Subscription
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

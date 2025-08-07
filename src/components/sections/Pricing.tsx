@@ -59,14 +59,14 @@ const Pricing: React.FC = () => {
             </span>
             {isYearly && (
               <span className="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
-                {t('pricing.yearly.discount')}
+                Save up to 28%
               </span>
             )}
           </div>
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {pricingPlans.map((plan, index) => (
             <motion.div
               key={plan.id}
@@ -94,31 +94,27 @@ const Pricing: React.FC = () => {
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">
                     {t(plan.name)}
                   </h3>
-                  <p className="text-gray-600 mb-4">
-                    {t(plan.description)}
-                  </p>
+                  {t(plan.description) && (
+                    <p className="text-gray-600 mb-4">
+                      {t(plan.description)}
+                    </p>
+                  )}
                   
                   {/* Price */}
                   <div className="mb-4">
-                    {plan.price === '0' ? (
+                    <>
                       <div className="text-4xl font-bold text-gray-900">
-                        {t('pricing.free.price')}
+                        €{isYearly && plan.yearlyPrice ? plan.yearlyPrice : plan.price}
                       </div>
-                    ) : (
-                      <>
-                        <div className="text-4xl font-bold text-gray-900">
-                          €{isYearly && plan.yearlyPrice ? plan.yearlyPrice : plan.price}
+                      <div className="text-gray-600">
+                        / {isYearly ? t('pricing.yearly.short') : t('pricing.monthly.short')}
+                      </div>
+                      {isYearly && plan.yearlyPrice && (
+                        <div className="text-sm mt-2 text-gray-500">
+                          {t('pricing.regularPrice')} €{(parseFloat(plan.price) * 12).toFixed(2)} — {t('pricing.save')} €{(parseFloat(plan.price) * 12 - parseFloat(plan.yearlyPrice)).toFixed(2)} ({Math.round(((parseFloat(plan.price) * 12 - parseFloat(plan.yearlyPrice)) / (parseFloat(plan.price) * 12)) * 100)}%)
                         </div>
-                        <div className="text-gray-600">
-                          / {isYearly ? t('pricing.monthly.short') : t('pricing.monthly.short')}
-                        </div>
-                        {isYearly && plan.yearlyPrice && (
-                          <div className="text-sm text-gray-500 mt-1">
-                            €{(parseFloat(plan.yearlyPrice) * 12).toFixed(2)} {t('pricing.yearly.total')}
-                          </div>
-                        )}
-                      </>
-                    )}
+                      )}
+                    </>
                   </div>
                 </div>
 
@@ -141,7 +137,7 @@ const Pricing: React.FC = () => {
                       : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                   }`}
                 >
-                  {plan.cta === 'Kontaktoni' ? plan.cta : t(plan.cta)}
+                  {t(plan.cta)}
                 </button>
               </div>
             </motion.div>

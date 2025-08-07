@@ -14,7 +14,7 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
-import { useSubscription } from '../../hooks/useSubscription';
+import { useBusinessSubscription } from '../../hooks/useBusinessSubscription';
 import { useTranslation } from '../../hooks/useTranslation';
 import { SubscriptionPlan } from '../../types';
 
@@ -22,20 +22,21 @@ import { SubscriptionPlan } from '../../types';
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY || 'pk_test_51Rsw00EkMihgMfuACqVMBMzF4Z7nYQkedsWbmrT2PUIM7mtuWsbHSOmEYQMs2T5uZmo0dF5NAREPaRPo64cx0WsC00m0ecpEAc');
 
 interface PaymentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   plan: SubscriptionPlan;
+  businessId: string;
+  onClose: () => void;
   onSuccess: () => void;
 }
 
 // Payment Form Component (inside Elements provider)
 const PaymentForm: React.FC<{
   plan: SubscriptionPlan;
+  businessId: string;
   onClose: () => void;
   onSuccess: () => void;
-}> = ({ plan, onClose, onSuccess }) => {
+}> = ({ plan, businessId, onClose, onSuccess }) => {
   const { t } = useTranslation();
-  const { createSubscription } = useSubscription();
+  const { createSubscription } = useBusinessSubscription({ businessId, autoFetch: false });
   const stripe = useStripe();
   const elements = useElements();
 
@@ -167,11 +168,11 @@ const PaymentForm: React.FC<{
             €{plan.price.toFixed(2)}/{plan.interval === 'month' ? 'month' : 'year'}
           </span>
         </div>
-        {plan.trial_days && plan.trial_days > 0 && (
+        {(plan.trial_days && plan.trial_days > 0) ? (
           <p className="text-sm text-green-600 mt-1">
             {plan.trial_days} day free trial
           </p>
-        )}
+        ) : null}
       </div>
 
       {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>}
@@ -264,40 +265,37 @@ const PaymentForm: React.FC<{
 };
 
 // Main Modal Component wrapped with Stripe Elements
-const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, plan, onSuccess }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ onClose, plan, businessId, onSuccess }) => {
   return (
     <Elements stripe={stripePromise}>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-            onClick={(e) => {
-              // Only allow closing by clicking backdrop
-              const target = e.target as HTMLElement;
-              if (target === e.currentTarget) {
-                onClose();
-              }
-            }}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <PaymentForm 
-                plan={plan} 
-                onClose={onClose} 
-                onSuccess={onSuccess}
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+        onClick={(e) => {
+          // Only allow closing by clicking backdrop
+          const target = e.target as HTMLElement;
+          if (target === e.currentTarget) {
+            onClose();
+          }
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <PaymentForm 
+            plan={plan} 
+            businessId={businessId}
+            onClose={onClose} 
+            onSuccess={onSuccess}
+          />
+        </motion.div>
+      </motion.div>
     </Elements>
   );
 };

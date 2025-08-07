@@ -6,8 +6,10 @@ import { useServices } from '../../hooks/useServices';
 import { useTables } from '../../hooks/useTables';
 import { useServiceCategories } from '../../hooks/useServiceCategories';
 import { useTranslation } from '../../hooks/useTranslation';
-import { BusinessCreate, ServiceCreate, TableCreate, ServiceOpenIntervalCreate, Weekday, BookingMode } from '../../types';
+import { useBusinessSubscription } from '../../hooks/useBusinessSubscription';
+import { BusinessCreate, ServiceCreate, TableCreate, ServiceOpenIntervalCreate, Weekday, BookingMode, SubscriptionPlan } from '../../types';
 import { serviceApi } from '../../utils/api';
+import PaymentModal from '../subscription/PaymentModal';
 import {
   BuildingStorefrontIcon,
   PhotoIcon,
@@ -17,6 +19,7 @@ import {
   MapPinIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
+  GlobeAltIcon as GlobeIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
@@ -25,6 +28,11 @@ import {
   SparklesIcon,
   XMarkIcon,
   PlusIcon,
+  CreditCardIcon,
+  CheckIcon,
+  ExclamationCircleIcon,
+  StarIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 
 // Albanian cities list
@@ -82,10 +90,27 @@ const BusinessOnboarding: React.FC = () => {
   const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
+  const [skipSubscription, setSkipSubscription] = useState(false);
+  
+  // Subscription selection state
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   // Services hook (only initialized after business is created)
   const servicesHook = useServices({ bizId: createdBusinessId || '' });
   const tablesHook = useTables({ bizId: createdBusinessId || '' });
+
+  // Subscription plans hook
+  const { 
+    plans, 
+    plansLoading, 
+    error: plansError, 
+    fetchPlans 
+  } = useBusinessSubscription({ 
+    businessId: createdBusinessId || '', 
+    autoFetch: false 
+  });
 
   // Step 1: Business Information
   const [businessData, setBusinessData] = useState<BusinessCreate>({
@@ -122,6 +147,20 @@ const BusinessOnboarding: React.FC = () => {
     }
   }, [currentStep, refetchCategories]);
 
+  // Fetch subscription plans when reaching step 4 and business is created
+  useEffect(() => {
+    if (currentStep === 4 && createdBusinessId) {
+      fetchPlans();
+    }
+  }, [currentStep, createdBusinessId, fetchPlans]);
+
+  // Handle skip subscription
+  useEffect(() => {
+    if (skipSubscription) {
+      setShowSuccess(true);
+    }
+  }, [skipSubscription]);
+
   const defaultServiceIntervals: ServiceOpenIntervalCreate[] = [
     { weekday: Weekday.monday, start_time: '09:00', end_time: '22:00' },
     { weekday: Weekday.tuesday, start_time: '09:00', end_time: '22:00' },
@@ -144,10 +183,66 @@ const BusinessOnboarding: React.FC = () => {
       .replace(/^-|-$/g, '');
   };
 
+  // Get all available plans for the selected billing period
+  const getAvailablePlans = (): SubscriptionPlan[] => {
+    const allPlans: SubscriptionPlan[] = [];
+    
+    // Iterate through all product categories
+    Object.values(plans).forEach(productPlans => {
+      // Filter plans by billing period
+      const filteredPlans = productPlans.filter(plan => 
+        plan.interval === (billingPeriod === 'yearly' ? 'year' : 'month')
+      );
+      allPlans.push(...filteredPlans);
+    });
+    
+    return allPlans.sort((a, b) => a.price - b.price); // Sort by price
+  };
+
+  // Get the free plan (price = 0)
+  const getFreePlan = (): SubscriptionPlan | null => {
+    const allPlans = getAvailablePlans();
+    return allPlans.find(plan => plan.price === 0) || null;
+  };
+
+  // Get paid plans sorted by price
+  const getPaidPlans = (): SubscriptionPlan[] => {
+    return getAvailablePlans().filter(plan => plan.price > 0);
+  };
+
+  // Check if a plan is popular (middle tier or marked as such)
+  const isPlanPopular = (plan: SubscriptionPlan): boolean => {
+    const paidPlans = getPaidPlans();
+    return paidPlans.length > 1 && 
+      (plan.tier?.toLowerCase() === 'standard' || 
+       plan.tier?.toLowerCase() === 'pro' ||
+       (paidPlans.length === 2 && plan.price > paidPlans[0].price));
+  };
+
+  // Handle plan selection
+  const handlePlanSelect = (plan: SubscriptionPlan) => {
+    if (plan.price === 0) {
+      // Free plan - skip subscription
+      setSkipSubscription(true);
+    } else {
+      // Paid plan - open payment modal
+      setSelectedPlan(plan);
+      setShowPaymentModal(true);
+    }
+  };
+
+  // Handle successful payment
+  const handlePaymentSuccess = () => {
+    setShowPaymentModal(false);
+    setSelectedPlan(null);
+    setShowSuccess(true);
+  };
+
   const steps = [
     { number: 1, title: t('onboarding.steps.business.title'), description: t('onboarding.steps.business.description') },
     { number: 2, title: t('onboarding.steps.services.title'), description: t('onboarding.steps.services.description') },
     { number: 3, title: t('onboarding.steps.tables.title'), description: t('onboarding.steps.tables.description') },
+    { number: 4, title: 'Choose Subscription', description: 'Select a plan for your business' },
   ];
 
   const validateBusinessStep = (): boolean => {
@@ -477,7 +572,7 @@ const BusinessOnboarding: React.FC = () => {
         const totalTables = tables.length;
 
         if (totalTables === 0) {
-          setShowSuccess(true);
+          setCurrentStep(4); // Go to subscription selection
           return;
         }
 
@@ -541,6 +636,9 @@ const BusinessOnboarding: React.FC = () => {
           setGlobalError(`Warning: ${tablesFailures} table(s) failed to create. ${tablesCreated} created successfully.`);
         }
 
+        setCurrentStep(4); // Go to subscription selection
+      } else if (currentStep === 4) {
+        // Step 4: Subscription Selection - Complete onboarding
         setShowSuccess(true);
       }
 
@@ -1603,6 +1701,374 @@ const BusinessOnboarding: React.FC = () => {
               </div>
             </motion.div>
           )}
+
+          {/* Step 4: Subscription Selection */}
+          {currentStep === 4 && (
+            <motion.div
+              key="step4"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              {/* Header Section */}
+              <div className="text-center mb-12">
+                <div className="flex items-center justify-center space-x-3 mb-4">
+                  <CreditCardIcon className="w-8 h-8 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-gray-900">Choose Your Plan</h2>
+                </div>
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  Great job! Your business "{businessData.name}" is ready. 
+                  Select a subscription plan to start accepting bookings.
+                </p>
+              </div>
+
+              {/* Loading State */}
+              {plansLoading && (
+                <div className="flex justify-center items-center py-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                  <span className="ml-3 text-gray-600 text-lg">Loading subscription plans...</span>
+                </div>
+              )}
+
+              {/* Error State */}
+              {plansError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-8 mb-8 max-w-2xl mx-auto">
+                  <div className="flex items-center justify-center text-center">
+                    <ExclamationCircleIcon className="w-8 h-8 text-red-600 mr-3" />
+                    <div>
+                      <h3 className="text-xl font-medium text-red-800">Error Loading Plans</h3>
+                      <p className="text-red-700 mt-1">{plansError}</p>
+                      <button
+                        onClick={fetchPlans}
+                        className="mt-4 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Billing Period Toggle */}
+              {!plansLoading && !plansError && (
+                <div className="flex justify-center mb-12">
+                  <div className="bg-gray-100 p-1 rounded-xl shadow-sm">
+                    <div className="flex">
+                      <button
+                        onClick={() => setBillingPeriod('monthly')}
+                        className={`px-8 py-3 rounded-lg font-medium transition-all ${
+                          billingPeriod === 'monthly'
+                            ? 'bg-white text-gray-900 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        Monthly
+                      </button>
+                      <button
+                        onClick={() => setBillingPeriod('yearly')}
+                        className={`px-8 py-3 rounded-lg font-medium transition-all relative ${
+                          billingPeriod === 'yearly'
+                            ? 'bg-white text-gray-900 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        Yearly
+                        <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                          Save 28%
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Dynamic Subscription Plans */}
+              {!plansLoading && !plansError && (
+                <div className="flex justify-center">
+                  <motion.div 
+                    key={billingPeriod}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl w-full"
+                  >
+                  {getAvailablePlans().length === 0 ? (
+                    <div className="col-span-2 text-center py-20">
+                      <ExclamationCircleIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+                      <h3 className="text-2xl font-medium text-gray-900 mb-3">No Plans Available</h3>
+                      <p className="text-gray-600 text-lg mb-6">No subscription plans are available at the moment.</p>
+                      <button
+                        onClick={() => setSkipSubscription(true)}
+                        className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
+                      >
+                        Continue with Basic
+                      </button>
+                    </div>
+                  ) : (
+                    getAvailablePlans().map((plan, index) => {
+                      const isPopular = isPlanPopular(plan);
+                      const monthlyPrice = billingPeriod === 'yearly' && plan.interval === 'year' ? plan.price / 12 : plan.price;
+                      const regularYearlyPrice = billingPeriod === 'yearly' && plan.interval === 'year' ? monthlyPrice * 12 * 1.4 : null;
+                      const savings = regularYearlyPrice ? regularYearlyPrice - plan.price : null;
+                      
+
+                      return (
+                        <motion.div
+                          key={plan.id}
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.1 + index * 0.15 }}
+                          className={`bg-white rounded-2xl p-6 relative w-full border-2 transition-all hover:shadow-lg ${
+                            isPopular
+                              ? 'border-purple-300 shadow-xl'
+                              : 'border-gray-200 shadow-sm hover:border-gray-300'
+                          }`}
+                        >
+                          {/* Popular badge */}
+                          {isPopular && (
+                            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                              <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                                🌟 Most Popular
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Plan Header */}
+                          <div className="text-center mb-6">
+                            <div className="mb-3">
+                              <span className="text-2xl">
+                                {plan.price === 0 ? '🧍' : isPopular ? '🌟' : '⭐'}
+                              </span>
+                            </div>
+                            
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                              {plan.name}
+                            </h3>
+                            
+                            {plan.description && (
+                              <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
+                            )}
+
+                            {/* Pricing */}
+                            <div className="mb-4">
+                              <div className="flex items-baseline justify-center mb-1">
+                                <span className="text-3xl font-bold text-gray-900">
+                                  €{plan.price.toFixed(2)}
+                                </span>
+                                <span className="text-gray-500 ml-1 text-sm">
+                                  / {plan.interval === 'year' ? 'year' : 'month'}
+                                </span>
+                              </div>
+                              
+                              {savings && savings > 0 && billingPeriod === 'yearly' && regularYearlyPrice && (
+                                <div className="text-xs text-gray-600">
+                                  Regular price €{regularYearlyPrice.toFixed(2)} — save €{savings.toFixed(2)} ({Math.round((savings / regularYearlyPrice) * 100)}%)
+                                </div>
+                              )}
+                              
+                              {(plan.trial_days && typeof plan.trial_days === 'number' && plan.trial_days > 0) ? (
+                                <div className="mt-2 inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                  {plan.trial_days} day free trial
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+
+                          {/* Features List */}
+                          <div className="mb-8">
+                            <ul className="space-y-3">
+                              {/* Standard Solo Features */}
+                              {plan.name.toLowerCase().includes('solo') && (
+                                <>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Online booking system</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Basic calendar management</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Customer SMS & email notifications</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Mobile-friendly design</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Basic performance analytics</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Support for 1 service or offering</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Unlimited bookings</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Email support</span>
+                                  </li>
+                                </>
+                              )}
+                              
+                              {/* Standard Pro Features */}
+                              {plan.name.toLowerCase().includes('pro') && (
+                                <>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Everything in Solo, plus:</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Advanced booking & revenue analytics</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Custom branding (logo, colors, favicon)</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Manage multiple services or staff</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Automated booking reminders</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Revenue & performance tracking</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Priority customer support (email + chat)</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">Google Calendar sync (optional)</span>
+                                  </li>
+                                </>
+                              )}
+                              
+                              {/* Fallback for other plans */}
+                              {!plan.name.toLowerCase().includes('solo') && !plan.name.toLowerCase().includes('pro') && 
+                                plan.features && plan.features.length > 0 && 
+                                plan.features.map((feature, featureIndex) => (
+                                  <li key={featureIndex} className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{feature}</span>
+                                  </li>
+                                ))
+                              }
+                            </ul>
+                          </div>
+
+                          {/* Subscribe Button */}
+                          <button
+                            onClick={() => handlePlanSelect(plan)}
+                            className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-all hover:scale-105 flex items-center justify-center ${
+                              isPopular
+                                ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-lg'
+                                : plan.price === 0
+                                ? 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+                                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'
+                            }`}
+                          >
+                            {plan.price === 0 ? 'Start Free' : 'Subscribe'}
+                            <ArrowRightIcon className="w-4 h-4 ml-2" />
+                          </button>
+                        </motion.div>
+                      );
+                    })
+                  )}
+                  </motion.div>
+                </div>
+              )}
+
+              {/* Features Comparison */}
+              {!plansLoading && !plansError && getAvailablePlans().length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="mt-20 text-center"
+                >
+                  <h2 className="text-3xl font-bold text-gray-900 mb-12">Why Choose Us?</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center">
+                        <ShieldCheckIcon className="w-8 h-8 text-green-600" />
+                      </div>
+                      <h3 className="font-bold text-gray-900 text-xl">SSL Security</h3>
+                      <p className="text-gray-600 text-center">Bank-level encryption protects your data and customer information</p>
+                    </div>
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <SparklesIcon className="w-8 h-8 text-blue-600" />
+                      </div>
+                      <h3 className="font-bold text-gray-900 text-xl">Auto Backup</h3>
+                      <p className="text-gray-600 text-center">Never lose your data with automatic daily backups to the cloud</p>
+                    </div>
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center">
+                        <ArrowRightIcon className="w-8 h-8 text-purple-600" />
+                      </div>
+                      <h3 className="font-bold text-gray-900 text-xl">Free Updates</h3>
+                      <p className="text-gray-600 text-center">Get the latest features and improvements automatically</p>
+                    </div>
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="w-16 h-16 bg-yellow-100 rounded-xl flex items-center justify-center">
+                        <GlobeIcon className="w-8 h-8 text-yellow-600" />
+                      </div>
+                      <h3 className="font-bold text-gray-900 text-xl">24/7 Support</h3>
+                      <p className="text-gray-600 text-center">Get help whenever you need it via email and chat</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Money-back guarantee */}
+              {!plansLoading && !plansError && getAvailablePlans().length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="mt-16 text-center"
+                >
+                  <div className="bg-gray-50 rounded-2xl p-8 max-w-3xl mx-auto">
+                    <ShieldCheckIcon className="w-12 h-12 text-green-600 mx-auto mb-4" />
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">30-Day Money-Back Guarantee</h3>
+                    <p className="text-gray-600 text-lg">
+                      Try our service risk-free. If you're not completely satisfied, 
+                      we'll refund your money within 30 days. No questions asked.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Skip Option */}
+              {!plansLoading && !plansError && getAvailablePlans().length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                  className="text-center mt-12"
+                >
+                  <button
+                    onClick={() => setSkipSubscription(true)}
+                    className="text-gray-500 hover:text-gray-700 font-medium underline text-lg"
+                  >
+                    I'll choose a plan later
+                  </button>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Navigation */}
@@ -1616,15 +2082,28 @@ const BusinessOnboarding: React.FC = () => {
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
             )}
             <span>
-              {currentStep === 3 
+              {currentStep === 4 
                 ? t('onboarding.complete') 
                 : t('onboarding.next')
               }
             </span>
-            {currentStep < 3 && <ArrowRightIcon className="w-4 h-4" />}
+            {currentStep < 4 && <ArrowRightIcon className="w-4 h-4" />}
           </button>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {showPaymentModal && selectedPlan && createdBusinessId && (
+        <PaymentModal
+          plan={selectedPlan}
+          businessId={createdBusinessId}
+          onClose={() => {
+            setShowPaymentModal(false);
+            setSelectedPlan(null);
+          }}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 };

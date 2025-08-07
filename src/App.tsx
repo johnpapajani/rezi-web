@@ -36,6 +36,7 @@ import TermsOfService from './components/pages/TermsOfService';
 import CookiePolicy from './components/pages/CookiePolicy';
 import HelpPage from './components/pages/HelpPage';
 import SubscriptionPlans from './components/pages/SubscriptionPlans';
+import BusinessSubscriptionPlans from './components/pages/BusinessSubscriptionPlans';
 
 function App() {
   return (
@@ -165,6 +166,14 @@ function App() {
                 element={
                   <EmailVerifiedRoute>
                     <ServiceManagement />
+                  </EmailVerifiedRoute>
+                } 
+              />
+              <Route 
+                path="/business/:bizId/subscription/plans" 
+                element={
+                  <EmailVerifiedRoute>
+                    <BusinessSubscriptionPlans />
                   </EmailVerifiedRoute>
                 } 
               />

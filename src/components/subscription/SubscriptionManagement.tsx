@@ -10,19 +10,20 @@ import {
   CalendarDaysIcon,
   BanknotesIcon,
 } from '@heroicons/react/24/outline';
-import { useSubscription } from '../../hooks/useSubscription';
+import { useBusinessSubscription } from '../../hooks/useBusinessSubscription';
 import { useTranslation } from '../../hooks/useTranslation';
 import { SubscriptionPlan, SubscriptionStatus } from '../../types';
 import PaymentModal from './PaymentModal';
 
 interface SubscriptionManagementProps {
+  businessId: string;
   className?: string;
 }
 
-const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ className = '' }) => {
+const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ businessId, className = '' }) => {
   const { t } = useTranslation();
   const {
-    currentSubscription,
+    subscription: currentSubscription,
     plans,
     hasActiveSubscription,
     isCanceledButActive,
@@ -33,7 +34,7 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ classNa
     updateSubscription,
     cancelSubscription,
     refetch,
-  } = useSubscription();
+  } = useBusinessSubscription({ businessId });
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
@@ -289,14 +290,14 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ classNa
       )}
 
       {/* Upgrade Modal */}
-      {selectedPlan && (
+      {selectedPlan && showUpgradeModal && (
         <PaymentModal
-          isOpen={showUpgradeModal}
           onClose={() => {
             setShowUpgradeModal(false);
             setSelectedPlan(null);
           }}
           plan={selectedPlan}
+          businessId={businessId}
           onSuccess={handleUpgradeSuccess}
         />
       )}
