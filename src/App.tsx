@@ -37,8 +37,12 @@ import CookiePolicy from './components/pages/CookiePolicy';
 import HelpPage from './components/pages/HelpPage';
 import SubscriptionPlans from './components/pages/SubscriptionPlans';
 import BusinessSubscriptionPlans from './components/pages/BusinessSubscriptionPlans';
+import ComingSoon from './components/pages/ComingSoon';
 
 function App() {
+  if (process.env.NODE_ENV === 'production') {
+    return <ComingSoon />;
+  }
   return (
     <LanguageProvider>
       <AuthProvider>
