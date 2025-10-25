@@ -31,7 +31,6 @@ import {
   CreditCardIcon,
   CheckIcon,
   ExclamationCircleIcon,
-  StarIcon,
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 
@@ -1716,11 +1715,10 @@ const BusinessOnboarding: React.FC = () => {
               <div className="text-center mb-12">
                 <div className="flex items-center justify-center space-x-3 mb-4">
                   <CreditCardIcon className="w-8 h-8 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900">Choose Your Plan</h2>
+                  <h2 className="text-3xl font-bold text-gray-900">{t('onboarding.subscription.chooseYourPlan')}</h2>
                 </div>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Great job! Your business "{businessData.name}" is ready. 
-                  Select a subscription plan to start accepting bookings.
+                  {t('onboarding.subscription.readyMessage', { businessName: businessData.name })}
                 </p>
               </div>
 
@@ -1728,7 +1726,7 @@ const BusinessOnboarding: React.FC = () => {
               {plansLoading && (
                 <div className="flex justify-center items-center py-20">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                  <span className="ml-3 text-gray-600 text-lg">Loading subscription plans...</span>
+                  <span className="ml-3 text-gray-600 text-lg">{t('onboarding.subscription.loadingPlans')}</span>
                 </div>
               )}
 
@@ -1738,13 +1736,13 @@ const BusinessOnboarding: React.FC = () => {
                   <div className="flex items-center justify-center text-center">
                     <ExclamationCircleIcon className="w-8 h-8 text-red-600 mr-3" />
                     <div>
-                      <h3 className="text-xl font-medium text-red-800">Error Loading Plans</h3>
+                      <h3 className="text-xl font-medium text-red-800">{t('onboarding.subscription.errorLoadingPlans')}</h3>
                       <p className="text-red-700 mt-1">{plansError}</p>
                       <button
                         onClick={fetchPlans}
                         className="mt-4 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
                       >
-                        Try Again
+                        {t('onboarding.subscription.tryAgain')}
                       </button>
                     </div>
                   </div>
@@ -1764,7 +1762,7 @@ const BusinessOnboarding: React.FC = () => {
                             : 'text-gray-600 hover:text-gray-900'
                         }`}
                       >
-                        Monthly
+                        {t('onboarding.subscription.monthly')}
                       </button>
                       <button
                         onClick={() => setBillingPeriod('yearly')}
@@ -1774,9 +1772,9 @@ const BusinessOnboarding: React.FC = () => {
                             : 'text-gray-600 hover:text-gray-900'
                         }`}
                       >
-                        Yearly
+                        {t('onboarding.subscription.yearly')}
                         <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                          Save 28%
+                          {t('onboarding.subscription.save', { percent: '28' })}
                         </span>
                       </button>
                     </div>
@@ -1792,18 +1790,18 @@ const BusinessOnboarding: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl w-full"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl w-full mx-auto"
                   >
                   {getAvailablePlans().length === 0 ? (
-                    <div className="col-span-2 text-center py-20">
+                    <div className="col-span-full text-center py-20">
                       <ExclamationCircleIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-                      <h3 className="text-2xl font-medium text-gray-900 mb-3">No Plans Available</h3>
-                      <p className="text-gray-600 text-lg mb-6">No subscription plans are available at the moment.</p>
+                      <h3 className="text-2xl font-medium text-gray-900 mb-3">{t('onboarding.subscription.noPlansAvailable')}</h3>
+                      <p className="text-gray-600 text-lg mb-6">{t('onboarding.subscription.noPlansMessage')}</p>
                       <button
                         onClick={() => setSkipSubscription(true)}
                         className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
                       >
-                        Continue with Basic
+                        {t('onboarding.subscription.continueWithBasic')}
                       </button>
                     </div>
                   ) : (
@@ -1830,7 +1828,7 @@ const BusinessOnboarding: React.FC = () => {
                           {isPopular && (
                             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                               <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
-                                🌟 Most Popular
+                                🌟 {t('onboarding.subscription.mostPopular')}
                               </div>
                             </div>
                           )}
@@ -1858,19 +1856,23 @@ const BusinessOnboarding: React.FC = () => {
                                   €{plan.price.toFixed(2)}
                                 </span>
                                 <span className="text-gray-500 ml-1 text-sm">
-                                  / {plan.interval === 'year' ? 'year' : 'month'}
+                                  / {plan.interval === 'year' ? t('onboarding.subscription.perYear') : t('onboarding.subscription.perMonth')}
                                 </span>
                               </div>
                               
                               {savings && savings > 0 && billingPeriod === 'yearly' && regularYearlyPrice && (
                                 <div className="text-xs text-gray-600">
-                                  Regular price €{regularYearlyPrice.toFixed(2)} — save €{savings.toFixed(2)} ({Math.round((savings / regularYearlyPrice) * 100)}%)
+                                  {t('onboarding.subscription.regularPrice', { 
+                                    price: regularYearlyPrice.toFixed(2), 
+                                    savings: savings.toFixed(2), 
+                                    percent: Math.round((savings / regularYearlyPrice) * 100) 
+                                  })}
                                 </div>
                               )}
                               
                               {(plan.trial_days && typeof plan.trial_days === 'number' && plan.trial_days > 0) ? (
                                 <div className="mt-2 inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                                  {plan.trial_days} day free trial
+                                  {t('onboarding.subscription.freeTrialDays', { days: plan.trial_days })}
                                 </div>
                               ) : null}
                             </div>
@@ -1884,35 +1886,35 @@ const BusinessOnboarding: React.FC = () => {
                                 <>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Online booking system</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.onlineBooking')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Basic calendar management</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.basicCalendar')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Customer SMS & email notifications</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.notifications')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Mobile-friendly design</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.mobileFriendly')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Basic performance analytics</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.basicAnalytics')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Support for 1 service or offering</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.oneService')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Unlimited bookings</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.unlimitedBookings')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Email support</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.emailSupport')}</span>
                                   </li>
                                 </>
                               )}
@@ -1922,41 +1924,109 @@ const BusinessOnboarding: React.FC = () => {
                                 <>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Everything in Solo, plus:</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.everythingInSolo')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Advanced booking & revenue analytics</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.advancedAnalytics')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Custom branding (logo, colors, favicon)</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.customBranding')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Manage multiple services or staff</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.multipleServices')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Automated booking reminders</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.automatedReminders')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Revenue & performance tracking</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.revenueTracking')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Priority customer support (email + chat)</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.prioritySupport')}</span>
                                   </li>
                                   <li className="flex items-start">
                                     <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">Google Calendar sync (optional)</span>
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.googleCalendar')}</span>
+                                  </li>
+                                </>
+                              )}
+                              
+                              {/* Team Features */}
+                              {plan.name.toLowerCase().includes('team') && (
+                                <>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.everythingInSolo')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.advancedAnalytics')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.customBranding')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.multipleServices')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.automatedReminders')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.revenueTracking')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.prioritySupport')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.googleCalendar')}</span>
+                                  </li>
+                                </>
+                              )}
+                              
+                              {/* Business Features */}
+                              {plan.name.toLowerCase().includes('business') && (
+                                <>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.everythingInTeam')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.unlimitedStaff')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.rolesPermissions')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.deposits')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.advancedReports')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.onboardingAssist')}</span>
                                   </li>
                                 </>
                               )}
                               
                               {/* Fallback for other plans */}
-                              {!plan.name.toLowerCase().includes('solo') && !plan.name.toLowerCase().includes('pro') && 
+                              {!plan.name.toLowerCase().includes('solo') && !plan.name.toLowerCase().includes('pro') && !plan.name.toLowerCase().includes('team') && !plan.name.toLowerCase().includes('business') && 
                                 plan.features && plan.features.length > 0 && 
                                 plan.features.map((feature, featureIndex) => (
                                   <li key={featureIndex} className="flex items-start">
@@ -1979,7 +2049,7 @@ const BusinessOnboarding: React.FC = () => {
                                 : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'
                             }`}
                           >
-                            {plan.price === 0 ? 'Start Free' : 'Subscribe'}
+                            {plan.price === 0 ? t('onboarding.subscription.startFree') : t('onboarding.subscription.subscribe')}
                             <ArrowRightIcon className="w-4 h-4 ml-2" />
                           </button>
                         </motion.div>
@@ -1998,35 +2068,35 @@ const BusinessOnboarding: React.FC = () => {
                   transition={{ delay: 0.5 }}
                   className="mt-20 text-center"
                 >
-                  <h2 className="text-3xl font-bold text-gray-900 mb-12">Why Choose Us?</h2>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-12">{t('onboarding.subscription.whyChooseUs')}</h2>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
                     <div className="flex flex-col items-center space-y-4">
                       <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center">
                         <ShieldCheckIcon className="w-8 h-8 text-green-600" />
                       </div>
-                      <h3 className="font-bold text-gray-900 text-xl">SSL Security</h3>
-                      <p className="text-gray-600 text-center">Bank-level encryption protects your data and customer information</p>
+                      <h3 className="font-bold text-gray-900 text-xl">{t('onboarding.subscription.sslSecurity.title')}</h3>
+                      <p className="text-gray-600 text-center">{t('onboarding.subscription.sslSecurity.description')}</p>
                     </div>
                     <div className="flex flex-col items-center space-y-4">
                       <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center">
                         <SparklesIcon className="w-8 h-8 text-blue-600" />
                       </div>
-                      <h3 className="font-bold text-gray-900 text-xl">Auto Backup</h3>
-                      <p className="text-gray-600 text-center">Never lose your data with automatic daily backups to the cloud</p>
+                      <h3 className="font-bold text-gray-900 text-xl">{t('onboarding.subscription.autoBackup.title')}</h3>
+                      <p className="text-gray-600 text-center">{t('onboarding.subscription.autoBackup.description')}</p>
                     </div>
                     <div className="flex flex-col items-center space-y-4">
                       <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center">
                         <ArrowRightIcon className="w-8 h-8 text-purple-600" />
                       </div>
-                      <h3 className="font-bold text-gray-900 text-xl">Free Updates</h3>
-                      <p className="text-gray-600 text-center">Get the latest features and improvements automatically</p>
+                      <h3 className="font-bold text-gray-900 text-xl">{t('onboarding.subscription.freeUpdates.title')}</h3>
+                      <p className="text-gray-600 text-center">{t('onboarding.subscription.freeUpdates.description')}</p>
                     </div>
                     <div className="flex flex-col items-center space-y-4">
                       <div className="w-16 h-16 bg-yellow-100 rounded-xl flex items-center justify-center">
                         <GlobeIcon className="w-8 h-8 text-yellow-600" />
                       </div>
-                      <h3 className="font-bold text-gray-900 text-xl">24/7 Support</h3>
-                      <p className="text-gray-600 text-center">Get help whenever you need it via email and chat</p>
+                      <h3 className="font-bold text-gray-900 text-xl">{t('onboarding.subscription.support247.title')}</h3>
+                      <p className="text-gray-600 text-center">{t('onboarding.subscription.support247.description')}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -2042,10 +2112,9 @@ const BusinessOnboarding: React.FC = () => {
                 >
                   <div className="bg-gray-50 rounded-2xl p-8 max-w-3xl mx-auto">
                     <ShieldCheckIcon className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3">30-Day Money-Back Guarantee</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">{t('onboarding.subscription.moneyBackGuarantee.title')}</h3>
                     <p className="text-gray-600 text-lg">
-                      Try our service risk-free. If you're not completely satisfied, 
-                      we'll refund your money within 30 days. No questions asked.
+                      {t('onboarding.subscription.moneyBackGuarantee.description')}
                     </p>
                   </div>
                 </motion.div>
@@ -2063,7 +2132,7 @@ const BusinessOnboarding: React.FC = () => {
                     onClick={() => setSkipSubscription(true)}
                     className="text-gray-500 hover:text-gray-700 font-medium underline text-lg"
                   >
-                    I'll choose a plan later
+                    {t('onboarding.subscription.skipForNow')}
                   </button>
                 </motion.div>
               )}

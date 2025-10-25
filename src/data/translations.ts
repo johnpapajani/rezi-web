@@ -747,6 +747,80 @@ export const translations: Translations = {
     'onboarding.reassurance.title': 'Mos u shqetëso për detajet!',
     'onboarding.reassurance.description': 'Të gjitha këto konfigurime mund të ndryshohen më vonë nga menuja e konfigurimit të biznesit.',
 
+    // Subscription step
+    'onboarding.subscription.chooseYourPlan': 'Zgjedh Planin Tënd',
+    'onboarding.subscription.readyMessage': 'Punë e shkëlqyer! Biznesi juaj "{businessName}" është gati. Zgjidhni një plan abonimi për të filluar të pranoni rezervime.',
+    'onboarding.subscription.loadingPlans': 'Duke ngarkuar planet e abonimit...',
+    'onboarding.subscription.errorLoadingPlans': 'Gabim në Ngarkimin e Planeve',
+    'onboarding.subscription.tryAgain': 'Provo Përsëri',
+    'onboarding.subscription.monthly': 'Mujore',
+    'onboarding.subscription.yearly': 'Vjetore',
+    'onboarding.subscription.save': 'Kurse {percent}%',
+    'onboarding.subscription.regularPrice': 'Çmimi normal €{price} — kurse €{savings} ({percent}%)',
+    'onboarding.subscription.perMonth': 'muaj',
+    'onboarding.subscription.perYear': 'vit',
+    'onboarding.subscription.freeTrialDays': '{days} ditë provë falas',
+    'onboarding.subscription.mostPopular': 'Më i Përdoruri',
+    'onboarding.subscription.startFree': 'Fillo Falas',
+    'onboarding.subscription.subscribe': 'Abono',
+    'onboarding.subscription.noPlansAvailable': 'Nuk Ka Plane të Disponueshme',
+    'onboarding.subscription.noPlansMessage': 'Nuk ka plane abonimi të disponueshme në këtë moment.',
+    'onboarding.subscription.continueWithBasic': 'Vazhdo me Bazë',
+    'onboarding.subscription.skipForNow': 'Do ta zgjedh një plan më vonë',
+    
+    // Plan features - Solo
+    'onboarding.subscription.features.solo.onlineBooking': 'Sistem rezervimi online',
+    'onboarding.subscription.features.solo.basicCalendar': 'Menaxhim bazë i kalendarit',
+    'onboarding.subscription.features.solo.notifications': 'Njoftime me SMS & email për klientët',
+    'onboarding.subscription.features.solo.mobileFriendly': 'Dizajn i përshtatshëm për celular',
+    'onboarding.subscription.features.solo.basicAnalytics': 'Analiza bazë të performancës',
+    'onboarding.subscription.features.solo.oneService': 'Mbështetje për 1 shërbim ose ofertë',
+    'onboarding.subscription.features.solo.unlimitedBookings': 'Rezervime të pakufizuara',
+    'onboarding.subscription.features.solo.emailSupport': 'Mbështetje me email',
+    
+    // Plan features - Pro
+    'onboarding.subscription.features.pro.everythingInSolo': 'Gjithçka në Solo, plus:',
+    'onboarding.subscription.features.pro.advancedAnalytics': 'Analiza të avancuara të rezervimeve & të ardhurave',
+    'onboarding.subscription.features.pro.customBranding': 'Branding i personalizuar (logo, ngjyra, favicon)',
+    'onboarding.subscription.features.pro.multipleServices': 'Menaxho shërbime ose staf të shumtë',
+    'onboarding.subscription.features.pro.automatedReminders': 'Rikujtime automatike të rezervimeve',
+    'onboarding.subscription.features.pro.revenueTracking': 'Gjurmimi i të ardhurave & performancës',
+    'onboarding.subscription.features.pro.prioritySupport': 'Mbështetje me prioritet (email + chat)',
+    'onboarding.subscription.features.pro.googleCalendar': 'Sinkronizim me Google Calendar (opsionale)',
+    
+    // Plan features - Team (same as Pro)
+    'onboarding.subscription.features.team.everythingInSolo': 'Gjithçka në Solo, plus:',
+    'onboarding.subscription.features.team.advancedAnalytics': 'Analiza të avancuara të rezervimeve & të ardhurave',
+    'onboarding.subscription.features.team.customBranding': 'Branding i personalizuar (logo, ngjyra, favicon)',
+    'onboarding.subscription.features.team.multipleServices': 'Menaxho shërbime ose staf të shumtë',
+    'onboarding.subscription.features.team.automatedReminders': 'Rikujtime automatike të rezervimeve',
+    'onboarding.subscription.features.team.revenueTracking': 'Gjurmimi i të ardhurave & performancës',
+    'onboarding.subscription.features.team.prioritySupport': 'Mbështetje me prioritet (email + chat)',
+    'onboarding.subscription.features.team.googleCalendar': 'Sinkronizim me Google Calendar (opsionale)',
+    
+    // Plan features - Business
+    'onboarding.subscription.features.business.everythingInTeam': 'Gjithçka në Team, plus:',
+    'onboarding.subscription.features.business.unlimitedStaff': 'Staf i pakufizuar, multi-lokacion',
+    'onboarding.subscription.features.business.rolesPermissions': 'Role/leje, regjistër auditimi',
+    'onboarding.subscription.features.business.deposits': 'Depozita/tarifa mosparaqitje, eksporte, akses API',
+    'onboarding.subscription.features.business.advancedReports': 'Raporte të avancuara (mosparaqitje, shfrytëzim, LTV)',
+    'onboarding.subscription.features.business.onboardingAssist': 'Ndihmë onboarding + objektiv përgjigje SLA',
+    
+    // Why Choose Us section
+    'onboarding.subscription.whyChooseUs': 'Pse të Na Zgjedhësh?',
+    'onboarding.subscription.sslSecurity.title': 'Siguri SSL',
+    'onboarding.subscription.sslSecurity.description': 'Enkriptimi i nivelit bankar mbron të dhënat tuaja dhe informacionet e klientëve',
+    'onboarding.subscription.autoBackup.title': 'Backup Automatik',
+    'onboarding.subscription.autoBackup.description': 'Mos humb kurrë të dhënat me backup automatikë të përditshme në cloud',
+    'onboarding.subscription.freeUpdates.title': 'Përditësime Falas',
+    'onboarding.subscription.freeUpdates.description': 'Merr veçoritë dhe përmirësimet më të fundit automatikisht',
+    'onboarding.subscription.support247.title': 'Mbështetje 24/7',
+    'onboarding.subscription.support247.description': 'Merr ndihmë kur të kesh nevojë përmes email-it dhe chat-it',
+    
+    // Money-back guarantee
+    'onboarding.subscription.moneyBackGuarantee.title': 'Garanci Kthimi Parash 30-Ditore',
+    'onboarding.subscription.moneyBackGuarantee.description': 'Provo shërbimin tonë pa risk. Nëse nuk je plotësisht i kënaqur, do të kthejmë paratë brenda 30 ditësh. Pa pyetje.',
+
     // Tables explanation
     'onboarding.tables.whatAreUnits.title': 'Çfarë janë njësitë/tavolinat?',
     'onboarding.tables.whatAreUnits.description': 'Njësitë përfaqësojnë kapacitetin e biznesit tuaj - vendet ku mund të shërbeni klientët. Këto mund të jenë tavolina për restorante, karrige për salona, dhoma për konsultime, ose çdo lloj njësie shërbimi.',
@@ -2505,6 +2579,80 @@ export const translations: Translations = {
     'onboarding.noTables': 'No units configured for the business yet',
     'onboarding.reassurance.title': 'Don\'t worry about the details!',
     'onboarding.reassurance.description': 'All of these settings can be changed later from your business settings menu.',
+
+    // Subscription step
+    'onboarding.subscription.chooseYourPlan': 'Choose Your Plan',
+    'onboarding.subscription.readyMessage': 'Great job! Your business "{businessName}" is ready. Select a subscription plan to start accepting bookings.',
+    'onboarding.subscription.loadingPlans': 'Loading subscription plans...',
+    'onboarding.subscription.errorLoadingPlans': 'Error Loading Plans',
+    'onboarding.subscription.tryAgain': 'Try Again',
+    'onboarding.subscription.monthly': 'Monthly',
+    'onboarding.subscription.yearly': 'Yearly',
+    'onboarding.subscription.save': 'Save {percent}%',
+    'onboarding.subscription.regularPrice': 'Regular price €{price} — save €{savings} ({percent}%)',
+    'onboarding.subscription.perMonth': 'month',
+    'onboarding.subscription.perYear': 'year',
+    'onboarding.subscription.freeTrialDays': '{days} day free trial',
+    'onboarding.subscription.mostPopular': 'Most Popular',
+    'onboarding.subscription.startFree': 'Start Free',
+    'onboarding.subscription.subscribe': 'Subscribe',
+    'onboarding.subscription.noPlansAvailable': 'No Plans Available',
+    'onboarding.subscription.noPlansMessage': 'No subscription plans are available at the moment.',
+    'onboarding.subscription.continueWithBasic': 'Continue with Basic',
+    'onboarding.subscription.skipForNow': 'I\'ll choose a plan later',
+    
+    // Plan features - Solo
+    'onboarding.subscription.features.solo.onlineBooking': 'Online booking system',
+    'onboarding.subscription.features.solo.basicCalendar': 'Basic calendar management',
+    'onboarding.subscription.features.solo.notifications': 'Customer SMS & email notifications',
+    'onboarding.subscription.features.solo.mobileFriendly': 'Mobile-friendly design',
+    'onboarding.subscription.features.solo.basicAnalytics': 'Basic performance analytics',
+    'onboarding.subscription.features.solo.oneService': 'Support for 1 service or offering',
+    'onboarding.subscription.features.solo.unlimitedBookings': 'Unlimited bookings',
+    'onboarding.subscription.features.solo.emailSupport': 'Email support',
+    
+    // Plan features - Pro
+    'onboarding.subscription.features.pro.everythingInSolo': 'Everything in Solo, plus:',
+    'onboarding.subscription.features.pro.advancedAnalytics': 'Advanced booking & revenue analytics',
+    'onboarding.subscription.features.pro.customBranding': 'Custom branding (logo, colors, favicon)',
+    'onboarding.subscription.features.pro.multipleServices': 'Manage multiple services or staff',
+    'onboarding.subscription.features.pro.automatedReminders': 'Automated booking reminders',
+    'onboarding.subscription.features.pro.revenueTracking': 'Revenue & performance tracking',
+    'onboarding.subscription.features.pro.prioritySupport': 'Priority customer support (email + chat)',
+    'onboarding.subscription.features.pro.googleCalendar': 'Google Calendar sync (optional)',
+    
+    // Plan features - Team (same as Pro)
+    'onboarding.subscription.features.team.everythingInSolo': 'Everything in Solo, plus:',
+    'onboarding.subscription.features.team.advancedAnalytics': 'Advanced booking & revenue analytics',
+    'onboarding.subscription.features.team.customBranding': 'Custom branding (logo, colors, favicon)',
+    'onboarding.subscription.features.team.multipleServices': 'Manage multiple services or staff',
+    'onboarding.subscription.features.team.automatedReminders': 'Automated booking reminders',
+    'onboarding.subscription.features.team.revenueTracking': 'Revenue & performance tracking',
+    'onboarding.subscription.features.team.prioritySupport': 'Priority customer support (email + chat)',
+    'onboarding.subscription.features.team.googleCalendar': 'Google Calendar sync (optional)',
+    
+    // Plan features - Business
+    'onboarding.subscription.features.business.everythingInTeam': 'Everything in Team, plus:',
+    'onboarding.subscription.features.business.unlimitedStaff': 'Unlimited staff, multi-location',
+    'onboarding.subscription.features.business.rolesPermissions': 'Roles/permissions, audit log',
+    'onboarding.subscription.features.business.deposits': 'Deposits/no-show fees, exports, API access',
+    'onboarding.subscription.features.business.advancedReports': 'Advanced reports (no-show, utilization, LTV)',
+    'onboarding.subscription.features.business.onboardingAssist': 'Onboarding assist + SLA response target',
+    
+    // Why Choose Us section
+    'onboarding.subscription.whyChooseUs': 'Why Choose Us?',
+    'onboarding.subscription.sslSecurity.title': 'SSL Security',
+    'onboarding.subscription.sslSecurity.description': 'Bank-level encryption protects your data and customer information',
+    'onboarding.subscription.autoBackup.title': 'Auto Backup',
+    'onboarding.subscription.autoBackup.description': 'Never lose your data with automatic daily backups to the cloud',
+    'onboarding.subscription.freeUpdates.title': 'Free Updates',
+    'onboarding.subscription.freeUpdates.description': 'Get the latest features and improvements automatically',
+    'onboarding.subscription.support247.title': '24/7 Support',
+    'onboarding.subscription.support247.description': 'Get help whenever you need it via email and chat',
+    
+    // Money-back guarantee
+    'onboarding.subscription.moneyBackGuarantee.title': '30-Day Money-Back Guarantee',
+    'onboarding.subscription.moneyBackGuarantee.description': 'Try our service risk-free. If you\'re not completely satisfied, we\'ll refund your money within 30 days. No questions asked.',
 
     // Tables explanation
     'onboarding.tables.whatAreUnits.title': 'What are units/tables?',
@@ -4686,6 +4834,80 @@ export const translations: Translations = {
     'onboarding.noTables': 'Ende nuk ka njësi të konfigururara për biznesin',
     'onboarding.reassurance.title': 'Mos u shqetëso për detajet!',
     'onboarding.reassurance.description': 'Të gjitha këto konfigurime mund të ndryshohen më vonë nga menuja e konfigurimit të biznesit.',
+
+    // Subscription step
+    'onboarding.subscription.chooseYourPlan': 'Zgjidhni Planin Tuaj',
+    'onboarding.subscription.readyMessage': 'Punë e shkëlqyer! Biznesi juaj "{businessName}" është gati. Zgjidhni një plan abonimi për të filluar të pranoni rezervime.',
+    'onboarding.subscription.loadingPlans': 'Duke ngarkuar planet e abonimit...',
+    'onboarding.subscription.errorLoadingPlans': 'Gabim në Ngarkimin e Planeve',
+    'onboarding.subscription.tryAgain': 'Provo Përsëri',
+    'onboarding.subscription.monthly': 'Mujore',
+    'onboarding.subscription.yearly': 'Vjetore',
+    'onboarding.subscription.save': 'Kurseni {percent}%',
+    'onboarding.subscription.regularPrice': 'Çmimi normal €{price} — kurseni €{savings} ({percent}%)',
+    'onboarding.subscription.perMonth': 'muaj',
+    'onboarding.subscription.perYear': 'vit',
+    'onboarding.subscription.freeTrialDays': '{days} ditë provë falas',
+    'onboarding.subscription.mostPopular': 'Më i Përdorur',
+    'onboarding.subscription.startFree': 'Fillo Falas',
+    'onboarding.subscription.subscribe': 'Abono',
+    'onboarding.subscription.noPlansAvailable': 'Nuk Ka Plane të Disponueshme',
+    'onboarding.subscription.noPlansMessage': 'Nuk ka plane abonimi të disponueshme në këtë moment.',
+    'onboarding.subscription.continueWithBasic': 'Vazhdo me Bazë',
+    'onboarding.subscription.skipForNow': 'Do ta zgjedh një plan më vonë',
+    
+    // Plan features - Solo
+    'onboarding.subscription.features.solo.onlineBooking': 'Sistem rezervimi online',
+    'onboarding.subscription.features.solo.basicCalendar': 'Menaxhim bazë i kalendarit',
+    'onboarding.subscription.features.solo.notifications': 'Njoftime me SMS & email për klientët',
+    'onboarding.subscription.features.solo.mobileFriendly': 'Dizajn i përshtatshëm për celular',
+    'onboarding.subscription.features.solo.basicAnalytics': 'Analiza bazë të performancës',
+    'onboarding.subscription.features.solo.oneService': 'Mbështetje për 1 shërbim ose ofertë',
+    'onboarding.subscription.features.solo.unlimitedBookings': 'Rezervime të pakufizuara',
+    'onboarding.subscription.features.solo.emailSupport': 'Mbështetje me email',
+    
+    // Plan features - Pro
+    'onboarding.subscription.features.pro.everythingInSolo': 'Gjithçka në Solo, plus:',
+    'onboarding.subscription.features.pro.advancedAnalytics': 'Analiza të avancuara të rezervimeve & të ardhurave',
+    'onboarding.subscription.features.pro.customBranding': 'Branding i personalizuar (logo, ngjyra, favicon)',
+    'onboarding.subscription.features.pro.multipleServices': 'Menaxho shërbime ose staf të shumtë',
+    'onboarding.subscription.features.pro.automatedReminders': 'Rikujtime automatike të rezervimeve',
+    'onboarding.subscription.features.pro.revenueTracking': 'Gjurmimi i të ardhurave & performancës',
+    'onboarding.subscription.features.pro.prioritySupport': 'Mbështetje me prioritet (email + chat)',
+    'onboarding.subscription.features.pro.googleCalendar': 'Sinkronizim me Google Calendar (opsionale)',
+    
+    // Plan features - Team (same as Pro)
+    'onboarding.subscription.features.team.everythingInSolo': 'Gjithçka në Solo, plus:',
+    'onboarding.subscription.features.team.advancedAnalytics': 'Analiza të avancuara të rezervimeve & të ardhurave',
+    'onboarding.subscription.features.team.customBranding': 'Branding i personalizuar (logo, ngjyra, favicon)',
+    'onboarding.subscription.features.team.multipleServices': 'Menaxho shërbime ose staf të shumtë',
+    'onboarding.subscription.features.team.automatedReminders': 'Rikujtime automatike të rezervimeve',
+    'onboarding.subscription.features.team.revenueTracking': 'Gjurmimi i të ardhurave & performancës',
+    'onboarding.subscription.features.team.prioritySupport': 'Mbështetje me prioritet (email + chat)',
+    'onboarding.subscription.features.team.googleCalendar': 'Sinkronizim me Google Calendar (opsionale)',
+    
+    // Plan features - Business
+    'onboarding.subscription.features.business.everythingInTeam': 'Gjithçka në Team, plus:',
+    'onboarding.subscription.features.business.unlimitedStaff': 'Staf i pakufizuar, multi-lokacion',
+    'onboarding.subscription.features.business.rolesPermissions': 'Role/leje, regjistër auditimi',
+    'onboarding.subscription.features.business.deposits': 'Depozita/tarifa mosparaqitje, eksporte, akses API',
+    'onboarding.subscription.features.business.advancedReports': 'Raporte të avancuara (mosparaqitje, shfrytëzim, LTV)',
+    'onboarding.subscription.features.business.onboardingAssist': 'Ndihmë onboarding + objektiv përgjigje SLA',
+    
+    // Why Choose Us section
+    'onboarding.subscription.whyChooseUs': 'Pse të Na Zgjidhni?',
+    'onboarding.subscription.sslSecurity.title': 'Siguri SSL',
+    'onboarding.subscription.sslSecurity.description': 'Enkriptimi i nivelit bankar mbron të dhënat tuaja dhe informacionet e klientëve',
+    'onboarding.subscription.autoBackup.title': 'Backup Automatik',
+    'onboarding.subscription.autoBackup.description': 'Mos humbisni kurrë të dhënat me backup automatikë të përditshme në cloud',
+    'onboarding.subscription.freeUpdates.title': 'Përditësime Falas',
+    'onboarding.subscription.freeUpdates.description': 'Merrni veçoritë dhe përmirësimet më të fundit automatikisht',
+    'onboarding.subscription.support247.title': 'Mbështetje 24/7',
+    'onboarding.subscription.support247.description': 'Merrni ndihmë kur të keni nevojë përmes email-it dhe chat-it',
+    
+    // Money-back guarantee
+    'onboarding.subscription.moneyBackGuarantee.title': 'Garanci Kthimi Parash 30-Ditore',
+    'onboarding.subscription.moneyBackGuarantee.description': 'Provoni shërbimin tonë pa risk. Nëse nuk jeni plotësisht të kënaqur, do t\'ju kthejmë paratë brenda 30 ditësh. Pa pyetje.',
 
     // Tables explanation
     'onboarding.tables.whatAreUnits.title': 'Çfarë janë njësitë/tavolinat?',
