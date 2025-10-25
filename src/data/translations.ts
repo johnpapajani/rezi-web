@@ -99,7 +99,7 @@ export const translations: Translations = {
     
     // Solo Plan
     'pricing.solo.name': '🧍 Solo',
-    'pricing.solo.description': '',
+    'pricing.solo.description': 'Perfekt për profesionistë individualë dhe freelancer',
     'pricing.solo.feature1': 'Faqe rezervimi online & widget faqeje',
     'pricing.solo.feature2': 'Kalendar bazë • Rezervime të pakufizuara',
     'pricing.solo.feature3': 'Rikujtime me email',
@@ -108,7 +108,7 @@ export const translations: Translations = {
 
     // Team Plan  
     'pricing.team.name': '👥 Team',
-    'pricing.team.description': '',
+    'pricing.team.description': 'Ideal për biznese të vogla me staf dhe shërbime të shumta',
     'pricing.team.feature1': 'Deri në 5 staf & shërbime',
     'pricing.team.feature2': 'Rikujtime SMS (faturohen sipas përdorimit)',
     'pricing.team.feature3': 'Sinkronizim Google Calendar',
@@ -2192,7 +2192,7 @@ export const translations: Translations = {
     
     // Solo Plan
     'pricing.solo.name': '🧍 Solo',
-    'pricing.solo.description': '',
+    'pricing.solo.description': 'Perfect for solo practitioners and freelancers',
     'pricing.solo.feature1': 'Online booking page & website widget',
     'pricing.solo.feature2': 'Basic calendar • Unlimited bookings',
     'pricing.solo.feature3': 'Email reminders',
@@ -2201,7 +2201,7 @@ export const translations: Translations = {
 
     // Team Plan  
     'pricing.team.name': '👥 Team',
-    'pricing.team.description': '',
+    'pricing.team.description': 'Ideal for small businesses with multiple staff and services',
     'pricing.team.feature1': 'Up to 5 staff & services',
     'pricing.team.feature2': 'SMS reminders (usage billed)',
     'pricing.team.feature3': 'Google Calendar sync',
@@ -4286,7 +4286,7 @@ export const translations: Translations = {
     
     // Solo Plan
     'pricing.solo.name': '🧍 Solo',
-    'pricing.solo.description': '',
+    'pricing.solo.description': 'Perfetto per professionisti individuali e freelancer',
     'pricing.solo.feature1': 'Pagina prenotazioni online & widget sito',
     'pricing.solo.feature2': 'Calendario base • Prenotazioni illimitate',
     'pricing.solo.feature3': 'Promemoria via email',
@@ -4295,7 +4295,7 @@ export const translations: Translations = {
 
     // Team Plan  
     'pricing.team.name': '👥 Team',
-    'pricing.team.description': '',
+    'pricing.team.description': 'Ideale per piccole imprese con più personale e servizi',
     'pricing.team.feature1': 'Fino a 5 membri & servizi',
     'pricing.team.feature2': 'Promemoria SMS (fatturati a consumo)',
     'pricing.team.feature3': 'Sincronizzazione Google Calendar',
