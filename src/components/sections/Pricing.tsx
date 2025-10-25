@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { CheckIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, SparklesIcon, UserGroupIcon, MapPinIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
 import { pricingPlans } from '../../data/content';
 import { isFeatureEnabled } from '../../utils/featureFlags';
@@ -309,8 +309,8 @@ const Pricing: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Pricing Cards - Two Plans */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
+        {/* Pricing Cards - Three Plans */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
           {pricingPlans.map((plan, index) => (
             <motion.div
               key={plan.id}
@@ -319,7 +319,7 @@ const Pricing: React.FC = () => {
               transition={{ duration: 0.8, delay: index * 0.2 }}
               viewport={{ once: true }}
               className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
-                plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
+                plan.popular ? 'ring-2 ring-blue-500 md:scale-105' : ''
               }`}
             >
               {/* Popular Badge */}
@@ -371,6 +371,8 @@ const Pricing: React.FC = () => {
                   className={`w-full py-3 px-6 rounded-xl font-semibold text-lg transition-all duration-200 ${
                     plan.popular
                       ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                      : plan.id === 3
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
                       : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                   }`}
                 >
@@ -387,51 +389,36 @@ const Pricing: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           viewport={{ once: true }}
-          className="bg-white rounded-2xl p-8 shadow-lg max-w-5xl mx-auto mb-12"
+          className="bg-white rounded-2xl p-8 shadow-lg max-w-7xl mx-auto mb-12"
         >
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             {t('pricing.addons.title')}
           </h3>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="text-center p-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <UserGroupIcon className="w-6 h-6 text-blue-600" />
+              </div>
               <div className="text-lg font-semibold text-gray-900 mb-2">
                 {t('pricing.addons.staff')}
               </div>
             </div>
             <div className="text-center p-4">
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <MapPinIcon className="w-6 h-6 text-green-600" />
+              </div>
               <div className="text-lg font-semibold text-gray-900 mb-2">
                 {t('pricing.addons.location')}
               </div>
             </div>
             <div className="text-center p-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <ChatBubbleLeftRightIcon className="w-6 h-6 text-purple-600" />
+              </div>
               <div className="text-lg font-semibold text-gray-900 mb-2">
                 {t('pricing.addons.sms')}
               </div>
             </div>
-          </div>
-        </motion.div>
-
-        {/* Business Plan CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          viewport={{ once: true }}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 md:p-12 shadow-xl max-w-5xl mx-auto mb-12"
-        >
-          <div className="text-center text-white">
-            <h3 className="text-3xl font-bold mb-4">
-              {t('pricing.business.name')}
-            </h3>
-            <p className="text-xl mb-6 opacity-90">
-              {t('pricing.business.description')}
-            </p>
-            <button
-              onClick={handleContactSales}
-              className="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transform hover:scale-105 transition-all duration-200 shadow-lg"
-            >
-              {t('pricing.business.cta')}
-            </button>
           </div>
         </motion.div>
 
@@ -443,7 +430,7 @@ const Pricing: React.FC = () => {
           viewport={{ once: true }}
           className="text-center"
         >
-          <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg max-w-5xl mx-auto">
+          <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg max-w-7xl mx-auto">
             <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">
               {t('pricing.included.title')}
             </h3>
