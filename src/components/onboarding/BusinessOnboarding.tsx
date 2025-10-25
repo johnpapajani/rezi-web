@@ -1811,6 +1811,22 @@ const BusinessOnboarding: React.FC = () => {
                       const regularYearlyPrice = billingPeriod === 'yearly' && plan.interval === 'year' ? monthlyPrice * 12 * 1.4 : null;
                       const savings = regularYearlyPrice ? regularYearlyPrice - plan.price : null;
                       
+                      // Map plan names to translation keys
+                      const getPlanNameKey = (planName: string): string => {
+                        const lowerName = planName.toLowerCase();
+                        if (lowerName.includes('solo')) return 'pricing.solo.name';
+                        if (lowerName.includes('team')) return 'pricing.team.name';
+                        if (lowerName.includes('business')) return 'pricing.business.name';
+                        return planName; // fallback to original name
+                      };
+                      
+                      const getPlanDescriptionKey = (planName: string): string | null => {
+                        const lowerName = planName.toLowerCase();
+                        if (lowerName.includes('solo')) return 'pricing.solo.description';
+                        if (lowerName.includes('team')) return 'pricing.team.description';
+                        if (lowerName.includes('business')) return 'pricing.business.description';
+                        return null;
+                      };
 
                       return (
                         <motion.div
@@ -1818,50 +1834,42 @@ const BusinessOnboarding: React.FC = () => {
                           initial={{ opacity: 0, y: 30 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.1 + index * 0.15 }}
-                          className={`bg-white rounded-2xl p-6 relative w-full border-2 transition-all hover:shadow-lg ${
-                            isPopular
-                              ? 'border-purple-300 shadow-xl'
-                              : 'border-gray-200 shadow-sm hover:border-gray-300'
+                          className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
+                            isPopular ? 'ring-2 ring-blue-500 md:scale-105' : ''
                           }`}
                         >
                           {/* Popular badge */}
                           {isPopular && (
                             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                              <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
-                                🌟 {t('onboarding.subscription.mostPopular')}
+                              <div className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center space-x-1">
+                                <SparklesIcon className="w-4 h-4" />
+                                <span>{t('pricing.popular')}</span>
                               </div>
                             </div>
                           )}
 
+                          <div className="p-8">
                           {/* Plan Header */}
-                          <div className="text-center mb-6">
-                            <div className="mb-3">
-                              <span className="text-2xl">
-                                {plan.price === 0 ? '🧍' : isPopular ? '🌟' : '⭐'}
-                              </span>
-                            </div>
-                            
+                          <div className="text-center mb-8">
                             <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                              {plan.name}
+                              {t(getPlanNameKey(plan.name))}
                             </h3>
                             
-                            {plan.description && (
-                              <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
+                            {getPlanDescriptionKey(plan.name) && (
+                              <p className="text-gray-600 mb-4">{t(getPlanDescriptionKey(plan.name)!)}</p>
                             )}
 
                             {/* Pricing */}
                             <div className="mb-4">
-                              <div className="flex items-baseline justify-center mb-1">
-                                <span className="text-3xl font-bold text-gray-900">
-                                  €{plan.price.toFixed(2)}
-                                </span>
-                                <span className="text-gray-500 ml-1 text-sm">
-                                  / {plan.interval === 'year' ? t('onboarding.subscription.perYear') : t('onboarding.subscription.perMonth')}
-                                </span>
+                              <div className="text-4xl font-bold text-gray-900">
+                                €{plan.price.toFixed(2)}
+                              </div>
+                              <div className="text-gray-600">
+                                / {plan.interval === 'year' ? t('pricing.yearly.short') : t('pricing.monthly.short')}
                               </div>
                               
                               {savings && savings > 0 && billingPeriod === 'yearly' && regularYearlyPrice && (
-                                <div className="text-xs text-gray-600">
+                                <div className="text-sm mt-2 text-gray-500">
                                   {t('onboarding.subscription.regularPrice', { 
                                     price: regularYearlyPrice.toFixed(2), 
                                     savings: savings.toFixed(2), 
@@ -1880,158 +1888,130 @@ const BusinessOnboarding: React.FC = () => {
 
                           {/* Features List */}
                           <div className="mb-8">
-                            <ul className="space-y-3">
-                              {/* Standard Solo Features */}
+                            <ul className="space-y-4">
+                              {/* Solo Plan Features */}
                               {plan.name.toLowerCase().includes('solo') && (
                                 <>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.onlineBooking')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.solo.feature1')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.basicCalendar')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.solo.feature2')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.notifications')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.solo.feature3')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.mobileFriendly')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.solo.feature4')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.basicAnalytics')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.solo.feature5')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.oneService')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.unlimitedBookings')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.solo.emailSupport')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.solo.feature6')}</span>
                                   </li>
                                 </>
                               )}
                               
-                              {/* Standard Pro Features */}
-                              {plan.name.toLowerCase().includes('pro') && (
-                                <>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.everythingInSolo')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.advancedAnalytics')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.customBranding')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.multipleServices')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.automatedReminders')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.revenueTracking')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.prioritySupport')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.pro.googleCalendar')}</span>
-                                  </li>
-                                </>
-                              )}
-                              
-                              {/* Team Features */}
+                              {/* Team Plan Features */}
                               {plan.name.toLowerCase().includes('team') && (
                                 <>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.everythingInSolo')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature1')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.advancedAnalytics')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature2')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.customBranding')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature3')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.multipleServices')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature4')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.automatedReminders')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature5')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.revenueTracking')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.prioritySupport')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.team.googleCalendar')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature6')}</span>
                                   </li>
                                 </>
                               )}
                               
-                              {/* Business Features */}
+                              {/* Business Plan Features */}
                               {plan.name.toLowerCase().includes('business') && (
                                 <>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.everythingInTeam')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.business.feature1')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.unlimitedStaff')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.business.feature2')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.rolesPermissions')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.business.feature3')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.deposits')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.business.feature4')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.advancedReports')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.business.feature5')}</span>
+                                  </li>
+                                </>
+                              )}
+                              
+                              {/* Pro Plan Features (if not already matched by Team) */}
+                              {plan.name.toLowerCase().includes('pro') && !plan.name.toLowerCase().includes('team') && (
+                                <>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature1')}</span>
                                   </li>
                                   <li className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{t('onboarding.subscription.features.business.onboardingAssist')}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature2')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature3')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature4')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature5')}</span>
+                                  </li>
+                                  <li className="flex items-start">
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{t('pricing.team.feature6')}</span>
                                   </li>
                                 </>
                               )}
                               
                               {/* Fallback for other plans */}
-                              {!plan.name.toLowerCase().includes('solo') && !plan.name.toLowerCase().includes('pro') && !plan.name.toLowerCase().includes('team') && !plan.name.toLowerCase().includes('business') && 
+                              {!plan.name.toLowerCase().includes('solo') && !plan.name.toLowerCase().includes('pro') && !plan.name.toLowerCase().includes('team') && !plan.name.toLowerCase().includes('business') &&
                                 plan.features && plan.features.length > 0 && 
                                 plan.features.map((feature, featureIndex) => (
                                   <li key={featureIndex} className="flex items-start">
-                                    <CheckIcon className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 text-sm">{feature}</span>
+                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">{feature}</span>
                                   </li>
                                 ))
                               }
@@ -2041,17 +2021,17 @@ const BusinessOnboarding: React.FC = () => {
                           {/* Subscribe Button */}
                           <button
                             onClick={() => handlePlanSelect(plan)}
-                            className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-all hover:scale-105 flex items-center justify-center ${
+                            className={`w-full py-3 px-6 rounded-xl font-semibold text-lg transition-all duration-200 ${
                               isPopular
-                                ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-lg'
-                                : plan.price === 0
-                                ? 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
-                                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'
+                                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                                : plan.name.toLowerCase().includes('business')
+                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                             }`}
                           >
-                            {plan.price === 0 ? t('onboarding.subscription.startFree') : t('onboarding.subscription.subscribe')}
-                            <ArrowRightIcon className="w-4 h-4 ml-2" />
+                            {t('pricing.cta.freeTrial')}
                           </button>
+                          </div>
                         </motion.div>
                       );
                     })
@@ -2060,65 +2040,6 @@ const BusinessOnboarding: React.FC = () => {
                 </div>
               )}
 
-              {/* Features Comparison */}
-              {!plansLoading && !plansError && getAvailablePlans().length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="mt-20 text-center"
-                >
-                  <h2 className="text-3xl font-bold text-gray-900 mb-12">{t('onboarding.subscription.whyChooseUs')}</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center">
-                        <ShieldCheckIcon className="w-8 h-8 text-green-600" />
-                      </div>
-                      <h3 className="font-bold text-gray-900 text-xl">{t('onboarding.subscription.sslSecurity.title')}</h3>
-                      <p className="text-gray-600 text-center">{t('onboarding.subscription.sslSecurity.description')}</p>
-                    </div>
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <SparklesIcon className="w-8 h-8 text-blue-600" />
-                      </div>
-                      <h3 className="font-bold text-gray-900 text-xl">{t('onboarding.subscription.autoBackup.title')}</h3>
-                      <p className="text-gray-600 text-center">{t('onboarding.subscription.autoBackup.description')}</p>
-                    </div>
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center">
-                        <ArrowRightIcon className="w-8 h-8 text-purple-600" />
-                      </div>
-                      <h3 className="font-bold text-gray-900 text-xl">{t('onboarding.subscription.freeUpdates.title')}</h3>
-                      <p className="text-gray-600 text-center">{t('onboarding.subscription.freeUpdates.description')}</p>
-                    </div>
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="w-16 h-16 bg-yellow-100 rounded-xl flex items-center justify-center">
-                        <GlobeIcon className="w-8 h-8 text-yellow-600" />
-                      </div>
-                      <h3 className="font-bold text-gray-900 text-xl">{t('onboarding.subscription.support247.title')}</h3>
-                      <p className="text-gray-600 text-center">{t('onboarding.subscription.support247.description')}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Money-back guarantee */}
-              {!plansLoading && !plansError && getAvailablePlans().length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                  className="mt-16 text-center"
-                >
-                  <div className="bg-gray-50 rounded-2xl p-8 max-w-3xl mx-auto">
-                    <ShieldCheckIcon className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3">{t('onboarding.subscription.moneyBackGuarantee.title')}</h3>
-                    <p className="text-gray-600 text-lg">
-                      {t('onboarding.subscription.moneyBackGuarantee.description')}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
 
               {/* Skip Option */}
               {!plansLoading && !plansError && getAvailablePlans().length > 0 && (
