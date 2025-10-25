@@ -242,7 +242,7 @@ const BusinessOnboarding: React.FC = () => {
     { number: 1, title: t('onboarding.steps.business.title'), description: t('onboarding.steps.business.description') },
     { number: 2, title: t('onboarding.steps.services.title'), description: t('onboarding.steps.services.description') },
     { number: 3, title: t('onboarding.steps.tables.title'), description: t('onboarding.steps.tables.description') },
-    { number: 4, title: 'Choose Subscription', description: 'Select a plan for your business' },
+    { number: 4, title: t('onboarding.steps.subscription.title'), description: t('onboarding.steps.subscription.description') },
   ];
 
   const validateBusinessStep = (): boolean => {
