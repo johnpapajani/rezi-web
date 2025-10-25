@@ -40,7 +40,10 @@ import BusinessSubscriptionPlans from './components/pages/BusinessSubscriptionPl
 import ComingSoon from './components/pages/ComingSoon';
 
 function App() {
-  if (process.env.NODE_ENV === 'production') {
+  const comingSoonOverride = process.env.REACT_APP_SHOW_COMING_SOON?.toLowerCase();
+  const showComingSoon = comingSoonOverride === 'true';
+
+  if (showComingSoon) {
     return <ComingSoon />;
   }
   return (
