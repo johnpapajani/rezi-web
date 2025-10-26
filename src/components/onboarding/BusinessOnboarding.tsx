@@ -244,6 +244,8 @@ const BusinessOnboarding: React.FC = () => {
     { number: 4, title: t('onboarding.steps.subscription.title'), description: t('onboarding.steps.subscription.description') },
   ];
 
+  const containerWidthClass = currentStep === 4 ? 'max-w-7xl' : 'max-w-4xl';
+
   const validateBusinessStep = (): boolean => {
     const errors: {[key: string]: string} = {};
 
@@ -861,7 +863,7 @@ const BusinessOnboarding: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className={`${containerWidthClass} mx-auto px-4 sm:px-6 lg:px-8 py-4`}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div className="flex items-center space-x-4 min-w-0">
               <button
@@ -929,7 +931,7 @@ const BusinessOnboarding: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className={`${containerWidthClass} mx-auto px-4 sm:px-6 lg:px-8 py-8`}>
         {/* Reassuring Message */}
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center space-x-3">
@@ -1784,259 +1786,251 @@ const BusinessOnboarding: React.FC = () => {
 
               {/* Dynamic Subscription Plans */}
               {!plansLoading && !plansError && (
-                <div className="flex justify-center">
-                  <motion.div 
-                    key={billingPeriod}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl w-full mx-auto"
-                  >
-                  {getAvailablePlans().length === 0 ? (
-                    <div className="col-span-full text-center py-20">
-                      <ExclamationCircleIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-                      <h3 className="text-2xl font-medium text-gray-900 mb-3">{t('onboarding.subscription.noPlansAvailable')}</h3>
-                      <p className="text-gray-600 text-lg mb-6">{t('onboarding.subscription.noPlansMessage')}</p>
-                      <button
-                        onClick={() => setSkipSubscription(true)}
-                        className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
-                      >
-                        {t('onboarding.subscription.continueWithBasic')}
-                      </button>
-                    </div>
-                  ) : (
-                    getAvailablePlans().map((plan, index) => {
-                      const isPopular = isPlanPopular(plan);
-                      const monthlyPrice = billingPeriod === 'yearly' && plan.interval === 'year' ? plan.price / 12 : plan.price;
-                      const regularYearlyPrice = billingPeriod === 'yearly' && plan.interval === 'year' ? monthlyPrice * 12 * 1.4 : null;
-                      const savings = regularYearlyPrice ? regularYearlyPrice - plan.price : null;
-                      
-                      // Map plan names to translation keys
-                      const getPlanNameKey = (planName: string): string => {
-                        const lowerName = planName.toLowerCase();
-                        if (lowerName.includes('solo')) return 'pricing.solo.name';
-                        if (lowerName.includes('team')) return 'pricing.team.name';
-                        if (lowerName.includes('business')) return 'pricing.business.name';
-                        return planName; // fallback to original name
-                      };
-                      
-                      const getPlanDescriptionKey = (planName: string): string | null => {
-                        const lowerName = planName.toLowerCase();
-                        if (lowerName.includes('solo')) return 'pricing.solo.description';
-                        if (lowerName.includes('team')) return 'pricing.team.description';
-                        if (lowerName.includes('business')) return 'pricing.business.description';
-                        return null;
-                      };
-
-                      return (
-                        <motion.div
-                          key={plan.id}
-                          initial={{ opacity: 0, y: 30 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.1 + index * 0.15 }}
-                          className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
-                            isPopular ? 'ring-2 ring-blue-500 md:scale-105' : ''
-                          }`}
+                <div className="w-full px-4">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
+                    {getAvailablePlans().length === 0 ? (
+                      <div className="col-span-full text-center py-20">
+                        <ExclamationCircleIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+                        <h3 className="text-2xl font-medium text-gray-900 mb-3">{t('onboarding.subscription.noPlansAvailable')}</h3>
+                        <p className="text-gray-600 text-lg mb-6">{t('onboarding.subscription.noPlansMessage')}</p>
+                        <button
+                          onClick={() => setSkipSubscription(true)}
+                          className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
                         >
-                          {/* Popular badge */}
-                          {isPopular && (
-                            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                              <div className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center space-x-1">
-                                <SparklesIcon className="w-4 h-4" />
-                                <span>{t('pricing.popular')}</span>
-                              </div>
-                            </div>
-                          )}
+                          {t('onboarding.subscription.continueWithBasic')}
+                        </button>
+                      </div>
+                    ) : (
+                      getAvailablePlans().map((plan, index) => {
+                        const isPopular = isPlanPopular(plan);
+                        const monthlyPrice = billingPeriod === 'yearly' && plan.interval === 'year' ? plan.price / 12 : plan.price;
+                        const regularYearlyPrice = billingPeriod === 'yearly' && plan.interval === 'year' ? monthlyPrice * 12 * 1.4 : null;
+                        const savings = regularYearlyPrice ? regularYearlyPrice - plan.price : null;
+                        
+                        // Map plan names to translation keys
+                        const getPlanNameKey = (planName: string): string => {
+                          const lowerName = planName.toLowerCase();
+                          if (lowerName.includes('solo')) return 'pricing.solo.name';
+                          if (lowerName.includes('team')) return 'pricing.team.name';
+                          if (lowerName.includes('business')) return 'pricing.business.name';
+                          return planName; // fallback to original name
+                        };
+                        
+                        const getPlanDescriptionKey = (planName: string): string | null => {
+                          const lowerName = planName.toLowerCase();
+                          if (lowerName.includes('solo')) return 'pricing.solo.description';
+                          if (lowerName.includes('team')) return 'pricing.team.description';
+                          if (lowerName.includes('business')) return 'pricing.business.description';
+                          return null;
+                        };
 
-                          <div className="p-8">
-                          {/* Plan Header */}
-                          <div className="text-center mb-8">
-                            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                              {t(getPlanNameKey(plan.name))}
-                            </h3>
-                            
-                            {getPlanDescriptionKey(plan.name) && (
-                              <p className="text-gray-600 mb-4">{t(getPlanDescriptionKey(plan.name)!)}</p>
-                            )}
-
-                            {/* Pricing */}
-                            <div className="mb-4">
-                              <div className="text-4xl font-bold text-gray-900">
-                                €{plan.price.toFixed(2)}
-                              </div>
-                              <div className="text-gray-600">
-                                / {plan.interval === 'year' ? t('pricing.yearly.short') : t('pricing.monthly.short')}
-                              </div>
-                              
-                              {savings && savings > 0 && billingPeriod === 'yearly' && regularYearlyPrice && (
-                                <div className="text-sm mt-2 text-gray-500">
-                                  {t('onboarding.subscription.regularPrice', { 
-                                    price: regularYearlyPrice.toFixed(2), 
-                                    savings: savings.toFixed(2), 
-                                    percent: Math.round((savings / regularYearlyPrice) * 100) 
-                                  })}
-                                </div>
-                              )}
-                              
-                              {(plan.trial_days && typeof plan.trial_days === 'number' && plan.trial_days > 0) ? (
-                                <div className="mt-2 inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                                  {t('onboarding.subscription.freeTrialDays', { days: plan.trial_days })}
-                                </div>
-                              ) : null}
-                            </div>
-                          </div>
-
-                          {/* Features List */}
-                          <div className="mb-8">
-                            <ul className="space-y-4">
-                              {/* Solo Plan Features */}
-                              {plan.name.toLowerCase().includes('solo') && (
-                                <>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.solo.feature1')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.solo.feature2')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.solo.feature3')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.solo.feature4')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.solo.feature5')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.solo.feature6')}</span>
-                                  </li>
-                                </>
-                              )}
-                              
-                              {/* Team Plan Features */}
-                              {plan.name.toLowerCase().includes('team') && (
-                                <>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature1')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature2')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature3')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature4')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature5')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature6')}</span>
-                                  </li>
-                                </>
-                              )}
-                              
-                              {/* Business Plan Features */}
-                              {plan.name.toLowerCase().includes('business') && (
-                                <>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.business.feature1')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.business.feature2')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.business.feature3')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.business.feature4')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.business.feature5')}</span>
-                                  </li>
-                                </>
-                              )}
-                              
-                              {/* Pro Plan Features (if not already matched by Team) */}
-                              {plan.name.toLowerCase().includes('pro') && !plan.name.toLowerCase().includes('team') && (
-                                <>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature1')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature2')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature3')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature4')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature5')}</span>
-                                  </li>
-                                  <li className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{t('pricing.team.feature6')}</span>
-                                  </li>
-                                </>
-                              )}
-                              
-                              {/* Fallback for other plans */}
-                              {!plan.name.toLowerCase().includes('solo') && !plan.name.toLowerCase().includes('pro') && !plan.name.toLowerCase().includes('team') && !plan.name.toLowerCase().includes('business') &&
-                                plan.features && plan.features.length > 0 && 
-                                plan.features.map((feature, featureIndex) => (
-                                  <li key={featureIndex} className="flex items-start">
-                                    <CheckIcon className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700">{feature}</span>
-                                  </li>
-                                ))
-                              }
-                            </ul>
-                          </div>
-
-                          {/* Subscribe Button */}
-                          <button
-                            onClick={() => handlePlanSelect(plan)}
-                            className={`w-full py-3 px-6 rounded-xl font-semibold text-lg transition-all duration-200 ${
-                              isPopular
-                                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                                : plan.name.toLowerCase().includes('business')
-                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
-                                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                        return (
+                          <motion.div
+                            key={plan.id}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 + index * 0.15 }}
+                            className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
+                              isPopular ? 'ring-2 ring-blue-500 md:scale-105' : ''
                             }`}
                           >
-                            {t('pricing.cta.freeTrial')}
-                          </button>
-                          </div>
-                        </motion.div>
-                      );
-                    })
-                  )}
-                  </motion.div>
+                            {/* Popular badge */}
+                            {isPopular && (
+                              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                                <div className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center space-x-1">
+                                  <SparklesIcon className="w-4 h-4" />
+                                  <span>{t('pricing.popular')}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="p-8">
+                            {/* Plan Header */}
+                            <div className="text-center mb-8">
+                              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                                {t(getPlanNameKey(plan.name))}
+                              </h3>
+                              
+                              {getPlanDescriptionKey(plan.name) && (
+                                <p className="text-gray-600 mb-4">{t(getPlanDescriptionKey(plan.name)!)}</p>
+                              )}
+
+                              {/* Pricing */}
+                              <div className="mb-4">
+                                <div className="text-4xl font-bold text-gray-900">
+                                  €{plan.price.toFixed(2)}
+                                </div>
+                                <div className="text-gray-600">
+                                  / {plan.interval === 'year' ? t('pricing.yearly.short') : t('pricing.monthly.short')}
+                                </div>
+                                
+                                {savings && savings > 0 && billingPeriod === 'yearly' && regularYearlyPrice && (
+                                  <div className="text-sm mt-2 text-gray-500">
+                                    {t('onboarding.subscription.regularPrice', { 
+                                      price: regularYearlyPrice.toFixed(2), 
+                                      savings: savings.toFixed(2), 
+                                      percent: Math.round((savings / regularYearlyPrice) * 100) 
+                                    })}
+                                  </div>
+                                )}
+                                
+                                {(plan.trial_days && typeof plan.trial_days === 'number' && plan.trial_days > 0) ? (
+                                  <div className="mt-2 inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    {t('onboarding.subscription.freeTrialDays', { days: plan.trial_days })}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </div>
+
+                            {/* Features */}
+                            <ul className="space-y-4 mb-8">
+                                {/* Solo Plan Features */}
+                                {plan.name.toLowerCase().includes('solo') && (
+                                  <>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.solo.feature1')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.solo.feature2')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.solo.feature3')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.solo.feature4')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.solo.feature5')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.solo.feature6')}</span>
+                                    </li>
+                                  </>
+                                )}
+                                
+                                {/* Team Plan Features */}
+                                {plan.name.toLowerCase().includes('team') && (
+                                  <>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature1')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature2')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature3')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature4')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature5')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature6')}</span>
+                                    </li>
+                                  </>
+                                )}
+                                
+                                {/* Business Plan Features */}
+                                {plan.name.toLowerCase().includes('business') && (
+                                  <>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.business.feature1')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.business.feature2')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.business.feature3')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.business.feature4')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.business.feature5')}</span>
+                                    </li>
+                                  </>
+                                )}
+                                
+                                {/* Pro Plan Features (if not already matched by Team) */}
+                                {plan.name.toLowerCase().includes('pro') && !plan.name.toLowerCase().includes('team') && (
+                                  <>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature1')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature2')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature3')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature4')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature5')}</span>
+                                    </li>
+                                    <li className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{t('pricing.team.feature6')}</span>
+                                    </li>
+                                  </>
+                                )}
+                                
+                                {/* Fallback for other plans */}
+                                {!plan.name.toLowerCase().includes('solo') && !plan.name.toLowerCase().includes('pro') && !plan.name.toLowerCase().includes('team') && !plan.name.toLowerCase().includes('business') &&
+                                  plan.features && plan.features.length > 0 && 
+                                  plan.features.map((feature, featureIndex) => (
+                                    <li key={featureIndex} className="flex items-start space-x-3">
+                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                      <span className="text-gray-700">{feature}</span>
+                                    </li>
+                                  ))
+                                }
+                            </ul>
+
+                            {/* Subscribe Button */}
+                            <button
+                              onClick={() => handlePlanSelect(plan)}
+                              className={`w-full py-3 px-6 rounded-xl font-semibold text-lg transition-all duration-200 ${
+                                isPopular
+                                  ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                                  : plan.name.toLowerCase().includes('business')
+                                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                              }`}
+                            >
+                              {t('pricing.cta.freeTrial')}
+                            </button>
+                            </div>
+                          </motion.div>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
               )}
 
