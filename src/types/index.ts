@@ -143,6 +143,8 @@ export interface Business {
   country_code: string;
   created_at: string;
   updated_at: string;
+  subscription_tier?: string | null;
+  subscription_status?: boolean | null;
 }
 
 export interface BusinessUpdate {

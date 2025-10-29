@@ -16,7 +16,11 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { pricingPlans } from '../../data/content';
 import PaymentModal from '../subscription/PaymentModal';
 
-const BusinessSubscriptionPlans: React.FC = () => {
+interface BusinessSubscriptionPlansProps {
+  onSubscribed?: () => void;
+}
+
+const BusinessSubscriptionPlans: React.FC<BusinessSubscriptionPlansProps> = ({ onSubscribed }) => {
   const { bizId } = useParams<{ bizId: string }>();
   const navigate = useNavigate();
   const { t, currentLanguage, setLanguage, languages } = useTranslation();
@@ -43,8 +47,14 @@ const BusinessSubscriptionPlans: React.FC = () => {
   };
 
   const handlePaymentSuccess = () => {
-    // Navigate to business dashboard after successful payment
-    navigate(`/business/${bizId}`);
+    setShowPaymentModal(false);
+    setSelectedPlan(null);
+
+    if (onSubscribed) {
+      onSubscribed();
+    } else {
+      navigate(`/business/${bizId}`);
+    }
   };
 
   // Handle clicks outside language dropdown

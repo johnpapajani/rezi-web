@@ -93,7 +93,7 @@ export const translations: Translations = {
     'pricing.regularPrice': 'Çmimi regular',
     'pricing.save': 'kurse',
     'pricing.cta': 'Abonoju',
-    'pricing.cta.freeTrial': 'Fillo provën falas',
+    'pricing.cta.freeTrial': 'Regjistrohu',
     'pricing.popular': 'Më i përdoruri',
     'pricing.footnote': 'Ndrysho ose anulo kurdo. Çmimet pa TVSH.',
     
@@ -2272,7 +2272,7 @@ export const translations: Translations = {
     'pricing.regularPrice': 'Regular price',
     'pricing.save': 'save',
     'pricing.cta': 'Subscribe',
-    'pricing.cta.freeTrial': 'Start free trial',
+    'pricing.cta.freeTrial': 'Sign up',
     'pricing.popular': 'Most popular',
     'pricing.footnote': 'Change or cancel anytime. Prices exclude VAT.',
     
@@ -4452,7 +4452,7 @@ export const translations: Translations = {
     'pricing.regularPrice': 'Prezzo normale',
     'pricing.save': 'risparmia',
     'pricing.cta': 'Abbonati',
-    'pricing.cta.freeTrial': 'Inizia la prova gratuita',
+    'pricing.cta.freeTrial': 'Iscriviti',
     'pricing.popular': 'Più scelto',
     'pricing.footnote': 'Puoi cambiare o annullare in qualsiasi momento. Prezzi IVA esclusa.',
     

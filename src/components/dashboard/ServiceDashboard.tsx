@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -10,6 +10,7 @@ import { useBookings, useCalendarBookings } from '../../hooks/useBookings';
 import { BusinessUpdate, Service, ServiceUpdate, ServiceCreate, Weekday, BookingMode, BookingWithService, BookingFilters, BookingStatus } from '../../types';
 import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import BusinessBookingsCalendar from '../pages/BusinessBookingsCalendar';
+import BusinessSubscriptionPlans from '../pages/BusinessSubscriptionPlans';
 import { 
   BuildingStorefrontIcon,
   CalendarDaysIcon,
@@ -53,13 +54,17 @@ const ServiceDashboard: React.FC = () => {
   const [bookingView, setBookingView] = useState<BookingViewType>('list');
   const navigate = useNavigate();
   
-  const { business, loading: businessLoading, error: businessError, updating, updateBusiness } = useBusiness({ bizId: bizId || '' });
+  const { business, loading: businessLoading, error: businessError, updating, updateBusiness, refetch: refetchBusiness } = useBusiness({ bizId: bizId || '' });
   const { services, loading: servicesLoading, error: servicesError, updating: serviceUpdating, creating: serviceCreating, updateService, createService } = useServices({ bizId: bizId || '', activeOnly: false });
   const { categories, loading: categoriesLoading, refetch: refetchCategories } = useServiceCategories();
   
   // Booking management
   const { bookings, loading: bookingsLoading, error: bookingsError, searchBookings, updateBookingStatus, rescheduleBooking } = useBookings({ bizId: bizId || '' });
   const { calendarBookings, loading: calendarLoading, fetchCalendarBookings } = useCalendarBookings({ bizId: bizId || '' });
+
+  const handleSubscriptionSuccess = useCallback(async () => {
+    await refetchBusiness();
+  }, [refetchBusiness]);
 
   // Service editing state
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -525,9 +530,6 @@ const ServiceDashboard: React.FC = () => {
     }
   };
 
-  const activeServices = services.filter(service => service.is_active);
-  const inactiveServices = services.filter(service => !service.is_active);
-
   if (businessLoading || servicesLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -556,6 +558,15 @@ const ServiceDashboard: React.FC = () => {
       </div>
     );
   }
+
+  const requiresSubscription = business && (business.subscription_status === false || !business.subscription_tier);
+
+  if (business && requiresSubscription) {
+    return <BusinessSubscriptionPlans onSubscribed={handleSubscriptionSuccess} />;
+  }
+
+  const activeServices = services.filter(service => service.is_active);
+  const inactiveServices = services.filter(service => !service.is_active);
 
   const renderServicesTab = () => (
     <motion.div
