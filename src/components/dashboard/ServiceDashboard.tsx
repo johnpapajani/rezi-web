@@ -11,6 +11,7 @@ import { BusinessUpdate, Service, ServiceUpdate, ServiceCreate, Weekday, Booking
 import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import BusinessBookingsCalendar from '../pages/BusinessBookingsCalendar';
 import BusinessSubscriptionPlans from '../pages/BusinessSubscriptionPlans';
+import SubscriptionManagement from '../subscription/SubscriptionManagement';
 import { 
   BuildingStorefrontIcon,
   CalendarDaysIcon,
@@ -43,7 +44,7 @@ import {
   UserIcon
 } from '@heroicons/react/24/outline';
 
-type TabType = 'services' | 'settings' | 'bookings';
+type TabType = 'services' | 'settings' | 'bookings' | 'subscription';
 type BookingViewType = 'list' | 'calendar';
 
 const ServiceDashboard: React.FC = () => {
@@ -964,6 +965,16 @@ const ServiceDashboard: React.FC = () => {
     </motion.div>
   );
 
+  const renderSubscriptionTab = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.2 }}
+    >
+      <SubscriptionManagement businessId={bizId || ''} />
+    </motion.div>
+  );
+
 
 
   const renderBookingsTab = () => (
@@ -1468,6 +1479,12 @@ const ServiceDashboard: React.FC = () => {
             onClick: () => setCurrentTab('bookings')
           },
           {
+            id: 'subscription',
+            label: t('business.dashboard.tabs.subscription'),
+            isActive: currentTab === 'subscription',
+            onClick: () => setCurrentTab('subscription')
+          },
+          {
             id: 'settings',
             label: t('business.dashboard.tabs.businessSettings'),
             isActive: currentTab === 'settings',
@@ -1499,6 +1516,7 @@ const ServiceDashboard: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           {currentTab === 'services' && renderServicesTab()}
+          {currentTab === 'subscription' && renderSubscriptionTab()}
           {currentTab === 'settings' && renderSettingsTab()}
           {currentTab === 'bookings' && renderBookingsTab()}
         </motion.div>
