@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useBusinessCreate } from '../../hooks/useBusinessCreate';
 import { useTranslation } from '../../hooks/useTranslation';
-import { useBusinessSubscription } from '../../hooks/useBusinessSubscription';
-import { BusinessCreate, SubscriptionPlan } from '../../types';
-import PaymentModal from '../subscription/PaymentModal';
+import { BusinessCreate } from '../../types';
 import {
   BuildingStorefrontIcon,
   PhotoIcon,
@@ -14,15 +12,11 @@ import {
   CurrencyDollarIcon,
   MapPinIcon,
   ArrowLeftIcon,
-  ArrowRightIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
   CogIcon,
   SparklesIcon,
-  CreditCardIcon,
-  CheckIcon,
-  ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 
 // Albanian cities list
@@ -75,27 +69,9 @@ const BusinessOnboarding: React.FC = () => {
   const { t } = useTranslation();
   const { creating: creatingBusiness, error: businessError, createBusiness, clearError } = useBusinessCreate();
 
-  const [currentStep, setCurrentStep] = useState(1);
   const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
-  const [skipSubscription, setSkipSubscription] = useState(false);
-  
-  // Subscription selection state
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-
-  // Subscription plans hook
-  const { 
-    plans, 
-    plansLoading, 
-    error: plansError, 
-    fetchPlans 
-  } = useBusinessSubscription({ 
-    businessId: createdBusinessId || '', 
-    autoFetch: false 
-  });
 
   // Step 1: Business Information
   const [businessData, setBusinessData] = useState<BusinessCreate>({
@@ -113,20 +89,6 @@ const BusinessOnboarding: React.FC = () => {
 
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
-  // Fetch subscription plans when reaching step 4 and business is created
-  useEffect(() => {
-    if (currentStep === 2 && createdBusinessId) {
-      fetchPlans();
-    }
-  }, [currentStep, createdBusinessId, fetchPlans]);
-
-  // Handle skip subscription
-  useEffect(() => {
-    if (skipSubscription) {
-      setShowSuccess(true);
-    }
-  }, [skipSubscription]);
-
   // Generate slug from business name
   const generateSlug = (name: string): string => {
     return name
@@ -138,61 +100,7 @@ const BusinessOnboarding: React.FC = () => {
       .replace(/^-|-$/g, '');
   };
 
-  // Get all available plans for the selected billing period
-  const getAvailablePlans = (): SubscriptionPlan[] => {
-    const allPlans: SubscriptionPlan[] = [];
-    
-    // Iterate through all product categories
-    Object.values(plans).forEach(productPlans => {
-      // Filter plans by billing period
-      const filteredPlans = productPlans.filter(plan => 
-        plan.interval === (billingPeriod === 'yearly' ? 'year' : 'month')
-      );
-      allPlans.push(...filteredPlans);
-    });
-    
-    return allPlans.sort((a, b) => a.price - b.price); // Sort by price
-  };
-
-  // Get paid plans sorted by price
-  const getPaidPlans = (): SubscriptionPlan[] => {
-    return getAvailablePlans().filter(plan => plan.price > 0);
-  };
-
-  // Check if a plan is popular (middle tier or marked as such)
-  const isPlanPopular = (plan: SubscriptionPlan): boolean => {
-    const paidPlans = getPaidPlans();
-    return paidPlans.length > 1 && 
-      (plan.tier?.toLowerCase() === 'standard' || 
-       plan.tier?.toLowerCase() === 'pro' ||
-       (paidPlans.length === 2 && plan.price > paidPlans[0].price));
-  };
-
-  // Handle plan selection
-  const handlePlanSelect = (plan: SubscriptionPlan) => {
-    if (plan.price === 0) {
-      // Free plan - skip subscription
-      setSkipSubscription(true);
-    } else {
-      // Paid plan - open payment modal
-      setSelectedPlan(plan);
-      setShowPaymentModal(true);
-    }
-  };
-
-  // Handle successful payment
-  const handlePaymentSuccess = () => {
-    setShowPaymentModal(false);
-    setSelectedPlan(null);
-    setShowSuccess(true);
-  };
-
-  const steps = [
-    { number: 1, title: t('onboarding.steps.business.title'), description: t('onboarding.steps.business.description') },
-    { number: 2, title: t('onboarding.steps.subscription.title'), description: t('onboarding.steps.subscription.description') },
-  ];
-
-  const containerWidthClass = currentStep === 2 ? 'max-w-7xl' : 'max-w-4xl';
+  const containerWidthClass = 'max-w-4xl';
 
   const validateBusinessStep = (): boolean => {
     const errors: {[key: string]: string} = {};
@@ -241,55 +149,38 @@ const BusinessOnboarding: React.FC = () => {
   };
 
 
-  const handleNext = async () => {
+  const handleSubmit = async () => {
     setGlobalError(null);
     clearError();
 
     try {
-      if (currentStep === 1) {
-        if (!validateBusinessStep()) return;
-        
-        // Create business if we don't already have one
-        if (!createdBusinessId) {
-          const cleanData: BusinessCreate = {
-            name: businessData.name.trim(),
-            slug: businessData.slug.trim(),
-            currency: businessData.currency,
-            timezone: businessData.timezone,
-            country_code: businessData.country_code,
-          };
+      if (!validateBusinessStep()) return;
 
-          if (businessData.logo_url?.trim()) cleanData.logo_url = businessData.logo_url.trim();
-          if (businessData.address_line1?.trim()) cleanData.address_line1 = businessData.address_line1.trim();
-          if (businessData.address_line2?.trim()) cleanData.address_line2 = businessData.address_line2.trim();
-          if (businessData.city?.trim()) cleanData.city = businessData.city.trim();
-          if (businessData.postal_code?.trim()) cleanData.postal_code = businessData.postal_code.trim();
+      if (!createdBusinessId) {
+        const cleanData: BusinessCreate = {
+          name: businessData.name.trim(),
+          slug: businessData.slug.trim(),
+          currency: businessData.currency,
+          timezone: businessData.timezone,
+          country_code: businessData.country_code,
+        };
 
-          const newBusiness = await createBusiness(cleanData);
-          setCreatedBusinessId(newBusiness.id);
-        }
+        if (businessData.logo_url?.trim()) cleanData.logo_url = businessData.logo_url.trim();
+        if (businessData.address_line1?.trim()) cleanData.address_line1 = businessData.address_line1.trim();
+        if (businessData.address_line2?.trim()) cleanData.address_line2 = businessData.address_line2.trim();
+        if (businessData.city?.trim()) cleanData.city = businessData.city.trim();
+        if (businessData.postal_code?.trim()) cleanData.postal_code = businessData.postal_code.trim();
 
-        setCurrentStep(2);
-
-      } else if (currentStep === 2) {
-        // Complete onboarding after subscription step
-        setShowSuccess(true);
+        const newBusiness = await createBusiness(cleanData);
+        setCreatedBusinessId(newBusiness.id);
       }
+
+      setShowSuccess(true);
 
     } catch (error: any) {
       setGlobalError(error.detail || t('onboarding.errors.genericError'));
     }
   };
-
-  const handleBack = () => {
-    setGlobalError(null);
-    clearError();
-
-    if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
-    }
-  };
-
 
 
   // Removed unused dayNames array
@@ -526,39 +417,6 @@ const BusinessOnboarding: React.FC = () => {
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between">
-              {steps.map((step, index) => (
-                <div key={step.number} className="flex items-center">
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                    currentStep >= step.number
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    {currentStep > step.number ? (
-                      <CheckCircleIcon className="w-5 h-5" />
-                    ) : (
-                      step.number
-                    )}
-                  </div>
-                  <div className="ml-3 hidden sm:block">
-                    <p className={`text-sm font-medium ${
-                      currentStep >= step.number ? 'text-blue-600' : 'text-gray-500'
-                    }`}>
-                      {step.title}
-                    </p>
-                    <p className="text-xs text-gray-500">{step.description}</p>
-                  </div>
-                  {index < steps.length - 1 && (
-                    <div className={`w-12 h-0.5 ml-4 mr-4 ${
-                      currentStep > step.number ? 'bg-blue-600' : 'bg-gray-200'
-                    }`} />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -592,16 +450,14 @@ const BusinessOnboarding: React.FC = () => {
             </motion.div>
           )}
 
-          {/* Step 1: Business Information */}
-          {currentStep === 1 && (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-8"
-            >
+          <motion.div
+            key="business-info"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-8"
+          >
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start space-x-3">
                 <InformationCircleIcon className="w-5 h-5 text-amber-600 mt-0.5" />
                 <p className="text-sm text-amber-800">
@@ -813,402 +669,23 @@ const BusinessOnboarding: React.FC = () => {
                 </div>
               </div>
             </motion.div>
-          )}
 
-          {/* Step 2: Subscription Selection */}
-          {currentStep === 2 && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6"
-            >
-              {/* Header Section */}
-              <div className="text-center mb-12">
-                <div className="flex items-center justify-center space-x-3 mb-4">
-                  <CreditCardIcon className="w-8 h-8 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900">{t('onboarding.subscription.chooseYourPlan')}</h2>
-                </div>
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  {t('onboarding.subscription.readyMessage', { businessName: businessData.name })}
-                </p>
-              </div>
-
-              {/* Loading State */}
-              {plansLoading && (
-                <div className="flex justify-center items-center py-20">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                  <span className="ml-3 text-gray-600 text-lg">{t('onboarding.subscription.loadingPlans')}</span>
-                </div>
-              )}
-
-              {/* Error State */}
-              {plansError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-8 mb-8 max-w-2xl mx-auto">
-                  <div className="flex items-center justify-center text-center">
-                    <ExclamationCircleIcon className="w-8 h-8 text-red-600 mr-3" />
-                    <div>
-                      <h3 className="text-xl font-medium text-red-800">{t('onboarding.subscription.errorLoadingPlans')}</h3>
-                      <p className="text-red-700 mt-1">{plansError}</p>
-                      <button
-                        onClick={fetchPlans}
-                        className="mt-4 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-                      >
-                        {t('onboarding.subscription.tryAgain')}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Billing Period Toggle */}
-              {!plansLoading && !plansError && (
-                <div className="flex justify-center mb-12">
-                  <div className="bg-gray-100 p-1 rounded-xl shadow-sm">
-                    <div className="flex">
-                      <button
-                        onClick={() => setBillingPeriod('monthly')}
-                        className={`px-8 py-3 rounded-lg font-medium transition-all ${
-                          billingPeriod === 'monthly'
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
-                        }`}
-                      >
-                        {t('onboarding.subscription.monthly')}
-                      </button>
-                      <button
-                        onClick={() => setBillingPeriod('yearly')}
-                        className={`px-8 py-3 rounded-lg font-medium transition-all relative ${
-                          billingPeriod === 'yearly'
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
-                        }`}
-                      >
-                        {t('onboarding.subscription.yearly')}
-                        <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                          {t('onboarding.subscription.save', { percent: '28' })}
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Dynamic Subscription Plans */}
-              {!plansLoading && !plansError && (
-                <div className="w-full px-4">
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
-                    {getAvailablePlans().length === 0 ? (
-                      <div className="col-span-full text-center py-20">
-                        <ExclamationCircleIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-                        <h3 className="text-2xl font-medium text-gray-900 mb-3">{t('onboarding.subscription.noPlansAvailable')}</h3>
-                        <p className="text-gray-600 text-lg mb-6">{t('onboarding.subscription.noPlansMessage')}</p>
-                        <button
-                          onClick={() => setSkipSubscription(true)}
-                          className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
-                        >
-                          {t('onboarding.subscription.continueWithBasic')}
-                        </button>
-                      </div>
-                    ) : (
-                      getAvailablePlans().map((plan, index) => {
-                        const isPopular = isPlanPopular(plan);
-                        const monthlyPrice = billingPeriod === 'yearly' && plan.interval === 'year' ? plan.price / 12 : plan.price;
-                        const regularYearlyPrice = billingPeriod === 'yearly' && plan.interval === 'year' ? monthlyPrice * 12 * 1.4 : null;
-                        const savings = regularYearlyPrice ? regularYearlyPrice - plan.price : null;
-                        
-                        // Map plan names to translation keys
-                        const getPlanNameKey = (planName: string): string => {
-                          const lowerName = planName.toLowerCase();
-                          if (lowerName.includes('solo')) return 'pricing.solo.name';
-                          if (lowerName.includes('team')) return 'pricing.team.name';
-                          if (lowerName.includes('business')) return 'pricing.business.name';
-                          return planName; // fallback to original name
-                        };
-                        
-                        const getPlanDescriptionKey = (planName: string): string | null => {
-                          const lowerName = planName.toLowerCase();
-                          if (lowerName.includes('solo')) return 'pricing.solo.description';
-                          if (lowerName.includes('team')) return 'pricing.team.description';
-                          if (lowerName.includes('business')) return 'pricing.business.description';
-                          return null;
-                        };
-
-                        return (
-                          <motion.div
-                            key={plan.id}
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 + index * 0.15 }}
-                            className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
-                              isPopular ? 'ring-2 ring-blue-500 md:scale-105' : ''
-                            }`}
-                          >
-                            {/* Popular badge */}
-                            {isPopular && (
-                              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                                <div className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center space-x-1">
-                                  <SparklesIcon className="w-4 h-4" />
-                                  <span>{t('pricing.popular')}</span>
-                                </div>
-                              </div>
-                            )}
-
-                            <div className="p-8">
-                            {/* Plan Header */}
-                            <div className="text-center mb-8">
-                              <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                                {t(getPlanNameKey(plan.name))}
-                              </h3>
-                              
-                              {getPlanDescriptionKey(plan.name) && (
-                                <p className="text-gray-600 mb-4">{t(getPlanDescriptionKey(plan.name)!)}</p>
-                              )}
-
-                              {/* Pricing */}
-                              <div className="mb-4">
-                                <div className="text-4xl font-bold text-gray-900">
-                                  €{plan.price.toFixed(2)}
-                                </div>
-                                <div className="text-gray-600">
-                                  / {plan.interval === 'year' ? t('pricing.yearly.short') : t('pricing.monthly.short')}
-                                </div>
-                                
-                                {savings && savings > 0 && billingPeriod === 'yearly' && regularYearlyPrice && (
-                                  <div className="text-sm mt-2 text-gray-500">
-                                    {t('onboarding.subscription.regularPrice', { 
-                                      price: regularYearlyPrice.toFixed(2), 
-                                      savings: savings.toFixed(2), 
-                                      percent: Math.round((savings / regularYearlyPrice) * 100) 
-                                    })}
-                                  </div>
-                                )}
-                                
-                                {(plan.trial_days && typeof plan.trial_days === 'number' && plan.trial_days > 0) ? (
-                                  <div className="mt-2 inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                                    {t('onboarding.subscription.freeTrialDays', { days: plan.trial_days })}
-                                  </div>
-                                ) : null}
-                              </div>
-                            </div>
-
-                            {/* Features */}
-                            <ul className="space-y-4 mb-8">
-                                {/* Solo Plan Features */}
-                                {plan.name.toLowerCase().includes('solo') && (
-                                  <>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.solo.feature1')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.solo.feature2')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.solo.feature3')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.solo.feature4')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.solo.feature5')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.solo.feature6')}</span>
-                                    </li>
-                                  </>
-                                )}
-                                
-                                {/* Team Plan Features */}
-                                {plan.name.toLowerCase().includes('team') && (
-                                  <>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature1')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature2')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature3')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature4')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature5')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature6')}</span>
-                                    </li>
-                                  </>
-                                )}
-                                
-                                {/* Business Plan Features */}
-                                {plan.name.toLowerCase().includes('business') && (
-                                  <>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.business.feature1')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.business.feature2')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.business.feature3')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.business.feature4')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.business.feature5')}</span>
-                                    </li>
-                                  </>
-                                )}
-                                
-                                {/* Pro Plan Features (if not already matched by Team) */}
-                                {plan.name.toLowerCase().includes('pro') && !plan.name.toLowerCase().includes('team') && (
-                                  <>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature1')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature2')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature3')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature4')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature5')}</span>
-                                    </li>
-                                    <li className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{t('pricing.team.feature6')}</span>
-                                    </li>
-                                  </>
-                                )}
-                                
-                                {/* Fallback for other plans */}
-                                {!plan.name.toLowerCase().includes('solo') && !plan.name.toLowerCase().includes('pro') && !plan.name.toLowerCase().includes('team') && !plan.name.toLowerCase().includes('business') &&
-                                  plan.features && plan.features.length > 0 && 
-                                  plan.features.map((feature, featureIndex) => (
-                                    <li key={featureIndex} className="flex items-start space-x-3">
-                                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                      <span className="text-gray-700">{feature}</span>
-                                    </li>
-                                  ))
-                                }
-                            </ul>
-
-                            {/* Subscribe Button */}
-                            <button
-                              onClick={() => handlePlanSelect(plan)}
-                              className={`w-full py-3 px-6 rounded-xl font-semibold text-lg transition-all duration-200 ${
-                                isPopular
-                                  ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                                  : plan.name.toLowerCase().includes('business')
-                                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
-                                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                              }`}
-                            >
-                              {t('pricing.cta.freeTrial')}
-                            </button>
-                            </div>
-                          </motion.div>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
-              )}
-
-
-              {/* Skip Option */}
-              {!plansLoading && !plansError && getAvailablePlans().length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                  className="text-center mt-12"
-                >
-                  <button
-                    onClick={() => setSkipSubscription(true)}
-                    className="text-gray-500 hover:text-gray-700 font-medium underline text-lg"
-                  >
-                    {t('onboarding.subscription.skipForNow')}
-                  </button>
-                </motion.div>
-              )}
-            </motion.div>
-          )}
         </AnimatePresence>
 
-        {/* Navigation */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-8 gap-3">
+        {/* Submit */}
+        <div className="flex justify-end mt-8">
           <button
-            onClick={handleBack}
-            disabled={currentStep === 1}
-            className="flex items-center justify-center space-x-2 px-6 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-            <span>{t('common.back')}</span>
-          </button>
-
-          <button
-            onClick={handleNext}
+            onClick={handleSubmit}
             disabled={creatingBusiness}
-            className="flex items-center justify-center space-x-2 px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
+            className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
           >
             {creatingBusiness && (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
             )}
-            <span>
-              {currentStep === 2 
-                ? t('onboarding.complete') 
-                : t('onboarding.next')
-              }
-            </span>
-            {currentStep < 2 && <ArrowRightIcon className="w-4 h-4" />}
+            <span>{t('onboarding.complete')}</span>
           </button>
         </div>
       </div>
-
-      {/* Payment Modal */}
-      {showPaymentModal && selectedPlan && createdBusinessId && (
-        <PaymentModal
-          plan={selectedPlan}
-          businessId={createdBusinessId}
-          onClose={() => {
-            setShowPaymentModal(false);
-            setSelectedPlan(null);
-          }}
-          onSuccess={handlePaymentSuccess}
-        />
-      )}
     </div>
   );
 };
