@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircleIcon,
@@ -12,8 +12,18 @@ import {
 } from '@heroicons/react/24/outline';
 import { useBusinessSubscription } from '../../hooks/useBusinessSubscription';
 import { useTranslation } from '../../hooks/useTranslation';
-import { SubscriptionPlan, SubscriptionStatus } from '../../types';
-import PaymentModal from './PaymentModal';
+import { pricingPlans } from '../../data/content';
+import { SubscriptionPlan, SubscriptionStatus, PricingPlan as MarketingPlan } from '../../types';
+
+const TIER_TO_NAME_KEY: Record<string, string> = {
+  basic: 'pricing.solo.name',
+  solo: 'pricing.solo.name',
+  standard: 'pricing.team.name',
+  team: 'pricing.team.name',
+  pro: 'pricing.team.name',
+  premium: 'pricing.business.name',
+  business: 'pricing.business.name',
+};
 
 interface SubscriptionManagementProps {
   businessId: string;
@@ -25,23 +35,40 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
   const {
     subscription: currentSubscription,
     plans,
+    plansLoading,
     hasActiveSubscription,
     isCanceledButActive,
     loading,
     error,
     updating,
-    canceling,
     updateSubscription,
-    cancelSubscription,
     refetch,
   } = useBusinessSubscription({ businessId });
 
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [activeAction, setActiveAction] = useState<'plan' | 'cancel' | 'resume' | null>(null);
 
-  // Get all plans as flat array
-  const allPlans = Object.values(plans).flat();
+  const availablePlans = useMemo(() => {
+    const flattened = Object.values(plans).flat();
+    return flattened.sort((a, b) => a.price - b.price);
+  }, [plans]);
+
+  useEffect(() => {
+    if (currentSubscription?.plan_id) {
+      setSelectedPlanId(currentSubscription.plan_id);
+    }
+  }, [currentSubscription?.plan_id]);
+
+  useEffect(() => {
+    if (successMessage) {
+      const timeout = setTimeout(() => setSuccessMessage(null), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [successMessage]);
+
+  const planChanged = Boolean(selectedPlanId && selectedPlanId !== currentSubscription?.plan_id);
 
   const getStatusColor = (status: SubscriptionStatus) => {
     switch (status) {
@@ -77,6 +104,57 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
     }
   };
 
+  const mapPlanNameKey = (planName: string): string | null => {
+    const lower = planName.toLowerCase();
+    if (lower.includes('solo')) return 'pricing.solo.name';
+    if (lower.includes('team')) return 'pricing.team.name';
+    if (lower.includes('business')) return 'pricing.business.name';
+    return null;
+  };
+
+  const planContentMap = useMemo(() => {
+    const map: Record<string, MarketingPlan> = {};
+    pricingPlans.forEach(plan => {
+      map[plan.name] = plan;
+    });
+    return map;
+  }, []);
+
+  const resolvePlanContent = (planName?: string | null, planTier?: string | null): MarketingPlan | undefined => {
+    if (planName) {
+      const key = mapPlanNameKey(planName);
+      if (key && planContentMap[key]) {
+        return planContentMap[key];
+      }
+    }
+
+    if (planTier) {
+      const tierKey = planTier.toLowerCase();
+      const mappedKey = TIER_TO_NAME_KEY[tierKey];
+      if (mappedKey && planContentMap[mappedKey]) {
+        return planContentMap[mappedKey];
+      }
+    }
+
+    return undefined;
+  };
+
+  const currentPlanContent = currentSubscription
+    ? resolvePlanContent(currentSubscription.plan_name, currentSubscription.tier)
+    : undefined;
+
+  const currentPlanDisplayName = currentPlanContent
+    ? t(currentPlanContent.name)
+    : (currentSubscription?.plan_name || t('subscription.management.currentPlan'));
+
+  const currentPlanDescription = currentPlanContent ? t(currentPlanContent.description) : null;
+
+  const currentPlanFeatures = currentPlanContent?.features ?? currentSubscription?.features ?? [];
+
+  const getIntervalLabel = (interval: string) => (
+    interval === 'year' ? t('pricing.yearly.short') : t('pricing.monthly.short')
+  );
+
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString(t('common.locale'), {
       year: 'numeric',
@@ -85,24 +163,48 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
     });
   };
 
-  const handleUpgrade = (plan: SubscriptionPlan) => {
-    setSelectedPlan(plan);
-    setShowUpgradeModal(true);
+  const handlePlanUpdate = async () => {
+    if (!planChanged) {
+      return;
+    }
+
+    try {
+      setActiveAction('plan');
+      setSuccessMessage(null);
+      await updateSubscription({ plan_id: selectedPlanId });
+      setSuccessMessage(t('subscription.management.planUpdated'));
+    } catch (error) {
+      // Error handled via hook state
+    } finally {
+      setActiveAction(null);
+    }
   };
 
   const handleCancelSubscription = async () => {
     try {
-      await cancelSubscription();
+      setActiveAction('cancel');
+      setSuccessMessage(null);
+      await updateSubscription({ cancel_at_period_end: true });
       setShowCancelConfirm(false);
+      setSuccessMessage(t('subscription.management.cancellationScheduled'));
     } catch (error) {
-      // Error is handled by the hook
+      // Error handled via hook state
+    } finally {
+      setActiveAction(null);
     }
   };
 
-  const handleUpgradeSuccess = () => {
-    setShowUpgradeModal(false);
-    setSelectedPlan(null);
-    refetch();
+  const handleResumeSubscription = async () => {
+    try {
+      setActiveAction('resume');
+      setSuccessMessage(null);
+      await updateSubscription({ cancel_at_period_end: false });
+      setSuccessMessage(t('subscription.management.resumed'));
+    } catch (error) {
+      // Error handled via hook state
+    } finally {
+      setActiveAction(null);
+    }
   };
 
   if (loading) {
@@ -175,20 +277,20 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-3">
               <h3 className="text-lg font-medium text-gray-900">
-                {currentSubscription.plan_name || t('subscription.management.currentPlan')}
+                {currentPlanDisplayName}
               </h3>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(currentSubscription.status)}`}>
                 {getStatusText(currentSubscription.status)}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               {currentSubscription.price && (
                 <div className="flex items-center space-x-2">
                   <BanknotesIcon className="w-4 h-4 text-gray-400" />
                   <span className="text-gray-600">{t('subscription.management.price')}:</span>
                   <span className="font-medium">
-                    €{currentSubscription.price.toFixed(2)} / {currentSubscription.interval}
+                    €{currentSubscription.price.toFixed(2)} / {getIntervalLabel(currentSubscription.interval || 'month')}
                   </span>
                 </div>
               )}
@@ -202,13 +304,13 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
                   </span>
                 </div>
               )}
-
-              <div className="flex items-center space-x-2">
-                <CheckCircleIcon className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-600">{t('subscription.management.tier')}:</span>
-                <span className="font-medium capitalize">{currentSubscription.tier}</span>
-              </div>
             </div>
+
+            {currentPlanDescription && (
+              <p className="mt-4 text-sm text-gray-600">
+                {currentPlanDescription}
+              </p>
+            )}
 
             {/* Cancellation Notice */}
             {isCanceledButActive && (
@@ -229,37 +331,8 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
               </div>
             )}
           </div>
-        </div>
 
-        {/* Actions */}
-        {hasActiveSubscription && (
-          <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-200">
-            {!isCanceledButActive && (
-              <>
-                <button
-                  onClick={() => {
-                    // Find upgrade options
-                    const upgradePlans = allPlans.filter(plan => 
-                      plan.price > (currentSubscription.price || 0)
-                    );
-                    if (upgradePlans.length > 0) {
-                      handleUpgrade(upgradePlans[0]);
-                    }
-                  }}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                >
-                  {t('subscription.management.upgrade')}
-                </button>
-
-                <button
-                  onClick={() => setShowCancelConfirm(true)}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-                >
-                  {t('subscription.management.cancel')}
-                </button>
-              </>
-            )}
-
+          <div className="flex flex-col items-end space-y-3">
             <button
               onClick={refetch}
               disabled={loading}
@@ -268,38 +341,209 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
               <ArrowPathIcon className={`w-4 h-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
               {t('subscription.management.refresh')}
             </button>
+
+            {successMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="px-3 py-2 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700"
+              >
+                {successMessage}
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Plan Selection */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h3 className="text-md font-semibold text-gray-900">
+              {t('subscription.management.planOptions')}
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              {t('subscription.management.planOptionsDescription')}
+            </p>
+          </div>
+
+          {planChanged && (
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={handlePlanUpdate}
+              disabled={updating || activeAction === 'plan'}
+              className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {updating && activeAction === 'plan' ? (
+                <>
+                  <ArrowPathIcon className="w-4 h-4 mr-2 animate-spin" />
+                  {t('subscription.management.updatingPlan')}
+                </>
+              ) : (
+                <>
+                  <ArrowPathIcon className="w-4 h-4 mr-2" />
+                  {t('subscription.management.updatePlan')}
+                </>
+              )}
+            </motion.button>
+          )}
+        </div>
+
+        {plansLoading ? (
+          <div className="flex items-center justify-center py-10 text-sm text-gray-600">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+            {t('subscription.management.loadingPlans')}
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {availablePlans.map(plan => {
+              const isCurrentPlan = currentSubscription.plan_id === plan.id;
+              const isSelected = selectedPlanId === plan.id;
+              const contentPlan = resolvePlanContent(plan.name, plan.tier);
+              const displayName = contentPlan ? t(contentPlan.name) : plan.name;
+              const description = contentPlan ? t(contentPlan.description) : (plan.description || '');
+              const featuresSource = contentPlan ? contentPlan.features : (plan.features || []);
+              const featureLabels = featuresSource.map(feature => feature.startsWith('pricing.') ? t(feature) : feature);
+              const isPopular = Boolean(contentPlan?.popular);
+              const priceLabel = `€${plan.price.toFixed(2)}`;
+              const intervalLabel = getIntervalLabel(plan.interval);
+
+              const cardStyle = isSelected
+                ? 'border-2 border-blue-500 bg-blue-50 shadow-lg'
+                : isPopular
+                  ? 'border-2 border-purple-300 shadow-lg bg-white'
+                  : 'border border-gray-200 shadow-sm bg-white';
+
+              return (
+                <button
+                  key={plan.id}
+                  type="button"
+                  onClick={() => setSelectedPlanId(plan.id)}
+                  className={`relative text-left rounded-xl p-5 transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${cardStyle}`}
+                >
+                  {isPopular && (
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-bl-lg rounded-tr-2xl text-sm font-medium">
+                      {t('pricing.popular')}
+                    </div>
+                  )}
+
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="text-base font-semibold text-gray-900">
+                        {displayName}
+                      </h4>
+                      {description && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          {description}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-lg font-bold text-gray-900">
+                        {priceLabel}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        / {intervalLabel}
+                      </span>
+                    </div>
+                  </div>
+
+                  {featureLabels.length > 0 && (
+                    <div className="mt-4 space-y-2 text-sm text-gray-600">
+                      {featureLabels.map((feature, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <CheckCircleIcon className="w-4 h-4 text-green-500" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-4 flex items-center space-x-2">
+                    {isCurrentPlan && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
+                        {t('subscription.management.currentPlanBadge')}
+                      </span>
+                    )}
+                    {isSelected && !isCurrentPlan && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                        {t('subscription.management.selectedPlanBadge')}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+
+            {availablePlans.length === 0 && (
+              <div className="col-span-full text-sm text-gray-600 bg-gray-50 border border-dashed border-gray-200 rounded-lg p-6 text-center">
+                {t('subscription.management.noPlansAvailable')}
+              </div>
+            )}
           </div>
         )}
       </div>
 
+      {/* Cancellation Controls */}
+      {hasActiveSubscription && (
+        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 className="text-md font-semibold text-gray-900">
+                {t('subscription.management.billingActions')}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {isCanceledButActive ? t('subscription.management.resumeDescription') : t('subscription.management.cancelDescription')}
+              </p>
+            </div>
+
+            {isCanceledButActive ? (
+              <button
+                onClick={handleResumeSubscription}
+                disabled={updating || activeAction === 'resume'}
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg border border-green-300 text-green-700 bg-green-50 hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {updating && activeAction === 'resume' ? (
+                  <>
+                    <ArrowPathIcon className="w-4 h-4 mr-2 animate-spin" />
+                    {t('subscription.management.resuming')}
+                  </>
+                ) : (
+                  <>
+                    <ArrowPathIcon className="w-4 h-4 mr-2" />
+                    {t('subscription.management.resume')}
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowCancelConfirm(true)}
+                disabled={updating}
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg border border-red-300 text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ExclamationTriangleIcon className="w-4 h-4 mr-2" />
+                {t('subscription.management.cancelAtPeriodEnd')}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Features List */}
-      {currentSubscription.features && currentSubscription.features.length > 0 && (
+      {currentPlanFeatures && currentPlanFeatures.length > 0 && (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
           <h4 className="font-medium text-gray-900 mb-3">
             {t('subscription.management.includedFeatures')}
           </h4>
           <ul className="space-y-2">
-            {currentSubscription.features.map((feature, index) => (
+            {currentPlanFeatures.map((feature, index) => (
               <li key={index} className="flex items-center space-x-2 text-sm text-gray-700">
                 <CheckCircleIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
-                <span>{feature}</span>
+                <span>{typeof feature === 'string' && feature.startsWith('pricing.') ? t(feature) : feature}</span>
               </li>
             ))}
           </ul>
         </div>
-      )}
-
-      {/* Upgrade Modal */}
-      {selectedPlan && showUpgradeModal && (
-        <PaymentModal
-          onClose={() => {
-            setShowUpgradeModal(false);
-            setSelectedPlan(null);
-          }}
-          plan={selectedPlan}
-          businessId={businessId}
-          onSuccess={handleUpgradeSuccess}
-        />
       )}
 
       {/* Cancel Confirmation Modal */}
@@ -341,10 +585,10 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
                 <button
                   type="button"
                   onClick={handleCancelSubscription}
-                  disabled={canceling}
+                  disabled={updating && activeAction === 'cancel'}
                   className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {canceling ? t('subscription.cancel.canceling') : t('subscription.cancel.confirm')}
+                  {updating && activeAction === 'cancel' ? t('subscription.cancel.canceling') : t('subscription.cancel.confirm')}
                 </button>
               </div>
             </motion.div>

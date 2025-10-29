@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -10,6 +10,8 @@ import { useBookings, useCalendarBookings } from '../../hooks/useBookings';
 import { BusinessUpdate, Service, ServiceUpdate, ServiceCreate, Weekday, BookingMode, BookingWithService, BookingFilters, BookingStatus } from '../../types';
 import MobileOptimizedHeader from '../shared/MobileOptimizedHeader';
 import BusinessBookingsCalendar from '../pages/BusinessBookingsCalendar';
+import BusinessSubscriptionPlans from '../pages/BusinessSubscriptionPlans';
+import SubscriptionManagement from '../subscription/SubscriptionManagement';
 import { 
   BuildingStorefrontIcon,
   CalendarDaysIcon,
@@ -42,7 +44,7 @@ import {
   UserIcon
 } from '@heroicons/react/24/outline';
 
-type TabType = 'services' | 'settings' | 'bookings';
+type TabType = 'services' | 'settings' | 'bookings' | 'subscription';
 type BookingViewType = 'list' | 'calendar';
 
 const ServiceDashboard: React.FC = () => {
@@ -53,13 +55,17 @@ const ServiceDashboard: React.FC = () => {
   const [bookingView, setBookingView] = useState<BookingViewType>('list');
   const navigate = useNavigate();
   
-  const { business, loading: businessLoading, error: businessError, updating, updateBusiness } = useBusiness({ bizId: bizId || '' });
+  const { business, loading: businessLoading, error: businessError, updating, updateBusiness, refetch: refetchBusiness } = useBusiness({ bizId: bizId || '' });
   const { services, loading: servicesLoading, error: servicesError, updating: serviceUpdating, creating: serviceCreating, updateService, createService } = useServices({ bizId: bizId || '', activeOnly: false });
   const { categories, loading: categoriesLoading, refetch: refetchCategories } = useServiceCategories();
   
   // Booking management
   const { bookings, loading: bookingsLoading, error: bookingsError, searchBookings, updateBookingStatus, rescheduleBooking } = useBookings({ bizId: bizId || '' });
   const { calendarBookings, loading: calendarLoading, fetchCalendarBookings } = useCalendarBookings({ bizId: bizId || '' });
+
+  const handleSubscriptionSuccess = useCallback(async () => {
+    await refetchBusiness();
+  }, [refetchBusiness]);
 
   // Service editing state
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -525,9 +531,6 @@ const ServiceDashboard: React.FC = () => {
     }
   };
 
-  const activeServices = services.filter(service => service.is_active);
-  const inactiveServices = services.filter(service => !service.is_active);
-
   if (businessLoading || servicesLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -556,6 +559,15 @@ const ServiceDashboard: React.FC = () => {
       </div>
     );
   }
+
+  const requiresSubscription = business && (business.subscription_status === false || !business.subscription_tier);
+
+  if (business && requiresSubscription) {
+    return <BusinessSubscriptionPlans onSubscribed={handleSubscriptionSuccess} />;
+  }
+
+  const activeServices = services.filter(service => service.is_active);
+  const inactiveServices = services.filter(service => !service.is_active);
 
   const renderServicesTab = () => (
     <motion.div
@@ -950,6 +962,16 @@ const ServiceDashboard: React.FC = () => {
           </button>
         </div>
       </form>
+    </motion.div>
+  );
+
+  const renderSubscriptionTab = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.2 }}
+    >
+      <SubscriptionManagement businessId={bizId || ''} />
     </motion.div>
   );
 
@@ -1457,6 +1479,12 @@ const ServiceDashboard: React.FC = () => {
             onClick: () => setCurrentTab('bookings')
           },
           {
+            id: 'subscription',
+            label: t('business.dashboard.tabs.subscription'),
+            isActive: currentTab === 'subscription',
+            onClick: () => setCurrentTab('subscription')
+          },
+          {
             id: 'settings',
             label: t('business.dashboard.tabs.businessSettings'),
             isActive: currentTab === 'settings',
@@ -1488,6 +1516,7 @@ const ServiceDashboard: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           {currentTab === 'services' && renderServicesTab()}
+          {currentTab === 'subscription' && renderSubscriptionTab()}
           {currentTab === 'settings' && renderSettingsTab()}
           {currentTab === 'bookings' && renderBookingsTab()}
         </motion.div>

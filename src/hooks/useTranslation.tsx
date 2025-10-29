@@ -11,7 +11,7 @@ const languages: Language[] = [
 interface LanguageContextType {
   currentLanguage: string;
   setLanguage: (lang: string) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
   languages: Language[];
 }
 
@@ -32,8 +32,17 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('language', lang);
   }, []);
 
-  const t = useCallback((key: string): string => {
-    return translations[currentLanguage]?.[key] || key;
+  const t = useCallback((key: string, params?: Record<string, string | number>): string => {
+    let translation = translations[currentLanguage]?.[key] || key;
+    
+    // Replace parameters in the translation
+    if (params) {
+      Object.keys(params).forEach(param => {
+        translation = translation.replace(new RegExp(`\\{${param}\\}`, 'g'), String(params[param]));
+      });
+    }
+    
+    return translation;
   }, [currentLanguage]);
 
   const value = {
