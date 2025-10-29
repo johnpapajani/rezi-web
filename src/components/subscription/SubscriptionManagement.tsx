@@ -12,7 +12,18 @@ import {
 } from '@heroicons/react/24/outline';
 import { useBusinessSubscription } from '../../hooks/useBusinessSubscription';
 import { useTranslation } from '../../hooks/useTranslation';
-import { SubscriptionPlan, SubscriptionStatus } from '../../types';
+import { pricingPlans } from '../../data/content';
+import { SubscriptionPlan, SubscriptionStatus, PricingPlan as MarketingPlan } from '../../types';
+
+const TIER_TO_NAME_KEY: Record<string, string> = {
+  basic: 'pricing.solo.name',
+  solo: 'pricing.solo.name',
+  standard: 'pricing.team.name',
+  team: 'pricing.team.name',
+  pro: 'pricing.team.name',
+  premium: 'pricing.business.name',
+  business: 'pricing.business.name',
+};
 
 interface SubscriptionManagementProps {
   businessId: string;
@@ -101,51 +112,44 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
     return null;
   };
 
-  const mapPlanDescriptionKey = (planName: string): string | null => {
-    const lower = planName.toLowerCase();
-    if (lower.includes('solo')) return 'pricing.solo.description';
-    if (lower.includes('team') || lower.includes('pro')) return 'pricing.team.description';
-    if (lower.includes('business')) return 'pricing.business.description';
-    return null;
+  const planContentMap = useMemo(() => {
+    const map: Record<string, MarketingPlan> = {};
+    pricingPlans.forEach(plan => {
+      map[plan.name] = plan;
+    });
+    return map;
+  }, []);
+
+  const resolvePlanContent = (planName?: string | null, planTier?: string | null): MarketingPlan | undefined => {
+    if (planName) {
+      const key = mapPlanNameKey(planName);
+      if (key && planContentMap[key]) {
+        return planContentMap[key];
+      }
+    }
+
+    if (planTier) {
+      const tierKey = planTier.toLowerCase();
+      const mappedKey = TIER_TO_NAME_KEY[tierKey];
+      if (mappedKey && planContentMap[mappedKey]) {
+        return planContentMap[mappedKey];
+      }
+    }
+
+    return undefined;
   };
 
-  const getPlanFeatures = (plan: SubscriptionPlan) => {
-    if (plan.features && plan.features.length > 0) {
-      return plan.features;
-    }
+  const currentPlanContent = currentSubscription
+    ? resolvePlanContent(currentSubscription.plan_name, currentSubscription.tier)
+    : undefined;
 
-    const lower = plan.name.toLowerCase();
-    if (lower.includes('solo')) {
-      return [
-        'pricing.solo.feature1',
-        'pricing.solo.feature2',
-        'pricing.solo.feature3',
-        'pricing.solo.feature4',
-        'pricing.solo.feature5',
-        'pricing.solo.feature6',
-      ];
-    }
-    if (lower.includes('team') || lower.includes('pro')) {
-      return [
-        'pricing.team.feature1',
-        'pricing.team.feature2',
-        'pricing.team.feature3',
-        'pricing.team.feature4',
-        'pricing.team.feature5',
-        'pricing.team.feature6',
-      ];
-    }
-    if (lower.includes('business')) {
-      return [
-        'pricing.business.feature1',
-        'pricing.business.feature2',
-        'pricing.business.feature3',
-        'pricing.business.feature4',
-        'pricing.business.feature5',
-      ];
-    }
-    return [];
-  };
+  const currentPlanDisplayName = currentPlanContent
+    ? t(currentPlanContent.name)
+    : (currentSubscription?.plan_name || t('subscription.management.currentPlan'));
+
+  const currentPlanDescription = currentPlanContent ? t(currentPlanContent.description) : null;
+
+  const currentPlanFeatures = currentPlanContent?.features ?? currentSubscription?.features ?? [];
 
   const getIntervalLabel = (interval: string) => (
     interval === 'year' ? t('pricing.yearly.short') : t('pricing.monthly.short')
@@ -273,14 +277,14 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-3">
               <h3 className="text-lg font-medium text-gray-900">
-                {currentSubscription.plan_name || t('subscription.management.currentPlan')}
+                {currentPlanDisplayName}
               </h3>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(currentSubscription.status)}`}>
                 {getStatusText(currentSubscription.status)}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               {currentSubscription.price && (
                 <div className="flex items-center space-x-2">
                   <BanknotesIcon className="w-4 h-4 text-gray-400" />
@@ -300,13 +304,13 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
                   </span>
                 </div>
               )}
-
-              <div className="flex items-center space-x-2">
-                <CheckCircleIcon className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-600">{t('subscription.management.tier')}:</span>
-                <span className="font-medium capitalize">{currentSubscription.tier}</span>
-              </div>
             </div>
+
+            {currentPlanDescription && (
+              <p className="mt-4 text-sm text-gray-600">
+                {currentPlanDescription}
+              </p>
+            )}
 
             {/* Cancellation Notice */}
             {isCanceledButActive && (
@@ -395,43 +399,65 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
             {availablePlans.map(plan => {
               const isCurrentPlan = currentSubscription.plan_id === plan.id;
               const isSelected = selectedPlanId === plan.id;
+              const contentPlan = resolvePlanContent(plan.name, plan.tier);
+              const displayName = contentPlan ? t(contentPlan.name) : plan.name;
+              const description = contentPlan ? t(contentPlan.description) : (plan.description || '');
+              const featuresSource = contentPlan ? contentPlan.features : (plan.features || []);
+              const featureLabels = featuresSource.map(feature => feature.startsWith('pricing.') ? t(feature) : feature);
+              const isPopular = Boolean(contentPlan?.popular);
+              const priceLabel = `€${plan.price.toFixed(2)}`;
+              const intervalLabel = getIntervalLabel(plan.interval);
+
+              const cardStyle = isSelected
+                ? 'border-2 border-blue-500 bg-blue-50 shadow-lg'
+                : isPopular
+                  ? 'border-2 border-purple-300 shadow-lg bg-white'
+                  : 'border border-gray-200 shadow-sm bg-white';
 
               return (
                 <button
                   key={plan.id}
                   type="button"
                   onClick={() => setSelectedPlanId(plan.id)}
-                  className={`relative text-left rounded-xl border p-5 transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    isSelected ? 'border-blue-500 shadow-lg bg-blue-50/50' : 'border-gray-200 bg-white'
-                  }`}
+                  className={`relative text-left rounded-xl p-5 transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${cardStyle}`}
                 >
+                  {isPopular && (
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-bl-lg rounded-tr-2xl text-sm font-medium">
+                      {t('pricing.popular')}
+                    </div>
+                  )}
+
                   <div className="flex items-start justify-between">
                     <div>
                       <h4 className="text-base font-semibold text-gray-900">
-                        {mapPlanNameKey(plan.name) ? t(mapPlanNameKey(plan.name)!) : plan.name}
+                        {displayName}
                       </h4>
-                      <p className="text-sm text-gray-500 mt-1">
-                        {mapPlanDescriptionKey(plan.name) ? t(mapPlanDescriptionKey(plan.name)!) : plan.description}
-                      </p>
+                      {description && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          {description}
+                        </p>
+                      )}
                     </div>
                     <div className="flex flex-col items-end">
                       <span className="text-lg font-bold text-gray-900">
-                        €{plan.price.toFixed(2)}
+                        {priceLabel}
                       </span>
                       <span className="text-xs text-gray-500">
-                        / {getIntervalLabel(plan.interval)}
+                        / {intervalLabel}
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-4 space-y-2 text-sm text-gray-600">
-                    {getPlanFeatures(plan).slice(0, 4).map((feature, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <CheckCircleIcon className="w-4 h-4 text-green-500" />
-                        <span>{feature.startsWith('pricing.') ? t(feature) : feature}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {featureLabels.length > 0 && (
+                    <div className="mt-4 space-y-2 text-sm text-gray-600">
+                      {featureLabels.map((feature, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <CheckCircleIcon className="w-4 h-4 text-green-500" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="mt-4 flex items-center space-x-2">
                     {isCurrentPlan && (
@@ -504,16 +530,16 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ busines
       )}
 
       {/* Features List */}
-      {currentSubscription.features && currentSubscription.features.length > 0 && (
+      {currentPlanFeatures && currentPlanFeatures.length > 0 && (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
           <h4 className="font-medium text-gray-900 mb-3">
             {t('subscription.management.includedFeatures')}
           </h4>
           <ul className="space-y-2">
-            {currentSubscription.features.map((feature, index) => (
+            {currentPlanFeatures.map((feature, index) => (
               <li key={index} className="flex items-center space-x-2 text-sm text-gray-700">
                 <CheckCircleIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
-                <span>{feature}</span>
+                <span>{typeof feature === 'string' && feature.startsWith('pricing.') ? t(feature) : feature}</span>
               </li>
             ))}
           </ul>
